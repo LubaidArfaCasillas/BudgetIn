@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iyas.budgetin.data.model.Transaction
@@ -45,10 +46,34 @@ fun AddTransactionScreen(
     onNavigateBack: () -> Unit,
     viewModel: TransactionViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
     val saveSuccess by viewModel.saveSuccess.collectAsState()
     val saveError by viewModel.saveError.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
+
+    LaunchedEffect(saveSuccess) {
+        if (saveSuccess) {
+            viewModel.resetSaveState()
+            onNavigateBack()
+        }
+    }
+
+    AddTransactionScreenContent(
+        onNavigateBack = onNavigateBack,
+        onSaveTransaction = viewModel::addTransaction,
+        saveError = saveError,
+        isSaving = isSaving
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddTransactionScreenContent(
+    onNavigateBack: () -> Unit,
+    onSaveTransaction: (Transaction) -> Unit,
+    saveError: String?,
+    isSaving: Boolean
+) {
+    val context = LocalContext.current
 
     var amount by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
@@ -69,13 +94,6 @@ fun AddTransactionScreen(
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
     )
-
-    LaunchedEffect(saveSuccess) {
-        if (saveSuccess) {
-            viewModel.resetSaveState()
-            onNavigateBack()
-        }
-    }
 
     val categories = if (selectedType == TransactionType.INCOME) INCOME_CATEGORIES else EXPENSE_CATEGORIES
 
@@ -305,7 +323,7 @@ fun AddTransactionScreen(
                     val amt = amount.toDoubleOrNull()
                     if (amt == null || amt <= 0) { amountError = true; return@Button }
                     if (selectedCategory.isBlank()) { categoryError = true; return@Button }
-                    viewModel.addTransaction(
+                    onSaveTransaction(
                         Transaction(
                             amount = amt,
                             type = selectedType,
@@ -412,5 +430,18 @@ fun CategoryChip(
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddTransactionScreenPreview() {
+    BudgetInTheme(darkTheme = true) {
+        AddTransactionScreenContent(
+            onNavigateBack = {},
+            onSaveTransaction = {},
+            saveError = null,
+            isSaving = false
+        )
     }
 }

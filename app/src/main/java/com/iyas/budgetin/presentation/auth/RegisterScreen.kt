@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.iyas.budgetin.ui.theme.*
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
@@ -40,15 +41,36 @@ fun RegisterScreen(
     viewModel: AuthViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    
+    RegisterScreenContent(
+        uiState = uiState,
+        onNavigateToLogin = onNavigateToLogin,
+        onRegisterSuccess = onRegisterSuccess,
+        onRegister = viewModel::register,
+        onClearError = viewModel::clearError
+    )
+}
+
+@Composable
+fun RegisterScreenContent(
+    uiState: AuthUiState,
+    onNavigateToLogin: () -> Unit,
+    onRegisterSuccess: () -> Unit,
+    onRegister: (String, String, String) -> Unit,
+    onClearError: () -> Unit,
+    animateEntry: Boolean = true
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
-    var visible by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(!animateEntry) }
     val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(Unit) { delay(100); visible = true }
+    if (animateEntry) {
+        LaunchedEffect(Unit) { delay(100); visible = true }
+    }
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) onRegisterSuccess()
     }
@@ -133,7 +155,7 @@ fun RegisterScreen(
 
                         BudgetTextField(
                             value = email,
-                            onValueChange = { email = it; viewModel.clearError() },
+                            onValueChange = { email = it; onClearError() },
                             label = "Email",
                             leadingIcon = Icons.Default.Email,
                             keyboardType = KeyboardType.Email,
@@ -145,7 +167,7 @@ fun RegisterScreen(
 
                         BudgetTextField(
                             value = password,
-                            onValueChange = { password = it; viewModel.clearError() },
+                            onValueChange = { password = it; onClearError() },
                             label = "Password",
                             leadingIcon = Icons.Default.Lock,
                             keyboardType = KeyboardType.Password,
@@ -160,12 +182,12 @@ fun RegisterScreen(
 
                         BudgetTextField(
                             value = confirmPassword,
-                            onValueChange = { confirmPassword = it; viewModel.clearError() },
+                            onValueChange = { confirmPassword = it; onClearError() },
                             label = "Konfirmasi Password",
                             leadingIcon = Icons.Default.Lock,
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done,
-                            onImeAction = { focusManager.clearFocus(); viewModel.register(email, password, confirmPassword) },
+                            onImeAction = { focusManager.clearFocus(); onRegister(email, password, confirmPassword) },
                             isPassword = true,
                             passwordVisible = confirmPasswordVisible,
                             onTogglePasswordVisibility = { confirmPasswordVisible = !confirmPasswordVisible }
@@ -189,7 +211,7 @@ fun RegisterScreen(
                         Spacer(Modifier.height(24.dp))
 
                         Button(
-                            onClick = { focusManager.clearFocus(); viewModel.register(email, password, confirmPassword) },
+                            onClick = { focusManager.clearFocus(); onRegister(email, password, confirmPassword) },
                             modifier = Modifier.fillMaxWidth().height(54.dp),
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
@@ -238,5 +260,22 @@ fun RegisterScreen(
                 Spacer(Modifier.height(40.dp))
             }
         }
+    }
+}
+
+
+
+@Preview(showBackground = true)
+@Composable
+fun RegisterScreenPreview() {
+    BudgetInTheme {
+        RegisterScreenContent(
+            uiState = AuthUiState(),
+            onNavigateToLogin = {},
+            onRegisterSuccess = {},
+            onRegister = { _, _, _ -> },
+            onClearError = {},
+            animateEntry = false
+        )
     }
 }

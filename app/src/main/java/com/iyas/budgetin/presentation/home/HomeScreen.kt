@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
@@ -47,6 +48,32 @@ fun HomeScreen(
     val uiState by homeViewModel.uiState.collectAsState()
     val auth = FirebaseAuth.getInstance()
     val userEmail = auth.currentUser?.email ?: ""
+
+    HomeScreenContent(
+        uiState = uiState,
+        userEmail = userEmail,
+        onNavigateToAdd = onNavigateToAdd,
+        onNavigateToHistory = onNavigateToHistory,
+        onNavigateToCharts = onNavigateToCharts,
+        onLogout = onLogout,
+        onLogoutConfirmed = {
+            authViewModel.logout()
+            onLogout()
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreenContent(
+    uiState: HomeUiState,
+    userEmail: String,
+    onNavigateToAdd: () -> Unit,
+    onNavigateToHistory: () -> Unit,
+    onNavigateToCharts: () -> Unit,
+    onLogout: () -> Unit,
+    onLogoutConfirmed: () -> Unit
+) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     if (showLogoutDialog) {
@@ -58,8 +85,7 @@ fun HomeScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showLogoutDialog = false
-                    authViewModel.logout()
-                    onLogout()
+                    onLogoutConfirmed()
                 }) {
                     Text("Keluar", color = ExpenseRed, fontWeight = FontWeight.SemiBold)
                 }
@@ -462,6 +488,35 @@ fun BottomNavigationBar(
                 unselectedTextColor = TextSecondary,
                 indicatorColor = GreenPrimary.copy(alpha = 0.15f)
             )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    val sampleTransactions = listOf(
+        Transaction(id = "1", amount = 5000000.0, type = TransactionType.INCOME, category = "Gaji", date = System.currentTimeMillis(), note = "Gaji bulanan"),
+        Transaction(id = "2", amount = 150000.0, type = TransactionType.EXPENSE, category = "Makan & Minum", date = System.currentTimeMillis(), note = "Makan siang"),
+        Transaction(id = "3", amount = 500000.0, type = TransactionType.EXPENSE, category = "Transportasi", date = System.currentTimeMillis(), note = "Bensin"),
+        Transaction(id = "4", amount = 200000.0, type = TransactionType.INCOME, category = "Freelance", date = System.currentTimeMillis(), note = "Project desain"),
+        Transaction(id = "5", amount = 75000.0, type = TransactionType.EXPENSE, category = "Hiburan", date = System.currentTimeMillis(), note = "Nonton bioskop")
+    )
+    BudgetInTheme(darkTheme = true) {
+        HomeScreenContent(
+            uiState = HomeUiState(
+                transactions = sampleTransactions,
+                balance = 4475000.0,
+                totalIncome = 5200000.0,
+                totalExpense = 725000.0,
+                isLoading = false
+            ),
+            userEmail = "user@budgetin.com",
+            onNavigateToAdd = {},
+            onNavigateToHistory = {},
+            onNavigateToCharts = {},
+            onLogout = {},
+            onLogoutConfirmed = {}
         )
     }
 }

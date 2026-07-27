@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.iyas.budgetin.ui.theme.*
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
@@ -45,13 +46,34 @@ fun LoginScreen(
     viewModel: AuthViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    
+    LoginScreenContent(
+        uiState = uiState,
+        onNavigateToRegister = onNavigateToRegister,
+        onLoginSuccess = onLoginSuccess,
+        onLogin = viewModel::login,
+        onClearError = viewModel::clearError
+    )
+}
+
+@Composable
+fun LoginScreenContent(
+    uiState: AuthUiState,
+    onNavigateToRegister: () -> Unit,
+    onLoginSuccess: () -> Unit,
+    onLogin: (String, String) -> Unit,
+    onClearError: () -> Unit,
+    animateEntry: Boolean = true
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var visible by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(!animateEntry) }
     val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(Unit) { delay(100); visible = true }
+    if (animateEntry) {
+        LaunchedEffect(Unit) { delay(100); visible = true }
+    }
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) onLoginSuccess()
@@ -123,10 +145,11 @@ fun LoginScreen(
                 Spacer(Modifier.height(24.dp))
 
                 Text(
-                    "BudgetIn",
-                    style = MaterialTheme.typography.displayMedium,
+                    text = "BudgetIn",
+                    style = MaterialTheme.typography.headlineLarge,
                     color = GreenPrimary,
-                    fontWeight = FontWeight.ExtraBold
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 1
                 )
                 Text(
                     "Kelola keuangan Anda dengan cerdas",
@@ -159,7 +182,7 @@ fun LoginScreen(
 
                         BudgetTextField(
                             value = email,
-                            onValueChange = { email = it; viewModel.clearError() },
+                            onValueChange = { email = it; onClearError() },
                             label = "Email",
                             leadingIcon = Icons.Default.Email,
                             keyboardType = KeyboardType.Email,
@@ -171,12 +194,12 @@ fun LoginScreen(
 
                         BudgetTextField(
                             value = password,
-                            onValueChange = { password = it; viewModel.clearError() },
+                            onValueChange = { password = it; onClearError() },
                             label = "Password",
                             leadingIcon = Icons.Default.Lock,
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done,
-                            onImeAction = { focusManager.clearFocus(); viewModel.login(email, password) },
+                            onImeAction = { focusManager.clearFocus(); onLogin(email, password) },
                             isPassword = true,
                             passwordVisible = passwordVisible,
                             onTogglePasswordVisibility = { passwordVisible = !passwordVisible }
@@ -205,7 +228,7 @@ fun LoginScreen(
                         Spacer(Modifier.height(24.dp))
 
                         Button(
-                            onClick = { focusManager.clearFocus(); viewModel.login(email, password) },
+                            onClick = { focusManager.clearFocus(); onLogin(email, password) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(54.dp),
@@ -258,5 +281,22 @@ fun LoginScreen(
                 Spacer(Modifier.height(40.dp))
             }
         }
+    }
+}
+
+
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    BudgetInTheme {
+        LoginScreenContent(
+            uiState = AuthUiState(),
+            onNavigateToRegister = {},
+            onLoginSuccess = {},
+            onLogin = { _, _ -> },
+            onClearError = {},
+            animateEntry = false
+        )
     }
 }

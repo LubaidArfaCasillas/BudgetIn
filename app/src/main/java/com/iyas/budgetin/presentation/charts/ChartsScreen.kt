@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iyas.budgetin.presentation.home.BottomNavigationBar
@@ -47,6 +48,24 @@ fun ChartsScreen(
     viewModel: ChartsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    ChartsScreenContent(
+        uiState = uiState,
+        onNavigateToHome = onNavigateToHome,
+        onNavigateToHistory = onNavigateToHistory,
+        onNavigateToAdd = onNavigateToAdd,
+        onYearChange = viewModel::setYear
+    )
+}
+
+@Composable
+fun ChartsScreenContent(
+    uiState: ChartsUiState,
+    onNavigateToHome: () -> Unit,
+    onNavigateToHistory: () -> Unit,
+    onNavigateToAdd: () -> Unit,
+    onYearChange: (Int) -> Unit
+) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
     Scaffold(
@@ -96,7 +115,7 @@ fun ChartsScreen(
                         Text("Grafik Keuangan", style = MaterialTheme.typography.headlineMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
                         // Year selector
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(onClick = { viewModel.setYear(uiState.selectedYear - 1) }) {
+                            IconButton(onClick = { onYearChange(uiState.selectedYear - 1) }) {
                                 Text("<", color = GreenPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             }
                             Text(
@@ -106,7 +125,8 @@ fun ChartsScreen(
                                 style = MaterialTheme.typography.titleMedium
                             )
                             IconButton(
-                                onClick = { viewModel.setYear(uiState.selectedYear + 1) },
+
+                                onClick = { onYearChange(uiState.selectedYear + 1) },
                                 enabled = uiState.selectedYear < currentYear
                             ) {
                                 Text(">", color = if (uiState.selectedYear < currentYear) GreenPrimary else TextSecondary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -407,5 +427,47 @@ fun CategoryLegendItem(share: CategoryShare, color: Color) {
                 Text("${share.percentage.toInt()}%", style = MaterialTheme.typography.labelSmall, color = color)
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChartsScreenPreview() {
+    val sampleMonthlyData = (0..11).map { i ->
+        val months = listOf("Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des")
+        MonthlyData(
+            month = months[i],
+            monthIndex = i,
+            income = listOf(5000000.0, 4500000.0, 6000000.0, 5500000.0, 7000000.0, 4000000.0, 5200000.0, 6500000.0, 5800000.0, 4800000.0, 5100000.0, 7500000.0)[i],
+            expense = listOf(3000000.0, 3500000.0, 4000000.0, 2800000.0, 4500000.0, 3200000.0, 3800000.0, 4200000.0, 3600000.0, 3100000.0, 3900000.0, 5000000.0)[i]
+        )
+    }
+    val sampleExpenseByCategory = listOf(
+        CategoryShare("Makan & Minum", 1500000.0, 35f),
+        CategoryShare("Transportasi", 800000.0, 19f),
+        CategoryShare("Belanja", 650000.0, 15f),
+        CategoryShare("Tagihan", 550000.0, 13f),
+        CategoryShare("Hiburan", 400000.0, 9f),
+        CategoryShare("Lainnya", 380000.0, 9f)
+    )
+    val sampleIncomeByCategory = listOf(
+        CategoryShare("Gaji", 5000000.0, 70f),
+        CategoryShare("Freelance", 1500000.0, 21f),
+        CategoryShare("Investasi", 650000.0, 9f)
+    )
+    BudgetInTheme(darkTheme = true) {
+        ChartsScreenContent(
+            uiState = ChartsUiState(
+                monthlyData = sampleMonthlyData,
+                expenseByCategory = sampleExpenseByCategory,
+                incomeByCategory = sampleIncomeByCategory,
+                selectedYear = 2026,
+                isLoading = false
+            ),
+            onNavigateToHome = {},
+            onNavigateToHistory = {},
+            onNavigateToAdd = {},
+            onYearChange = {}
+        )
     }
 }

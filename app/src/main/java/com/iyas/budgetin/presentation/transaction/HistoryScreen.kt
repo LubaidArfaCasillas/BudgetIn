@@ -17,6 +17,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
@@ -35,6 +36,29 @@ fun HistoryScreen(
     viewModel: TransactionViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    HistoryScreenContent(
+        uiState = uiState,
+        onNavigateToHome = onNavigateToHome,
+        onNavigateToCharts = onNavigateToCharts,
+        onNavigateToAdd = onNavigateToAdd,
+        onSearchChange = viewModel::setSearch,
+        onFilterChange = viewModel::setFilter,
+        onDeleteTransaction = viewModel::deleteTransaction
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HistoryScreenContent(
+    uiState: HistoryUiState,
+    onNavigateToHome: () -> Unit,
+    onNavigateToCharts: () -> Unit,
+    onNavigateToAdd: () -> Unit,
+    onSearchChange: (String) -> Unit,
+    onFilterChange: (FilterType) -> Unit,
+    onDeleteTransaction: (String) -> Unit
+) {
     var showDeleteDialog by remember { mutableStateOf<Transaction?>(null) }
 
     if (showDeleteDialog != null) {
@@ -45,7 +69,7 @@ fun HistoryScreen(
             text = { Text("Yakin ingin menghapus transaksi ini?", color = TextSecondary) },
             confirmButton = {
                 TextButton(onClick = {
-                    showDeleteDialog?.let { viewModel.deleteTransaction(it.id) }
+                    showDeleteDialog?.let { onDeleteTransaction(it.id) }
                     showDeleteDialog = null
                 }) {
                     Text("Hapus", color = ExpenseRed, fontWeight = FontWeight.SemiBold)
@@ -109,13 +133,13 @@ fun HistoryScreen(
             item {
                 OutlinedTextField(
                     value = uiState.searchQuery,
-                    onValueChange = { viewModel.setSearch(it) },
+                    onValueChange = { onSearchChange(it) },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
                     placeholder = { Text("Cari transaksi...", color = TextSecondary) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp)) },
                     trailingIcon = {
                         if (uiState.searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.setSearch("") }) {
+                            IconButton(onClick = { onSearchChange("") }) {
                                 Icon(Icons.Default.Clear, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
                             }
                         }
@@ -145,14 +169,14 @@ fun HistoryScreen(
                         FilterChipItem(
                             label = "Semua",
                             selected = uiState.filterType == FilterType.ALL,
-                            onClick = { viewModel.setFilter(FilterType.ALL) }
+                            onClick = { onFilterChange(FilterType.ALL) }
                         )
                     }
                     item {
                         FilterChipItem(
                             label = "Pemasukan",
                             selected = uiState.filterType == FilterType.INCOME,
-                            onClick = { viewModel.setFilter(FilterType.INCOME) },
+                            onClick = { onFilterChange(FilterType.INCOME) },
                             color = IncomeGreen
                         )
                     }
@@ -160,7 +184,7 @@ fun HistoryScreen(
                         FilterChipItem(
                             label = "Pengeluaran",
                             selected = uiState.filterType == FilterType.EXPENSE,
-                            onClick = { viewModel.setFilter(FilterType.EXPENSE) },
+                            onClick = { onFilterChange(FilterType.EXPENSE) },
                             color = ExpenseRed
                         )
                     }
@@ -294,5 +318,32 @@ fun MiniSummaryCard(label: String, amount: Double, color: Color, modifier: Modif
             Spacer(Modifier.height(4.dp))
             Text(formatCurrency(amount), style = MaterialTheme.typography.bodyMedium, color = color, fontWeight = FontWeight.Bold)
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HistoryScreenPreview() {
+    val sampleTransactions = listOf(
+        Transaction(id = "1", amount = 5000000.0, type = TransactionType.INCOME, category = "Gaji", date = System.currentTimeMillis(), note = "Gaji bulanan"),
+        Transaction(id = "2", amount = 150000.0, type = TransactionType.EXPENSE, category = "Makan & Minum", date = System.currentTimeMillis(), note = "Makan siang"),
+        Transaction(id = "3", amount = 500000.0, type = TransactionType.EXPENSE, category = "Transportasi", date = System.currentTimeMillis(), note = "Bensin"),
+        Transaction(id = "4", amount = 200000.0, type = TransactionType.INCOME, category = "Freelance", date = System.currentTimeMillis(), note = "Project desain"),
+        Transaction(id = "5", amount = 75000.0, type = TransactionType.EXPENSE, category = "Hiburan", date = System.currentTimeMillis(), note = "Nonton bioskop")
+    )
+    BudgetInTheme(darkTheme = true) {
+        HistoryScreenContent(
+            uiState = HistoryUiState(
+                allTransactions = sampleTransactions,
+                filteredTransactions = sampleTransactions,
+                isLoading = false
+            ),
+            onNavigateToHome = {},
+            onNavigateToCharts = {},
+            onNavigateToAdd = {},
+            onSearchChange = {},
+            onFilterChange = {},
+            onDeleteTransaction = {}
+        )
     }
 }
