@@ -42,7 +42,7 @@ fun BudgetTextField(
         modifier = Modifier.fillMaxWidth(),
         label = { Text(label, color = TextSecondary) },
         leadingIcon = {
-            Icon(leadingIcon, contentDescription = label, tint = GreenPrimary, modifier = Modifier.size(20.dp))
+            Icon(leadingIcon, contentDescription = label, tint = PrimaryBlue, modifier = Modifier.size(20.dp))
         },
         trailingIcon = if (isPassword) {
             {
@@ -62,14 +62,14 @@ fun BudgetTextField(
         singleLine = true,
         shape = RoundedCornerShape(14.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = GreenPrimary,
-            unfocusedBorderColor = Divider,
+            focusedBorderColor = PrimaryBlue,
+            unfocusedBorderColor = DividerColor,
             focusedTextColor = TextPrimary,
             unfocusedTextColor = TextPrimary,
-            cursorColor = GreenPrimary,
-            focusedContainerColor = CardLighter,
-            unfocusedContainerColor = CardLighter,
-            focusedLabelColor = GreenPrimary,
+            cursorColor = PrimaryBlue,
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            focusedLabelColor = PrimaryBlue,
             unfocusedLabelColor = TextSecondary,
         )
     )

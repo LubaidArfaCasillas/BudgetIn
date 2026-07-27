@@ -99,14 +99,14 @@ fun HomeScreenContent(
     }
 
     Scaffold(
-        containerColor = BackgroundDark,
+        containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
-                containerColor = GreenPrimary,
+                containerColor = PrimaryBlue,
                 contentColor = Color.White,
                 shape = RoundedCornerShape(18.dp),
-                modifier = Modifier.size(60.dp)
+                modifier = Modifier.size(60.dp).shadow(8.dp, RoundedCornerShape(18.dp), spotColor = PrimaryBlue)
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(28.dp))
             }
@@ -131,13 +131,7 @@ fun HomeScreenContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(Color(0xFF0D2137), BackgroundDark),
-                                start = Offset(0f, 0f),
-                                end = Offset(0f, Float.POSITIVE_INFINITY)
-                            )
-                        )
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                 ) {
                     Row(
@@ -147,14 +141,14 @@ fun HomeScreenContent(
                     ) {
                         Column {
                             Text(
-                                "Halo! 👋",
+                                "Hello,",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = TextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 userEmail.substringBefore("@").replaceFirstChar { it.uppercase() },
                                 style = MaterialTheme.typography.titleLarge,
-                                color = TextPrimary,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -163,10 +157,11 @@ fun HomeScreenContent(
                         IconButton(
                             onClick = { showLogoutDialog = true },
                             modifier = Modifier
-                                .background(CardDark, CircleShape)
+                                .background(MaterialTheme.colorScheme.surface, CircleShape)
+                                .shadow(2.dp, CircleShape)
                                 .size(44.dp)
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
@@ -193,7 +188,7 @@ fun HomeScreenContent(
                 ) {
                     Text("Transaksi Terbaru", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
                     TextButton(onClick = onNavigateToHistory) {
-                        Text("Lihat Semua", color = GreenPrimary, style = MaterialTheme.typography.bodyMedium)
+                        Text("See All", color = PrimaryBlue, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
@@ -201,7 +196,7 @@ fun HomeScreenContent(
             if (uiState.isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = GreenPrimary)
+                        CircularProgressIndicator(color = PrimaryBlue)
                     }
                 }
             } else if (uiState.transactions.isEmpty()) {
@@ -238,8 +233,8 @@ fun BalanceCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(16.dp, RoundedCornerShape(28.dp)),
-        shape = RoundedCornerShape(28.dp),
+            .shadow(12.dp, RoundedCornerShape(24.dp), spotColor = PrimaryBlue.copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Box(
@@ -247,7 +242,7 @@ fun BalanceCard(
                 .fillMaxWidth()
                 .background(
                     Brush.linearGradient(
-                        colors = listOf(Color(0xFF006B52), GreenPrimary, Color(0xFF00E5B0)),
+                        colors = listOf(SecondaryCyan, PrimaryBlue),
                         start = Offset(0f, 0f),
                         end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                     )
@@ -354,9 +349,10 @@ fun TransactionItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.05f))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = CardDark)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -413,9 +409,10 @@ fun EmptyTransactionCard(onAdd: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = 20.dp)
+            .shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = CardDark)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier.padding(40.dp),
@@ -429,7 +426,7 @@ fun EmptyTransactionCard(onAdd: () -> Unit) {
             Button(
                 onClick = onAdd,
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(6.dp))
@@ -447,8 +444,9 @@ fun BottomNavigationBar(
     onChartsClick: () -> Unit
 ) {
     NavigationBar(
-        containerColor = SurfaceDark,
-        tonalElevation = 0.dp
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 8.dp,
+        modifier = Modifier.shadow(16.dp, spotColor = Color.Black.copy(alpha = 0.1f))
     ) {
         NavigationBarItem(
             selected = currentRoute == "home",
@@ -456,11 +454,11 @@ fun BottomNavigationBar(
             icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
             label = { Text("Beranda") },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = GreenPrimary,
-                selectedTextColor = GreenPrimary,
+                selectedIconColor = PrimaryBlue,
+                selectedTextColor = PrimaryBlue,
                 unselectedIconColor = TextSecondary,
                 unselectedTextColor = TextSecondary,
-                indicatorColor = GreenPrimary.copy(alpha = 0.15f)
+                indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
             )
         )
         NavigationBarItem(
@@ -469,11 +467,11 @@ fun BottomNavigationBar(
             icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Riwayat") },
             label = { Text("Riwayat") },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = GreenPrimary,
-                selectedTextColor = GreenPrimary,
+                selectedIconColor = PrimaryBlue,
+                selectedTextColor = PrimaryBlue,
                 unselectedIconColor = TextSecondary,
                 unselectedTextColor = TextSecondary,
-                indicatorColor = GreenPrimary.copy(alpha = 0.15f)
+                indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
             )
         )
         NavigationBarItem(
@@ -482,11 +480,11 @@ fun BottomNavigationBar(
             icon = { Icon(Icons.Default.PieChart, contentDescription = "Grafik") },
             label = { Text("Grafik") },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = GreenPrimary,
-                selectedTextColor = GreenPrimary,
+                selectedIconColor = PrimaryBlue,
+                selectedTextColor = PrimaryBlue,
                 unselectedIconColor = TextSecondary,
                 unselectedTextColor = TextSecondary,
-                indicatorColor = GreenPrimary.copy(alpha = 0.15f)
+                indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
             )
         )
     }

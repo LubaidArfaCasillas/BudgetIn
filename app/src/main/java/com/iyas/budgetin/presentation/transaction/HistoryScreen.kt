@@ -64,7 +64,7 @@ fun HistoryScreenContent(
     if (showDeleteDialog != null) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = null },
-            containerColor = CardDark,
+            containerColor = MaterialTheme.colorScheme.surface,
             title = { Text("Hapus Transaksi", color = TextPrimary, fontWeight = FontWeight.Bold) },
             text = { Text("Yakin ingin menghapus transaksi ini?", color = TextSecondary) },
             confirmButton = {
@@ -82,11 +82,11 @@ fun HistoryScreenContent(
     }
 
     Scaffold(
-        containerColor = BackgroundDark,
+        containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
-                containerColor = GreenPrimary,
+                containerColor = PrimaryBlue,
                 contentColor = Color.White,
                 shape = RoundedCornerShape(18.dp),
                 modifier = Modifier.size(60.dp)
@@ -111,13 +111,7 @@ fun HistoryScreenContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            Brush.linearGradient(
-                                listOf(Color(0xFF0D2137), BackgroundDark),
-                                start = Offset(0f, 0f),
-                                end = Offset(0f, Float.POSITIVE_INFINITY)
-                            )
-                        )
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                 ) {
                     Text(
@@ -147,13 +141,13 @@ fun HistoryScreenContent(
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = GreenPrimary,
-                        unfocusedBorderColor = Divider,
+                        focusedBorderColor = PrimaryBlue,
+                        unfocusedBorderColor = DividerColor,
                         focusedTextColor = TextPrimary,
                         unfocusedTextColor = TextPrimary,
-                        cursorColor = GreenPrimary,
-                        focusedContainerColor = CardDark,
-                        unfocusedContainerColor = CardDark,
+                        cursorColor = PrimaryBlue,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     )
                 )
             }
@@ -207,7 +201,7 @@ fun HistoryScreenContent(
             if (uiState.isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = GreenPrimary)
+                        CircularProgressIndicator(color = PrimaryBlue)
                     }
                 }
             } else if (uiState.filteredTransactions.isEmpty()) {
@@ -230,7 +224,7 @@ fun HistoryScreenContent(
                         Text(
                             month,
                             style = MaterialTheme.typography.labelLarge,
-                            color = GreenPrimary,
+                            color = PrimaryBlue,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                         )
                     }
@@ -283,7 +277,7 @@ fun FilterChipItem(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
-    color: Color = GreenPrimary
+    color: Color = PrimaryBlue
 ) {
     FilterChip(
         selected = selected,
@@ -294,11 +288,11 @@ fun FilterChipItem(
             selectedContainerColor = color.copy(alpha = 0.2f),
             selectedLabelColor = color,
             selectedLeadingIconColor = color,
-            containerColor = CardDark,
+            containerColor = MaterialTheme.colorScheme.surface,
             labelColor = TextSecondary
         ),
         border = FilterChipDefaults.filterChipBorder(
-            borderColor = Divider,
+            borderColor = DividerColor,
             selectedBorderColor = color,
             enabled = true,
             selected = selected
@@ -331,7 +325,7 @@ fun HistoryScreenPreview() {
         Transaction(id = "4", amount = 200000.0, type = TransactionType.INCOME, category = "Freelance", date = System.currentTimeMillis(), note = "Project desain"),
         Transaction(id = "5", amount = 75000.0, type = TransactionType.EXPENSE, category = "Hiburan", date = System.currentTimeMillis(), note = "Nonton bioskop")
     )
-    BudgetInTheme(darkTheme = true) {
+    BudgetInTheme(darkTheme = false) {
         HistoryScreenContent(
             uiState = HistoryUiState(
                 allTransactions = sampleTransactions,

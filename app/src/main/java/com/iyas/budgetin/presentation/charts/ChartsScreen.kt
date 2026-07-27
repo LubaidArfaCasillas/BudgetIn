@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -69,11 +70,11 @@ fun ChartsScreenContent(
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
     Scaffold(
-        containerColor = BackgroundDark,
+        containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
-                containerColor = GreenPrimary,
+                containerColor = PrimaryBlue,
                 contentColor = Color.White,
                 shape = RoundedCornerShape(18.dp),
                 modifier = Modifier.size(60.dp)
@@ -98,13 +99,7 @@ fun ChartsScreenContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            Brush.linearGradient(
-                                listOf(Color(0xFF0D2137), BackgroundDark),
-                                start = Offset(0f, 0f),
-                                end = Offset(0f, Float.POSITIVE_INFINITY)
-                            )
-                        )
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                 ) {
                     Row(
@@ -116,11 +111,11 @@ fun ChartsScreenContent(
                         // Year selector
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(onClick = { onYearChange(uiState.selectedYear - 1) }) {
-                                Text("<", color = GreenPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                Text("<", color = PrimaryBlue, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             }
                             Text(
                                 uiState.selectedYear.toString(),
-                                color = GreenPrimary,
+                                color = PrimaryBlue,
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.titleMedium
                             )
@@ -129,7 +124,7 @@ fun ChartsScreenContent(
                                 onClick = { onYearChange(uiState.selectedYear + 1) },
                                 enabled = uiState.selectedYear < currentYear
                             ) {
-                                Text(">", color = if (uiState.selectedYear < currentYear) GreenPrimary else TextSecondary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                Text(">", color = if (uiState.selectedYear < currentYear) PrimaryBlue else TextSecondary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                             }
                         }
                     }
@@ -139,7 +134,7 @@ fun ChartsScreenContent(
             if (uiState.isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = GreenPrimary)
+                        CircularProgressIndicator(color = PrimaryBlue)
                     }
                 }
             } else {
@@ -235,9 +230,9 @@ fun DonutChart(
     }
 
     Card(
-        modifier = modifier,
+        modifier = modifier.shadow(4.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = CardDark)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier.padding(20.dp).fillMaxWidth(),
@@ -299,7 +294,7 @@ fun DonutChart(
                     }
                 }
                 if (data.size > 5) {
-                    Text("+ ${data.size - 5} lainnya", style = MaterialTheme.typography.labelSmall, color = GreenPrimary)
+                    Text("+ ${data.size - 5} lainnya", style = MaterialTheme.typography.labelSmall, color = PrimaryBlue)
                 }
             }
         }
@@ -319,9 +314,9 @@ fun MonthlyBarChart(
     }
 
     Card(
-        modifier = modifier,
+        modifier = modifier.shadow(4.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = CardDark)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text("Tren Bulanan", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
@@ -381,7 +376,7 @@ fun MonthlyBarChart(
                 }
             }
 
-            HorizontalDivider(color = Divider, modifier = Modifier.padding(top = 4.dp))
+            HorizontalDivider(color = DividerColor, modifier = Modifier.padding(top = 4.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
@@ -406,9 +401,9 @@ fun MonthlyBarChart(
 fun CategoryLegendItem(share: CategoryShare, color: Color) {
     val icon = CATEGORY_ICONS[share.category] ?: "📌"
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp).shadow(4.dp, RoundedCornerShape(14.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CardDark)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
@@ -455,7 +450,7 @@ fun ChartsScreenPreview() {
         CategoryShare("Freelance", 1500000.0, 21f),
         CategoryShare("Investasi", 650000.0, 9f)
     )
-    BudgetInTheme(darkTheme = true) {
+    BudgetInTheme(darkTheme = false) {
         ChartsScreenContent(
             uiState = ChartsUiState(
                 monthlyData = sampleMonthlyData,

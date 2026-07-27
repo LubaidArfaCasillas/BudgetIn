@@ -2,38 +2,36 @@ package com.iyas.budgetin.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Brand colors - Modern Green Finance
-val GreenPrimary = Color(0xFF00C896)
-val GreenSecondary = Color(0xFF00A37D)
-val GreenTertiary = Color(0xFF4ADEBD)
-val GreenDark = Color(0xFF007A5E)
+// Brand colors - Ocean Blue Theme
+val PrimaryBlue = Color(0xFF0072FF)
+val SecondaryCyan = Color(0xFF00C6FF)
+val BlueDark = Color(0xFF004CB3)
 
-// Income / Expense
-val IncomeGreen = Color(0xFF00C896)
-val ExpenseRed = Color(0xFFFF5370)
+// Income / Expense (Adjusted for light theme contrast)
+val IncomeGreen = Color(0xFF10B981) // Emerald Green
+val ExpenseRed = Color(0xFFEF4444)  // Rose Red
 
-// Background Shades
+// Background Shades for Clean & Minimalist
+val BackgroundLight = Color(0xFFF6F8FA) // Very light grey
+val SurfaceLight = Color(0xFFFFFFFF)    // Pure white cards
+val CardLight = Color(0xFFFFFFFF)
+
+// Keep Dark mode colors just in case, but they won't be default
 val BackgroundDark = Color(0xFF0F1923)
 val SurfaceDark = Color(0xFF1A2633)
 val CardDark = Color(0xFF1E2E3D)
-val CardLighter = Color(0xFF243447)
 
-// Light mode
-val BackgroundLight = Color(0xFFF0F5F2)
-val SurfaceLight = Color(0xFFFFFFFF)
-val CardLight = Color(0xFFFFFFFF)
+// Neutral Text Colors
+val TextPrimary = Color(0xFF111827)   // Dark grey for better readability
+val TextSecondary = Color(0xFF6B7280) // Medium grey
+val DividerColor = Color(0xFFE5E7EB)       // Light grey divider
 
-// Neutral
-val TextPrimary = Color(0xFFECF0F1)
-val TextSecondary = Color(0xFF8FA5B8)
-val Divider = Color(0xFF2A3F52)
-
-// Chart colors
-val ChartColor1 = Color(0xFF00C896)
-val ChartColor2 = Color(0xFF3D9CF5)
-val ChartColor3 = Color(0xFFFF6B6B)
-val ChartColor4 = Color(0xFFFFD166)
-val ChartColor5 = Color(0xFFA78BFA)
-val ChartColor6 = Color(0xFFF97316)
-val ChartColor7 = Color(0xFF06B6D4)
-val ChartColor8 = Color(0xFFEC4899)
+// Chart colors (Vibrant for Light Theme)
+val ChartColor1 = Color(0xFF0072FF)
+val ChartColor2 = Color(0xFF00C6FF)
+val ChartColor3 = Color(0xFF10B981)
+val ChartColor4 = Color(0xFFF59E0B)
+val ChartColor5 = Color(0xFF8B5CF6)
+val ChartColor6 = Color(0xFFEC4899)
+val ChartColor7 = Color(0xFF14B8A6)
+val ChartColor8 = Color(0xFFF43F5E)

@@ -19,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -78,13 +79,7 @@ fun RegisterScreenContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(BackgroundDark, Color(0xFF0D2137)),
-                    start = Offset(0f, 0f),
-                    end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Box(
             modifier = Modifier
@@ -92,7 +87,7 @@ fun RegisterScreenContent(
                 .align(Alignment.TopEnd)
                 .offset(x = 80.dp, y = (-60).dp)
                 .background(
-                    Brush.radialGradient(colors = listOf(GreenPrimary.copy(alpha = 0.1f), Color.Transparent)),
+                    Brush.radialGradient(colors = listOf(PrimaryBlue.copy(alpha = 0.1f), Color.Transparent)),
                     shape = RoundedCornerShape(50)
                 )
         )
@@ -121,7 +116,7 @@ fun RegisterScreenContent(
                     modifier = Modifier
                         .size(72.dp)
                         .background(
-                            Brush.linearGradient(listOf(GreenPrimary, GreenSecondary)),
+                            Brush.linearGradient(listOf(PrimaryBlue, SecondaryCyan)),
                             RoundedCornerShape(22.dp)
                         ),
                     contentAlignment = Alignment.Center
@@ -146,10 +141,9 @@ fun RegisterScreenContent(
                 )
 
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().shadow(8.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardDark),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
 
@@ -222,7 +216,7 @@ fun RegisterScreenContent(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .background(
-                                        Brush.horizontalGradient(listOf(GreenPrimary, GreenSecondary)),
+                                        Brush.horizontalGradient(listOf(SecondaryCyan, PrimaryBlue)),
                                         RoundedCornerShape(16.dp)
                                     ),
                                 contentAlignment = Alignment.Center
@@ -254,7 +248,7 @@ fun RegisterScreenContent(
                 ) {
                     Text("Sudah punya akun? ", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
                     TextButton(onClick = onNavigateToLogin) {
-                        Text("Masuk", color = GreenPrimary, fontWeight = FontWeight.SemiBold)
+                        Text("Masuk", color = PrimaryBlue, fontWeight = FontWeight.SemiBold)
                     }
                 }
                 Spacer(Modifier.height(40.dp))

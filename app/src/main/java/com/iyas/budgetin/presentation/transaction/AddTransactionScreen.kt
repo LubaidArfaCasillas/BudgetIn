@@ -23,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -105,19 +106,13 @@ fun AddTransactionScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Top Bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(Color(0xFF0D2137), BackgroundDark),
-                        start = Offset(0f, 0f),
-                        end = Offset(0f, Float.POSITIVE_INFINITY)
-                    )
-                )
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -144,9 +139,9 @@ fun AddTransactionScreenContent(
 
             // Type Selector
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = CardDark)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Row(
                     modifier = Modifier.padding(8.dp).fillMaxWidth(),
@@ -175,9 +170,9 @@ fun AddTransactionScreenContent(
 
             // Amount Input
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = CardDark)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text("Nominal", style = MaterialTheme.typography.labelLarge, color = TextSecondary)
@@ -203,10 +198,10 @@ fun AddTransactionScreenContent(
                             isError = amountError,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = if (selectedType == TransactionType.INCOME) IncomeGreen else ExpenseRed,
-                                unfocusedBorderColor = Divider,
+                                unfocusedBorderColor = DividerColor,
                                 focusedTextColor = TextPrimary,
                                 unfocusedTextColor = TextPrimary,
-                                cursorColor = GreenPrimary,
+                                cursorColor = PrimaryBlue,
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,
                                 errorBorderColor = ExpenseRed
@@ -225,9 +220,9 @@ fun AddTransactionScreenContent(
 
             // Category Grid
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = CardDark)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text("Kategori", style = MaterialTheme.typography.labelLarge, color = TextSecondary)
@@ -257,9 +252,9 @@ fun AddTransactionScreenContent(
 
             // Date & Note
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = CardDark)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     // Date picker row
@@ -267,14 +262,14 @@ fun AddTransactionScreenContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
-                            .background(CardLighter)
+                            .background(MaterialTheme.colorScheme.background)
                             .clickable { datePicker.show() }
                             .padding(14.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Icon(Icons.Default.CalendarToday, contentDescription = null, tint = GreenPrimary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.CalendarToday, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(20.dp))
                             Text("Tanggal", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
                         }
                         Text(formatDate(selectedDate), color = TextPrimary, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
@@ -286,18 +281,18 @@ fun AddTransactionScreenContent(
                         onValueChange = { note = it },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Catatan (opsional)", color = TextSecondary) },
-                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null, tint = GreenPrimary, modifier = Modifier.size(20.dp)) },
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(20.dp)) },
                         maxLines = 3,
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = GreenPrimary,
-                            unfocusedBorderColor = Divider,
+                            focusedBorderColor = PrimaryBlue,
+                            unfocusedBorderColor = DividerColor,
                             focusedTextColor = TextPrimary,
                             unfocusedTextColor = TextPrimary,
-                            cursorColor = GreenPrimary,
-                            focusedContainerColor = CardLighter,
-                            unfocusedContainerColor = CardLighter,
-                            focusedLabelColor = GreenPrimary,
+                            cursorColor = PrimaryBlue,
+                            focusedContainerColor = MaterialTheme.colorScheme.background,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                            focusedLabelColor = PrimaryBlue,
                             unfocusedLabelColor = TextSecondary,
                         )
                     )
@@ -343,7 +338,7 @@ fun AddTransactionScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
-                            Brush.horizontalGradient(listOf(GreenPrimary, GreenSecondary)),
+                            Brush.horizontalGradient(listOf(SecondaryCyan, PrimaryBlue)),
                             RoundedCornerShape(18.dp)
                         ),
                     contentAlignment = Alignment.Center
@@ -413,7 +408,7 @@ fun CategoryChip(
             ),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (selected) color.copy(alpha = 0.15f) else CardLighter
+            containerColor = if (selected) color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.background
         )
     ) {
         Column(
@@ -436,7 +431,7 @@ fun CategoryChip(
 @Preview(showBackground = true)
 @Composable
 fun AddTransactionScreenPreview() {
-    BudgetInTheme(darkTheme = true) {
+    BudgetInTheme(darkTheme = false) {
         AddTransactionScreenContent(
             onNavigateBack = {},
             onSaveTransaction = {},
