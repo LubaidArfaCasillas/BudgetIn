@@ -8,35 +8,26 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.iyas.budgetin.ui.theme.*
+import com.iyas.budgetin.ui.components.neoBrutalism
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -85,31 +76,6 @@ fun LoginScreenContent(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Decorative glow circles
-        Box(
-            modifier = Modifier
-                .size(300.dp)
-                .offset(x = (-80).dp, y = (-60).dp)
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(PrimaryBlue.copy(alpha = 0.15f), Color.Transparent)
-                    ),
-                    shape = RoundedCornerShape(50)
-                )
-        )
-        Box(
-            modifier = Modifier
-                .size(250.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = 80.dp, y = 80.dp)
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(SecondaryCyan.copy(alpha = 0.12f), Color.Transparent)
-                    ),
-                    shape = RoundedCornerShape(50)
-                )
-        )
-
         AnimatedVisibility(
             visible = visible,
             enter = fadeIn(tween(600)) + slideInVertically(tween(600)) { it / 4 }
@@ -128,13 +94,11 @@ fun LoginScreenContent(
                 Box(
                     modifier = Modifier
                         .size(80.dp)
-                        .background(
-                            Brush.linearGradient(listOf(PrimaryBlue, SecondaryCyan)),
-                            RoundedCornerShape(24.dp)
-                        ),
+                        .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 6.dp, shadowColor = SolidBlack)
+                        .background(NeoPink, RoundedCornerShape(24.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("₿", fontSize = 40.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("₿", fontSize = 40.sp, color = Color.White, fontWeight = FontWeight.Black)
                 }
 
                 Spacer(Modifier.height(24.dp))
@@ -142,8 +106,8 @@ fun LoginScreenContent(
                 Text(
                     text = "BudgetIn",
                     style = MaterialTheme.typography.headlineLarge,
-                    color = PrimaryBlue,
-                    fontWeight = FontWeight.ExtraBold,
+                    color = SolidBlack,
+                    fontWeight = FontWeight.Black,
                     maxLines = 1
                 )
                 Text(
@@ -154,17 +118,18 @@ fun LoginScreenContent(
                     modifier = Modifier.padding(top = 4.dp, bottom = 40.dp)
                 )
 
-                Card(
-                    modifier = Modifier.fillMaxWidth().shadow(8.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 8.dp)
+                        .background(Color.White, RoundedCornerShape(24.dp))
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
                         Text(
                             "Masuk",
                             style = MaterialTheme.typography.headlineMedium,
                             color = TextPrimary,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Black
                         )
                         Text(
                             "Selamat datang kembali!",
@@ -183,7 +148,7 @@ fun LoginScreenContent(
                             onImeAction = { focusManager.moveFocus(FocusDirection.Down) }
                         )
 
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(16.dp))
 
                         BudgetTextField(
                             value = password,
@@ -200,74 +165,63 @@ fun LoginScreenContent(
 
                         // Error
                         AnimatedVisibility(visible = uiState.error != null) {
-                            Card(
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 12.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = ExpenseRed.copy(alpha = 0.12f)
-                                ),
-                                shape = RoundedCornerShape(12.dp)
+                                    .padding(top = 16.dp)
+                                    .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 2.dp)
+                                    .background(ExpenseRed.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
                             ) {
                                 Text(
                                     text = uiState.error ?: "",
                                     color = ExpenseRed,
                                     style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(12.dp)
                                 )
                             }
                         }
 
-                        Spacer(Modifier.height(24.dp))
+                        Spacer(Modifier.height(32.dp))
 
                         Button(
                             onClick = { focusManager.clearFocus(); onLogin(email, password) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(54.dp),
+                                .height(56.dp)
+                                .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                            colors = ButtonDefaults.buttonColors(containerColor = NeoYellow),
                             contentPadding = PaddingValues(0.dp),
                             enabled = !uiState.isLoading
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        Brush.horizontalGradient(listOf(SecondaryCyan, PrimaryBlue)),
-                                        RoundedCornerShape(16.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (uiState.isLoading) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        color = Color.White,
-                                        strokeWidth = 2.dp
-                                    )
-                                } else {
-                                    Text(
-                                        "Masuk",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White,
-                                        fontSize = 16.sp
-                                    )
-                                }
+                            if (uiState.isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = SolidBlack,
+                                    strokeWidth = 3.dp
+                                )
+                            } else {
+                                Text(
+                                    "Masuk",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Black,
+                                    color = SolidBlack
+                                )
                             }
                         }
                     }
                 }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(24.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Belum punya akun? ", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                    Text("Belum punya akun? ", color = TextSecondary, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                     TextButton(onClick = onNavigateToRegister) {
-                        Text("Daftar Sekarang", color = PrimaryBlue, fontWeight = FontWeight.SemiBold)
+                        Text("Daftar Sekarang", color = NeoPink, fontWeight = FontWeight.Black)
                     }
                 }
 
@@ -276,8 +230,6 @@ fun LoginScreenContent(
         }
     }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable
@@ -293,3 +245,4 @@ fun LoginScreenPreview() {
         )
     }
 }
+

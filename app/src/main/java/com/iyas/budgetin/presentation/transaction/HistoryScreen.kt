@@ -1,7 +1,10 @@
 package com.iyas.budgetin.presentation.transaction
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -13,17 +16,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
 import com.iyas.budgetin.presentation.home.BottomNavigationBar
 import com.iyas.budgetin.presentation.home.TransactionItem
 import com.iyas.budgetin.ui.theme.*
+import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.*
 import org.koin.androidx.compose.koinViewModel
 
@@ -64,19 +68,32 @@ fun HistoryScreenContent(
     if (showDeleteDialog != null) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = null },
-            containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text("Hapus Transaksi", color = TextPrimary, fontWeight = FontWeight.Bold) },
-            text = { Text("Yakin ingin menghapus transaksi ini?", color = TextSecondary) },
+            containerColor = Color.White,
+            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
+            title = { Text("Hapus Transaksi", color = SolidBlack, fontWeight = FontWeight.Black) },
+            text = { Text("Yakin ingin menghapus transaksi ini?", color = TextSecondary, fontWeight = FontWeight.Bold) },
             confirmButton = {
-                TextButton(onClick = {
-                    showDeleteDialog?.let { onDeleteTransaction(it.id) }
-                    showDeleteDialog = null
-                }) {
-                    Text("Hapus", color = ExpenseRed, fontWeight = FontWeight.SemiBold)
+                Button(
+                    onClick = {
+                        showDeleteDialog?.let { onDeleteTransaction(it.id) }
+                        showDeleteDialog = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
+                ) {
+                    Text("Hapus", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = null }) { Text("Batal", color = TextSecondary) }
+                OutlinedButton(
+                    onClick = { showDeleteDialog = null },
+                    border = BorderStroke(2.dp, SolidBlack),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
+                ) {
+                    Text("Batal", fontWeight = FontWeight.Bold)
+                }
             }
         )
     }
@@ -86,12 +103,14 @@ fun HistoryScreenContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
-                containerColor = PrimaryBlue,
-                contentColor = Color.White,
+                containerColor = NeoPink,
+                contentColor = SolidBlack,
                 shape = RoundedCornerShape(18.dp),
-                modifier = Modifier.size(60.dp)
+                modifier = Modifier
+                    .size(64.dp)
+                    .neoBrutalism(cornerRadius = 18.dp, shadowOffset = 4.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(28.dp))
+                Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(32.dp))
             }
         },
         bottomBar = {
@@ -117,8 +136,8 @@ fun HistoryScreenContent(
                     Text(
                         "Riwayat Transaksi",
                         style = MaterialTheme.typography.headlineMedium,
-                        color = TextPrimary,
-                        fontWeight = FontWeight.Bold
+                        color = SolidBlack,
+                        fontWeight = FontWeight.Black
                     )
                 }
             }
@@ -128,27 +147,30 @@ fun HistoryScreenContent(
                 OutlinedTextField(
                     value = uiState.searchQuery,
                     onValueChange = { onSearchChange(it) },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
-                    placeholder = { Text("Cari transaksi...", color = TextSecondary) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                    placeholder = { Text("Cari transaksi...", color = TextSecondary, fontWeight = FontWeight.Bold) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = SolidBlack, modifier = Modifier.size(20.dp)) },
                     trailingIcon = {
                         if (uiState.searchQuery.isNotEmpty()) {
                             IconButton(onClick = { onSearchChange("") }) {
-                                Icon(Icons.Default.Clear, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Default.Clear, contentDescription = null, tint = SolidBlack, modifier = Modifier.size(18.dp))
                             }
                         }
                     },
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = PrimaryBlue,
-                        unfocusedBorderColor = DividerColor,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary,
-                        cursorColor = PrimaryBlue,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    )
+                        focusedBorderColor = SolidBlack,
+                        unfocusedBorderColor = SolidBlack,
+                        focusedTextColor = SolidBlack,
+                        unfocusedTextColor = SolidBlack,
+                        cursorColor = SolidBlack,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                    ),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }
 
@@ -156,14 +178,15 @@ fun HistoryScreenContent(
             item {
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(vertical = 12.dp)
                 ) {
                     item {
                         FilterChipItem(
                             label = "Semua",
                             selected = uiState.filterType == FilterType.ALL,
-                            onClick = { onFilterChange(FilterType.ALL) }
+                            onClick = { onFilterChange(FilterType.ALL) },
+                            color = NeoTeal
                         )
                     }
                     item {
@@ -171,7 +194,7 @@ fun HistoryScreenContent(
                             label = "Pemasukan",
                             selected = uiState.filterType == FilterType.INCOME,
                             onClick = { onFilterChange(FilterType.INCOME) },
-                            color = IncomeGreen
+                            color = NeoYellow
                         )
                     }
                     item {
@@ -179,7 +202,7 @@ fun HistoryScreenContent(
                             label = "Pengeluaran",
                             selected = uiState.filterType == FilterType.EXPENSE,
                             onClick = { onFilterChange(FilterType.EXPENSE) },
-                            color = ExpenseRed
+                            color = NeoPurple
                         )
                     }
                 }
@@ -191,17 +214,17 @@ fun HistoryScreenContent(
                 val totalOut = uiState.filteredTransactions.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    MiniSummaryCard(label = "Pemasukan", amount = totalIn, color = IncomeGreen, modifier = Modifier.weight(1f))
-                    MiniSummaryCard(label = "Pengeluaran", amount = totalOut, color = ExpenseRed, modifier = Modifier.weight(1f))
+                    MiniSummaryCard(label = "Pemasukan", amount = totalIn, color = NeoYellow, modifier = Modifier.weight(1f))
+                    MiniSummaryCard(label = "Pengeluaran", amount = totalOut, color = NeoPurple, modifier = Modifier.weight(1f))
                 }
             }
 
             if (uiState.isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = PrimaryBlue)
+                        CircularProgressIndicator(color = NeoPink, strokeWidth = 4.dp)
                     }
                 }
             } else if (uiState.filteredTransactions.isEmpty()) {
@@ -211,9 +234,9 @@ fun HistoryScreenContent(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text("🔍", style = MaterialTheme.typography.displayMedium)
-                        Spacer(Modifier.height(12.dp))
-                        Text("Tidak ada transaksi", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
-                        Text("Coba ubah filter atau kata kunci pencarian", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                        Spacer(Modifier.height(16.dp))
+                        Text("Tidak ada transaksi", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
+                        Text("Coba ubah filter atau kata kunci pencarian", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
             } else {
@@ -223,8 +246,9 @@ fun HistoryScreenContent(
                     item {
                         Text(
                             month,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = PrimaryBlue,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = SolidBlack,
+                            fontWeight = FontWeight.Black,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                         )
                     }
@@ -243,8 +267,9 @@ fun HistoryScreenContent(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .padding(horizontal = 20.dp, vertical = 4.dp)
-                                        .background(ExpenseRed.copy(alpha = 0.15f), RoundedCornerShape(16.dp)),
+                                        .padding(horizontal = 20.dp, vertical = 6.dp)
+                                        .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp)
+                                        .background(ExpenseRed, RoundedCornerShape(16.dp)),
                                     contentAlignment = Alignment.CenterEnd
                                 ) {
                                     Row(
@@ -252,8 +277,8 @@ fun HistoryScreenContent(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = ExpenseRed, modifier = Modifier.size(22.dp))
-                                        Text("Hapus", color = ExpenseRed, fontWeight = FontWeight.SemiBold)
+                                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White, modifier = Modifier.size(24.dp))
+                                        Text("Hapus", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
                                     }
                                 }
                             },
@@ -262,7 +287,7 @@ fun HistoryScreenContent(
                         ) {
                             TransactionItem(
                                 transaction = transaction,
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
                             )
                         }
                     }
@@ -277,40 +302,36 @@ fun FilterChipItem(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
-    color: Color = PrimaryBlue
+    color: Color
 ) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = { Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal) },
-        shape = RoundedCornerShape(12.dp),
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = color.copy(alpha = 0.2f),
-            selectedLabelColor = color,
-            selectedLeadingIconColor = color,
-            containerColor = MaterialTheme.colorScheme.surface,
-            labelColor = TextSecondary
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            borderColor = DividerColor,
-            selectedBorderColor = color,
-            enabled = true,
-            selected = selected
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (selected) color else Color.White)
+            .clickable(onClick = onClick)
+            .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            label,
+            color = SolidBlack,
+            fontWeight = if (selected) FontWeight.Black else FontWeight.Bold,
+            fontSize = 14.sp
         )
-    )
+    }
 }
 
 @Composable
 fun MiniSummaryCard(label: String, amount: Double, color: Color, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.08f))
+    Box(
+        modifier = modifier
+            .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp)
+            .background(color, RoundedCornerShape(16.dp))
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = color.copy(alpha = 0.8f))
-            Spacer(Modifier.height(4.dp))
-            Text(formatCurrency(amount), style = MaterialTheme.typography.bodyMedium, color = color, fontWeight = FontWeight.Bold)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(label, style = MaterialTheme.typography.labelMedium, color = SolidBlack, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            Text(formatCurrency(amount), style = MaterialTheme.typography.titleMedium, color = SolidBlack, fontWeight = FontWeight.Black)
         }
     }
 }

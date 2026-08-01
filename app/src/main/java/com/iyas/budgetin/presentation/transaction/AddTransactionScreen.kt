@@ -3,6 +3,7 @@ package com.iyas.budgetin.presentation.transaction
 import android.app.DatePickerDialog
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,9 +24,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
 import com.iyas.budgetin.ui.theme.*
+import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.*
 import org.koin.androidx.compose.koinViewModel
 import java.util.*
@@ -113,18 +112,23 @@ fun AddTransactionScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(horizontal = 20.dp, vertical = 20.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimary)
+                IconButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier
+                        .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 2.dp)
+                        .background(Color.White, RoundedCornerShape(12.dp))
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SolidBlack)
                 }
                 Text(
                     "Tambah Transaksi",
                     style = MaterialTheme.typography.titleLarge,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 4.dp)
+                    color = SolidBlack,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.padding(start = 16.dp)
                 )
             }
         }
@@ -138,10 +142,11 @@ fun AddTransactionScreenContent(
             Spacer(Modifier.height(8.dp))
 
             // Type Selector
-            Card(
-                modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 4.dp)
+                    .background(Color.White, RoundedCornerShape(20.dp))
             ) {
                 Row(
                     modifier = Modifier.padding(8.dp).fillMaxWidth(),
@@ -169,20 +174,21 @@ fun AddTransactionScreenContent(
             Spacer(Modifier.height(16.dp))
 
             // Amount Input
-            Card(
-                modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 6.dp)
+                    .background(Color.White, RoundedCornerShape(20.dp))
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Nominal", style = MaterialTheme.typography.labelLarge, color = TextSecondary)
+                    Text("Nominal", style = MaterialTheme.typography.labelLarge, color = TextSecondary, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             "Rp",
                             style = MaterialTheme.typography.headlineMedium,
-                            color = if (selectedType == TransactionType.INCOME) IncomeGreen else ExpenseRed,
-                            fontWeight = FontWeight.Bold,
+                            color = if (selectedType == TransactionType.INCOME) NeoTeal else ExpenseRed,
+                            fontWeight = FontWeight.Black,
                             modifier = Modifier.padding(end = 8.dp)
                         )
                         OutlinedTextField(
@@ -192,26 +198,26 @@ fun AddTransactionScreenContent(
                                 amountError = false
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("0", style = MaterialTheme.typography.headlineMedium, color = TextSecondary) },
+                            placeholder = { Text("0", style = MaterialTheme.typography.headlineMedium, color = TextSecondary, fontWeight = FontWeight.Black) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                             isError = amountError,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = if (selectedType == TransactionType.INCOME) IncomeGreen else ExpenseRed,
-                                unfocusedBorderColor = DividerColor,
-                                focusedTextColor = TextPrimary,
-                                unfocusedTextColor = TextPrimary,
-                                cursorColor = PrimaryBlue,
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
+                                focusedBorderColor = if (selectedType == TransactionType.INCOME) NeoTeal else ExpenseRed,
+                                unfocusedBorderColor = SolidBlack,
+                                focusedTextColor = SolidBlack,
+                                unfocusedTextColor = SolidBlack,
+                                cursorColor = SolidBlack,
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
                                 errorBorderColor = ExpenseRed
                             ),
-                            textStyle = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                            textStyle = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
                             shape = RoundedCornerShape(12.dp)
                         )
                     }
                     if (amountError) {
-                        Text("Masukkan nominal transaksi", color = ExpenseRed, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 4.dp))
+                        Text("Masukkan nominal transaksi", color = ExpenseRed, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
             }
@@ -219,15 +225,16 @@ fun AddTransactionScreenContent(
             Spacer(Modifier.height(16.dp))
 
             // Category Grid
-            Card(
-                modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 6.dp)
+                    .background(Color.White, RoundedCornerShape(20.dp))
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Kategori", style = MaterialTheme.typography.labelLarge, color = TextSecondary)
+                    Text("Kategori", style = MaterialTheme.typography.labelLarge, color = TextSecondary, fontWeight = FontWeight.Bold)
                     if (categoryError) {
-                        Text("Pilih kategori", color = ExpenseRed, style = MaterialTheme.typography.bodySmall)
+                        Text("Pilih kategori", color = ExpenseRed, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                     }
                     Spacer(Modifier.height(12.dp))
                     LazyVerticalGrid(
@@ -251,28 +258,30 @@ fun AddTransactionScreenContent(
             Spacer(Modifier.height(16.dp))
 
             // Date & Note
-            Card(
-                modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 6.dp)
+                    .background(Color.White, RoundedCornerShape(20.dp))
             ) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     // Date picker row
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
                             .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.background)
+                            .background(Color.White)
                             .clickable { datePicker.show() }
                             .padding(14.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Icon(Icons.Default.CalendarToday, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(20.dp))
-                            Text("Tanggal", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                            Icon(Icons.Default.CalendarToday, contentDescription = null, tint = SolidBlack, modifier = Modifier.size(20.dp))
+                            Text("Tanggal", color = TextSecondary, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                         }
-                        Text(formatDate(selectedDate), color = TextPrimary, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
+                        Text(formatDate(selectedDate), color = SolidBlack, fontWeight = FontWeight.Black, style = MaterialTheme.typography.bodyMedium)
                     }
 
                     // Note
@@ -280,19 +289,19 @@ fun AddTransactionScreenContent(
                         value = note,
                         onValueChange = { note = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Catatan (opsional)", color = TextSecondary) },
-                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(20.dp)) },
+                        label = { Text("Catatan (opsional)", color = TextSecondary, fontWeight = FontWeight.Bold) },
+                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null, tint = SolidBlack, modifier = Modifier.size(20.dp)) },
                         maxLines = 3,
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = PrimaryBlue,
-                            unfocusedBorderColor = DividerColor,
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary,
-                            cursorColor = PrimaryBlue,
-                            focusedContainerColor = MaterialTheme.colorScheme.background,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                            focusedLabelColor = PrimaryBlue,
+                            focusedBorderColor = SolidBlack,
+                            unfocusedBorderColor = SolidBlack,
+                            focusedTextColor = SolidBlack,
+                            unfocusedTextColor = SolidBlack,
+                            cursorColor = SolidBlack,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedLabelColor = SolidBlack,
                             unfocusedLabelColor = TextSecondary,
                         )
                     )
@@ -301,12 +310,14 @@ fun AddTransactionScreenContent(
 
             // Error
             AnimatedVisibility(visible = saveError != null) {
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                    colors = CardDefaults.cardColors(containerColor = ExpenseRed.copy(alpha = 0.12f)),
-                    shape = RoundedCornerShape(12.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 2.dp)
+                        .background(ExpenseRed.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
                 ) {
-                    Text(saveError ?: "", color = ExpenseRed, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
+                    Text(saveError ?: "", color = ExpenseRed, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(12.dp))
                 }
             }
 
@@ -328,28 +339,21 @@ fun AddTransactionScreenContent(
                         )
                     )
                 },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(18.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = NeoTeal),
                 contentPadding = PaddingValues(0.dp),
                 enabled = !isSaving
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.horizontalGradient(listOf(SecondaryCyan, PrimaryBlue)),
-                            RoundedCornerShape(18.dp)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isSaving) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
-                    } else {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Icon(Icons.Default.Save, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                            Text("Simpan Transaksi", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 16.sp)
-                        }
+                if (isSaving) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = SolidBlack, strokeWidth = 3.dp)
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Icon(Icons.Default.Save, contentDescription = null, tint = SolidBlack, modifier = Modifier.size(20.dp))
+                        Text("Simpan Transaksi", fontWeight = FontWeight.Black, color = SolidBlack, fontSize = 16.sp)
                     }
                 }
             }
@@ -368,22 +372,24 @@ fun TypeButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val color = if (isExpense) ExpenseRed else IncomeGreen
+    val color = if (isExpense) ExpenseRed else NeoTeal
     val bgColor = if (selected) color else Color.Transparent
-    val textColor = if (selected) Color.White else TextSecondary
+    val textColor = if (selected) if(isExpense) Color.White else SolidBlack else TextSecondary
 
-    Card(
-        modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor)
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(bgColor)
+            .clickable(onClick = onClick)
+            .then(if (selected) Modifier.border(2.dp, SolidBlack, RoundedCornerShape(14.dp)) else Modifier)
     ) {
         Row(
             modifier = Modifier.padding(vertical = 14.dp).fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(emoji, fontSize = 16.sp, color = textColor, modifier = Modifier.padding(end = 6.dp))
-            Text(text, style = MaterialTheme.typography.bodyMedium, color = textColor, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
+            Text(emoji, fontSize = 16.sp, color = textColor, modifier = Modifier.padding(end = 6.dp), fontWeight = FontWeight.Black)
+            Text(text, style = MaterialTheme.typography.bodyMedium, color = textColor, fontWeight = if (selected) FontWeight.Black else FontWeight.Bold)
         }
     }
 }
@@ -395,21 +401,16 @@ fun CategoryChip(
     type: TransactionType,
     onClick: () -> Unit
 ) {
-    val color = if (type == TransactionType.INCOME) IncomeGreen else ExpenseRed
+    val color = if (type == TransactionType.INCOME) NeoTeal else NeoPink
     val icon = CATEGORY_ICONS[category] ?: "📌"
 
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(if (selected) color else MaterialTheme.colorScheme.background)
             .clickable(onClick = onClick)
-            .then(
-                if (selected) Modifier.border(2.dp, color, RoundedCornerShape(14.dp))
-                else Modifier
-            ),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (selected) color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.background
-        )
+            .border(2.dp, if(selected) SolidBlack else DividerColor, RoundedCornerShape(14.dp))
     ) {
         Column(
             modifier = Modifier.padding(10.dp).fillMaxWidth(),
@@ -419,9 +420,10 @@ fun CategoryChip(
             Text(
                 category,
                 style = MaterialTheme.typography.labelSmall,
-                color = if (selected) color else TextSecondary,
+                color = if (selected) SolidBlack else TextSecondary,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
+                fontWeight = if (selected) FontWeight.Black else FontWeight.Bold,
                 modifier = Modifier.padding(top = 4.dp)
             )
         }

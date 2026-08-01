@@ -11,21 +11,21 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val AppColorScheme = lightColorScheme(
-    primary = PrimaryBlue,
+    primary = NeoPink,
     onPrimary = Color.White,
-    secondary = SecondaryCyan,
-    onSecondary = Color.White,
-    tertiary = BlueDark,
+    secondary = NeoYellow,
+    onSecondary = SolidBlack,
+    tertiary = NeoTeal,
     background = BackgroundLight,
     onBackground = TextPrimary,
     surface = SurfaceLight,
     onSurface = TextPrimary,
     surfaceVariant = CardLight,
     onSurfaceVariant = TextSecondary,
-    outline = DividerColor,
+    outline = SolidBlack,
     error = ExpenseRed,
-    primaryContainer = SecondaryCyan.copy(alpha = 0.1f),
-    onPrimaryContainer = PrimaryBlue,
+    primaryContainer = NeoPink.copy(alpha = 0.1f),
+    onPrimaryContainer = NeoPink,
 )
 
 @Composable

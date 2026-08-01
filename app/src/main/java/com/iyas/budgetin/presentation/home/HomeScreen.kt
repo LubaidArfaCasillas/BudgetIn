@@ -2,7 +2,9 @@ package com.iyas.budgetin.presentation.home
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,9 +20,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,6 +31,7 @@ import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
 import com.iyas.budgetin.presentation.auth.AuthViewModel
 import com.iyas.budgetin.ui.theme.*
+import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.*
 import org.koin.androidx.compose.koinViewModel
 
@@ -79,20 +79,31 @@ fun HomeScreenContent(
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
-            containerColor = CardDark,
-            title = { Text("Keluar", color = TextPrimary, fontWeight = FontWeight.Bold) },
+            containerColor = Color.White,
+            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
+            title = { Text("Keluar", color = SolidBlack, fontWeight = FontWeight.Black) },
             text = { Text("Apakah Anda yakin ingin keluar?", color = TextSecondary) },
             confirmButton = {
-                TextButton(onClick = {
-                    showLogoutDialog = false
-                    onLogoutConfirmed()
-                }) {
-                    Text("Keluar", color = ExpenseRed, fontWeight = FontWeight.SemiBold)
+                Button(
+                    onClick = {
+                        showLogoutDialog = false
+                        onLogoutConfirmed()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
+                ) {
+                    Text("Keluar", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) {
-                    Text("Batal", color = TextSecondary)
+                OutlinedButton(
+                    onClick = { showLogoutDialog = false },
+                    border = BorderStroke(2.dp, SolidBlack),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
+                ) {
+                    Text("Batal", fontWeight = FontWeight.Bold)
                 }
             }
         )
@@ -103,12 +114,14 @@ fun HomeScreenContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
-                containerColor = PrimaryBlue,
+                containerColor = NeoPink,
                 contentColor = Color.White,
                 shape = RoundedCornerShape(18.dp),
-                modifier = Modifier.size(60.dp).shadow(8.dp, RoundedCornerShape(18.dp), spotColor = PrimaryBlue)
+                modifier = Modifier
+                    .size(64.dp)
+                    .neoBrutalism(cornerRadius = 18.dp, shadowOffset = 4.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(28.dp))
+                Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(32.dp), tint = SolidBlack)
             }
         },
         bottomBar = {
@@ -143,13 +156,14 @@ fun HomeScreenContent(
                             Text(
                                 "Hello,",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = TextSecondary,
+                                fontWeight = FontWeight.Bold
                             )
                             Text(
                                 userEmail.substringBefore("@").replaceFirstChar { it.uppercase() },
                                 style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = FontWeight.Bold,
+                                color = SolidBlack,
+                                fontWeight = FontWeight.Black,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -157,11 +171,11 @@ fun HomeScreenContent(
                         IconButton(
                             onClick = { showLogoutDialog = true },
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.surface, CircleShape)
-                                .shadow(2.dp, CircleShape)
+                                .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 2.dp)
+                                .background(Color.White, RoundedCornerShape(12.dp))
                                 .size(44.dp)
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = SolidBlack, modifier = Modifier.size(24.dp))
                         }
                     }
                 }
@@ -186,9 +200,9 @@ fun HomeScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Transaksi Terbaru", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                    Text("Transaksi Terbaru", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
                     TextButton(onClick = onNavigateToHistory) {
-                        Text("See All", color = PrimaryBlue, style = MaterialTheme.typography.bodyMedium)
+                        Text("See All", color = NeoPink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -196,7 +210,7 @@ fun HomeScreenContent(
             if (uiState.isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = PrimaryBlue)
+                        CircularProgressIndicator(color = NeoPink, strokeWidth = 4.dp)
                     }
                 }
             } else if (uiState.transactions.isEmpty()) {
@@ -207,7 +221,7 @@ fun HomeScreenContent(
                 items(uiState.transactions.take(5)) { transaction ->
                     TransactionItem(
                         transaction = transaction,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
                     )
                 }
             }
@@ -230,67 +244,41 @@ fun BalanceCard(
         label = "balance"
     )
 
-    Card(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(12.dp, RoundedCornerShape(24.dp), spotColor = PrimaryBlue.copy(alpha = 0.5f)),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+            .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 8.dp)
+            .background(NeoPink, RoundedCornerShape(24.dp))
+            .padding(24.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(SecondaryCyan, PrimaryBlue),
-                        start = Offset(0f, 0f),
-                        end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-                    )
-                )
-                .padding(24.dp)
-        ) {
-            // Decorative circles
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 30.dp, y = (-30).dp)
-                    .background(Color.White.copy(alpha = 0.08f), CircleShape)
+        Column {
+            Text("TOTAL BALANCE", style = MaterialTheme.typography.labelLarge, color = Color.White, fontWeight = FontWeight.Black)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                formatCurrency(animBalance.toDouble()),
+                style = MaterialTheme.typography.displayMedium,
+                color = Color.White,
+                fontWeight = FontWeight.Black
             )
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 10.dp, y = 30.dp)
-                    .background(Color.White.copy(alpha = 0.06f), CircleShape)
-            )
-
-            Column {
-                Text("Total Saldo", style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.8f))
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    formatCurrency(animBalance.toDouble()),
-                    style = MaterialTheme.typography.displayMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight.ExtraBold
+            
+            Spacer(Modifier.height(24.dp))
+            
+            // Stats
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                BalanceStatCard(
+                    label = "Pemasukan",
+                    amount = totalIncome,
+                    icon = "↑",
+                    modifier = Modifier.weight(1f),
+                    isIncome = true
                 )
-                Spacer(Modifier.height(24.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    BalanceStatCard(
-                        label = "Pemasukan",
-                        amount = totalIncome,
-                        icon = "↑",
-                        modifier = Modifier.weight(1f),
-                        isIncome = true
-                    )
-                    BalanceStatCard(
-                        label = "Pengeluaran",
-                        amount = totalExpense,
-                        icon = "↓",
-                        modifier = Modifier.weight(1f),
-                        isIncome = false
-                    )
-                }
+                BalanceStatCard(
+                    label = "Pengeluaran",
+                    amount = totalExpense,
+                    icon = "↓",
+                    modifier = Modifier.weight(1f),
+                    isIncome = false
+                )
             }
         }
     }
@@ -304,10 +292,10 @@ fun BalanceStatCard(
     modifier: Modifier = Modifier,
     isIncome: Boolean
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.15f))
+    Box(
+        modifier = modifier
+            .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp)
+            .background(if(isIncome) NeoYellow else Color.White, RoundedCornerShape(16.dp))
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -317,18 +305,19 @@ fun BalanceStatCard(
             Box(
                 modifier = Modifier
                     .size(32.dp)
-                    .background(Color.White.copy(alpha = 0.2f), CircleShape),
+                    .border(2.dp, SolidBlack, CircleShape)
+                    .background(if (isIncome) Color.White else NeoTeal, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(icon, fontSize = 16.sp, color = Color.White)
+                Text(icon, fontSize = 16.sp, color = SolidBlack, fontWeight = FontWeight.Black)
             }
             Column {
-                Text(label, style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.8f))
+                Text(label, style = MaterialTheme.typography.labelSmall, color = SolidBlack, fontWeight = FontWeight.Bold)
                 Text(
                     formatCurrency(amount),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
+                    color = SolidBlack,
+                    fontWeight = FontWeight.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -346,13 +335,12 @@ fun TransactionItem(
     val isIncome = transaction.type == TransactionType.INCOME
     val icon = CATEGORY_ICONS[transaction.category] ?: if (isIncome) "💰" else "💸"
 
-    Card(
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.05f))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp)
+            .background(Color.White, RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -361,21 +349,22 @@ fun TransactionItem(
         ) {
             Box(
                 modifier = Modifier
-                    .size(46.dp)
+                    .size(48.dp)
+                    .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
                     .background(
-                        if (isIncome) IncomeGreen.copy(alpha = 0.12f) else ExpenseRed.copy(alpha = 0.12f),
-                        RoundedCornerShape(14.dp)
+                        if (isIncome) NeoYellow else NeoPurple,
+                        RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(icon, fontSize = 22.sp)
+                Text(icon, fontSize = 24.sp)
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     transaction.category,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = SolidBlack,
+                    fontWeight = FontWeight.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -384,21 +373,17 @@ fun TransactionItem(
                         transaction.note,
                         style = MaterialTheme.typography.bodySmall,
                         color = TextSecondary,
+                        fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                Text(
-                    formatDate(transaction.date),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary.copy(alpha = 0.7f)
-                )
             }
             Text(
                 "${if (isIncome) "+" else "-"} ${formatCurrency(transaction.amount)}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isIncome) IncomeGreen else ExpenseRed,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleMedium,
+                color = if (isIncome) SolidBlack else ExpenseRed,
+                fontWeight = FontWeight.Black
             )
         }
     }
@@ -406,31 +391,31 @@ fun TransactionItem(
 
 @Composable
 fun EmptyTransactionCard(onAdd: () -> Unit) {
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
-            .shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 6.dp)
+            .background(Color.White, RoundedCornerShape(20.dp))
     ) {
         Column(
             modifier = Modifier.padding(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("💸", fontSize = 52.sp)
-            Spacer(Modifier.height(12.dp))
-            Text("Belum ada transaksi", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
-            Text("Tambahkan transaksi pertama Anda", style = MaterialTheme.typography.bodySmall, color = TextSecondary, modifier = Modifier.padding(top = 4.dp))
-            Spacer(Modifier.height(20.dp))
+            Text("💸", fontSize = 64.sp)
+            Spacer(Modifier.height(16.dp))
+            Text("Belum ada transaksi", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
+            Text("Tambahkan transaksi pertama Anda", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, modifier = Modifier.padding(top = 4.dp), fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(24.dp))
             Button(
                 onClick = onAdd,
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                colors = ButtonDefaults.buttonColors(containerColor = NeoPink),
+                modifier = Modifier.neoBrutalism(cornerRadius = 12.dp, shadowOffset = 4.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Tambah Transaksi")
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp), tint = SolidBlack)
+                Spacer(Modifier.width(8.dp))
+                Text("Tambah Transaksi", color = SolidBlack, fontWeight = FontWeight.Black)
             }
         }
     }
@@ -443,50 +428,79 @@ fun BottomNavigationBar(
     onHistoryClick: () -> Unit,
     onChartsClick: () -> Unit
 ) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 8.dp,
-        modifier = Modifier.shadow(16.dp, spotColor = Color.Black.copy(alpha = 0.1f))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 6.dp)
+            .background(Color.White, RoundedCornerShape(24.dp))
     ) {
-        NavigationBarItem(
-            selected = currentRoute == "home",
-            onClick = onHomeClick,
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-            label = { Text("Beranda") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = PrimaryBlue,
-                selectedTextColor = PrimaryBlue,
-                unselectedIconColor = TextSecondary,
-                unselectedTextColor = TextSecondary,
-                indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            NavItem(
+                icon = Icons.Default.Home,
+                label = "Home",
+                isSelected = currentRoute == "home",
+                onClick = onHomeClick,
+                activeColor = NeoPink
             )
-        )
-        NavigationBarItem(
-            selected = currentRoute == "history",
-            onClick = onHistoryClick,
-            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Riwayat") },
-            label = { Text("Riwayat") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = PrimaryBlue,
-                selectedTextColor = PrimaryBlue,
-                unselectedIconColor = TextSecondary,
-                unselectedTextColor = TextSecondary,
-                indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
+            NavItem(
+                icon = Icons.AutoMirrored.Filled.List,
+                label = "Riwayat",
+                isSelected = currentRoute == "history",
+                onClick = onHistoryClick,
+                activeColor = NeoYellow
             )
-        )
-        NavigationBarItem(
-            selected = currentRoute == "charts",
-            onClick = onChartsClick,
-            icon = { Icon(Icons.Default.PieChart, contentDescription = "Grafik") },
-            label = { Text("Grafik") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = PrimaryBlue,
-                selectedTextColor = PrimaryBlue,
-                unselectedIconColor = TextSecondary,
-                unselectedTextColor = TextSecondary,
-                indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
+            NavItem(
+                icon = Icons.Default.PieChart,
+                label = "Grafik",
+                isSelected = currentRoute == "charts",
+                onClick = onChartsClick,
+                activeColor = NeoTeal
             )
-        )
+        }
+    }
+}
+
+@Composable
+fun NavItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    activeColor: Color
+) {
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(if (isSelected) activeColor else Color.Transparent, RoundedCornerShape(12.dp))
+                .then(if (isSelected) Modifier.border(2.dp, SolidBlack, RoundedCornerShape(12.dp)) else Modifier),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                icon,
+                contentDescription = label,
+                tint = if (isSelected) SolidBlack else TextSecondary,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        if (isSelected) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(label, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = SolidBlack)
+        }
     }
 }
 
@@ -496,11 +510,9 @@ fun HomeScreenPreview() {
     val sampleTransactions = listOf(
         Transaction(id = "1", amount = 5000000.0, type = TransactionType.INCOME, category = "Gaji", date = System.currentTimeMillis(), note = "Gaji bulanan"),
         Transaction(id = "2", amount = 150000.0, type = TransactionType.EXPENSE, category = "Makan & Minum", date = System.currentTimeMillis(), note = "Makan siang"),
-        Transaction(id = "3", amount = 500000.0, type = TransactionType.EXPENSE, category = "Transportasi", date = System.currentTimeMillis(), note = "Bensin"),
-        Transaction(id = "4", amount = 200000.0, type = TransactionType.INCOME, category = "Freelance", date = System.currentTimeMillis(), note = "Project desain"),
-        Transaction(id = "5", amount = 75000.0, type = TransactionType.EXPENSE, category = "Hiburan", date = System.currentTimeMillis(), note = "Nonton bioskop")
+        Transaction(id = "3", amount = 500000.0, type = TransactionType.EXPENSE, category = "Transportasi", date = System.currentTimeMillis(), note = "Bensin")
     )
-    BudgetInTheme(darkTheme = true) {
+    BudgetInTheme(darkTheme = false) {
         HomeScreenContent(
             uiState = HomeUiState(
                 transactions = sampleTransactions,

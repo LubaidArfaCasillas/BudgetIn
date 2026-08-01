@@ -13,15 +13,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.iyas.budgetin.ui.theme.*
+import com.iyas.budgetin.ui.components.neoBrutalism
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -81,17 +78,6 @@ fun RegisterScreenContent(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Box(
-            modifier = Modifier
-                .size(300.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = 80.dp, y = (-60).dp)
-                .background(
-                    Brush.radialGradient(colors = listOf(PrimaryBlue.copy(alpha = 0.1f), Color.Transparent)),
-                    shape = RoundedCornerShape(50)
-                )
-        )
-
         AnimatedVisibility(
             visible = visible,
             enter = fadeIn(tween(600)) + slideInVertically(tween(600)) { it / 4 }
@@ -107,21 +93,26 @@ fun RegisterScreenContent(
 
                 // Back button
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    IconButton(onClick = onNavigateToLogin) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextSecondary)
+                    IconButton(
+                        onClick = onNavigateToLogin,
+                        modifier = Modifier
+                            .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 2.dp)
+                            .background(Color.White, RoundedCornerShape(12.dp))
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SolidBlack)
                     }
                 }
+                
+                Spacer(Modifier.height(16.dp))
 
                 Box(
                     modifier = Modifier
                         .size(72.dp)
-                        .background(
-                            Brush.linearGradient(listOf(PrimaryBlue, SecondaryCyan)),
-                            RoundedCornerShape(22.dp)
-                        ),
+                        .neoBrutalism(cornerRadius = 22.dp, shadowOffset = 6.dp)
+                        .background(NeoTeal, RoundedCornerShape(22.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("₿", fontSize = 34.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("₿", fontSize = 34.sp, color = Color.White, fontWeight = FontWeight.Black)
                 }
 
                 Spacer(Modifier.height(20.dp))
@@ -129,8 +120,8 @@ fun RegisterScreenContent(
                 Text(
                     "Buat Akun Baru",
                     style = MaterialTheme.typography.headlineLarge,
-                    color = TextPrimary,
-                    fontWeight = FontWeight.Bold
+                    color = SolidBlack,
+                    fontWeight = FontWeight.Black
                 )
                 Text(
                     "Mulai perjalanan keuangan Anda",
@@ -140,10 +131,11 @@ fun RegisterScreenContent(
                     modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
                 )
 
-                Card(
-                    modifier = Modifier.fillMaxWidth().shadow(8.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 8.dp)
+                        .background(Color.White, RoundedCornerShape(24.dp))
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
 
@@ -157,7 +149,7 @@ fun RegisterScreenContent(
                             onImeAction = { focusManager.moveFocus(FocusDirection.Down) }
                         )
 
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(16.dp))
 
                         BudgetTextField(
                             value = password,
@@ -172,7 +164,7 @@ fun RegisterScreenContent(
                             onTogglePasswordVisibility = { passwordVisible = !passwordVisible }
                         )
 
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(16.dp))
 
                         BudgetTextField(
                             value = confirmPassword,
@@ -188,67 +180,63 @@ fun RegisterScreenContent(
                         )
 
                         AnimatedVisibility(visible = uiState.error != null) {
-                            Card(
-                                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                                colors = CardDefaults.cardColors(containerColor = ExpenseRed.copy(alpha = 0.12f)),
-                                shape = RoundedCornerShape(12.dp)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 16.dp)
+                                    .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 2.dp)
+                                    .background(ExpenseRed.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
                             ) {
                                 Text(
                                     text = uiState.error ?: "",
                                     color = ExpenseRed,
                                     style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(12.dp)
                                 )
                             }
                         }
 
-                        Spacer(Modifier.height(24.dp))
+                        Spacer(Modifier.height(32.dp))
 
                         Button(
                             onClick = { focusManager.clearFocus(); onRegister(email, password, confirmPassword) },
-                            modifier = Modifier.fillMaxWidth().height(54.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                            colors = ButtonDefaults.buttonColors(containerColor = NeoPurple),
                             contentPadding = PaddingValues(0.dp),
                             enabled = !uiState.isLoading
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        Brush.horizontalGradient(listOf(SecondaryCyan, PrimaryBlue)),
-                                        RoundedCornerShape(16.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (uiState.isLoading) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        color = Color.White,
-                                        strokeWidth = 2.dp
-                                    )
-                                } else {
-                                    Text(
-                                        "Daftar",
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White,
-                                        fontSize = 16.sp
-                                    )
-                                }
+                            if (uiState.isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color.White,
+                                    strokeWidth = 3.dp
+                                )
+                            } else {
+                                Text(
+                                    "Daftar",
+                                    fontWeight = FontWeight.Black,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color.White
+                                )
                             }
                         }
                     }
                 }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(24.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Sudah punya akun? ", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                    Text("Sudah punya akun? ", color = TextSecondary, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                     TextButton(onClick = onNavigateToLogin) {
-                        Text("Masuk", color = PrimaryBlue, fontWeight = FontWeight.SemiBold)
+                        Text("Masuk", color = NeoPink, fontWeight = FontWeight.Black)
                     }
                 }
                 Spacer(Modifier.height(40.dp))
@@ -256,8 +244,6 @@ fun RegisterScreenContent(
         }
     }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable

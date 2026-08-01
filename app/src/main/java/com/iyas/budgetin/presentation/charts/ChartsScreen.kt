@@ -1,12 +1,13 @@
 package com.iyas.budgetin.presentation.charts
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,10 +17,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -31,13 +30,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iyas.budgetin.presentation.home.BottomNavigationBar
 import com.iyas.budgetin.ui.theme.*
+import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.formatCurrency
 import com.iyas.budgetin.utils.CATEGORY_ICONS
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
 val CHART_COLORS = listOf(
-    ChartColor1, ChartColor2, ChartColor3, ChartColor4,
+    NeoPink, NeoYellow, NeoPurple, NeoTeal,
     ChartColor5, ChartColor6, ChartColor7, ChartColor8
 )
 
@@ -74,12 +74,14 @@ fun ChartsScreenContent(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
-                containerColor = PrimaryBlue,
-                contentColor = Color.White,
+                containerColor = NeoPink,
+                contentColor = SolidBlack,
                 shape = RoundedCornerShape(18.dp),
-                modifier = Modifier.size(60.dp)
+                modifier = Modifier
+                    .size(64.dp)
+                    .neoBrutalism(cornerRadius = 18.dp, shadowOffset = 4.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(28.dp))
+                Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(32.dp))
             }
         },
         bottomBar = {
@@ -107,24 +109,23 @@ fun ChartsScreenContent(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Grafik Keuangan", style = MaterialTheme.typography.headlineMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+                        Text("Grafik Keuangan", style = MaterialTheme.typography.headlineMedium, color = SolidBlack, fontWeight = FontWeight.Black)
                         // Year selector
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(onClick = { onYearChange(uiState.selectedYear - 1) }) {
-                                Text("<", color = PrimaryBlue, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                Text("<", color = SolidBlack, fontWeight = FontWeight.Black, fontSize = 24.sp)
                             }
                             Text(
                                 uiState.selectedYear.toString(),
-                                color = PrimaryBlue,
-                                fontWeight = FontWeight.Bold,
+                                color = SolidBlack,
+                                fontWeight = FontWeight.Black,
                                 style = MaterialTheme.typography.titleMedium
                             )
                             IconButton(
-
                                 onClick = { onYearChange(uiState.selectedYear + 1) },
                                 enabled = uiState.selectedYear < currentYear
                             ) {
-                                Text(">", color = if (uiState.selectedYear < currentYear) PrimaryBlue else TextSecondary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                Text(">", color = if (uiState.selectedYear < currentYear) SolidBlack else TextSecondary, fontWeight = FontWeight.Black, fontSize = 24.sp)
                             }
                         }
                     }
@@ -134,7 +135,7 @@ fun ChartsScreenContent(
             if (uiState.isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = PrimaryBlue)
+                        CircularProgressIndicator(color = NeoPink, strokeWidth = 4.dp)
                     }
                 }
             } else {
@@ -154,9 +155,9 @@ fun ChartsScreenContent(
                         Spacer(Modifier.height(8.dp))
                         Text(
                             "Pengeluaran per Kategori",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary,
-                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = SolidBlack,
+                            fontWeight = FontWeight.Black,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                         )
                     }
@@ -179,9 +180,9 @@ fun ChartsScreenContent(
                         Spacer(Modifier.height(16.dp))
                         Text(
                             "Pemasukan per Kategori",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary,
-                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = SolidBlack,
+                            fontWeight = FontWeight.Black,
                             modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                         )
                     }
@@ -206,8 +207,8 @@ fun ChartsScreenContent(
                         ) {
                             Text("📊", style = MaterialTheme.typography.displayMedium)
                             Spacer(Modifier.height(12.dp))
-                            Text("Belum ada data", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
-                            Text("Tambahkan transaksi untuk melihat grafik", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                            Text("Belum ada data", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
+                            Text("Tambahkan transaksi untuk melihat grafik", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -229,10 +230,10 @@ fun DonutChart(
         animProgress.animateTo(1f, tween(900, easing = EaseOutCubic))
     }
 
-    Card(
-        modifier = modifier.shadow(4.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    Box(
+        modifier = modifier
+            .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 6.dp)
+            .background(Color.White, RoundedCornerShape(24.dp))
     ) {
         Row(
             modifier = Modifier.padding(20.dp).fillMaxWidth(),
@@ -265,12 +266,12 @@ fun DonutChart(
                     }
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(centerText, style = MaterialTheme.typography.labelSmall, color = TextSecondary, textAlign = TextAlign.Center)
+                    Text(centerText, style = MaterialTheme.typography.labelSmall, color = TextSecondary, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
                     Text(
                         formatCurrency(data.sumOf { it.amount }),
                         style = MaterialTheme.typography.labelLarge,
-                        color = TextPrimary,
-                        fontWeight = FontWeight.Bold,
+                        color = SolidBlack,
+                        fontWeight = FontWeight.Black,
                         textAlign = TextAlign.Center,
                         fontSize = 11.sp
                     )
@@ -284,17 +285,18 @@ fun DonutChart(
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Box(
                             modifier = Modifier
-                                .size(10.dp)
+                                .size(12.dp)
+                                .border(1.dp, SolidBlack, CircleShape)
                                 .background(colors[index % colors.size], CircleShape)
                         )
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(share.category, style = MaterialTheme.typography.labelSmall, color = TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text("${share.percentage.toInt()}%", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                            Text(share.category, style = MaterialTheme.typography.labelSmall, color = SolidBlack, maxLines = 1, overflow = TextOverflow.Ellipsis, fontWeight = FontWeight.Bold)
+                            Text("${share.percentage.toInt()}%", style = MaterialTheme.typography.labelSmall, color = TextSecondary, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
                 if (data.size > 5) {
-                    Text("+ ${data.size - 5} lainnya", style = MaterialTheme.typography.labelSmall, color = PrimaryBlue)
+                    Text("+ ${data.size - 5} lainnya", style = MaterialTheme.typography.labelSmall, color = SolidBlack, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -313,26 +315,26 @@ fun MonthlyBarChart(
         animProgress.animateTo(1f, tween(800, easing = EaseOutCubic))
     }
 
-    Card(
-        modifier = modifier.shadow(4.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    Box(
+        modifier = modifier
+            .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 6.dp)
+            .background(Color.White, RoundedCornerShape(24.dp))
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Text("Tren Bulanan", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(4.dp))
+            Text("Tren Bulanan", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
+            Spacer(Modifier.height(6.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Box(Modifier.size(8.dp).background(IncomeGreen, CircleShape))
-                    Text("Pemasukan", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Box(Modifier.size(10.dp).border(1.dp, SolidBlack, CircleShape).background(NeoYellow, CircleShape))
+                    Text("Pemasukan", style = MaterialTheme.typography.labelSmall, color = SolidBlack, fontWeight = FontWeight.Bold)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Box(Modifier.size(8.dp).background(ExpenseRed, CircleShape))
-                    Text("Pengeluaran", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Box(Modifier.size(10.dp).border(1.dp, SolidBlack, CircleShape).background(NeoPurple, CircleShape))
+                    Text("Pengeluaran", style = MaterialTheme.typography.labelSmall, color = SolidBlack, fontWeight = FontWeight.Bold)
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(24.dp))
 
             val chartHeight = 140.dp
             val barWidth = 10.dp
@@ -354,8 +356,8 @@ fun MonthlyBarChart(
                             modifier = Modifier
                                 .width(barWidth)
                                 .height(incomeH.coerceAtLeast(2.dp))
-                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(IncomeGreen)
+                                .border(1.dp, SolidBlack, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .background(NeoYellow, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
                         )
                     }
                     Column(
@@ -369,24 +371,25 @@ fun MonthlyBarChart(
                             modifier = Modifier
                                 .width(barWidth)
                                 .height(expH.coerceAtLeast(2.dp))
-                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(ExpenseRed)
+                                .border(1.dp, SolidBlack, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .background(NeoPurple, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
                         )
                     }
                 }
             }
 
-            HorizontalDivider(color = DividerColor, modifier = Modifier.padding(top = 4.dp))
+            HorizontalDivider(color = SolidBlack, thickness = 2.dp, modifier = Modifier.padding(top = 4.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 monthlyData.forEach { data ->
                     Text(
                         data.month,
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary,
+                        color = SolidBlack,
+                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.weight(2f),
                         fontSize = 9.sp
@@ -400,10 +403,12 @@ fun MonthlyBarChart(
 @Composable
 fun CategoryLegendItem(share: CategoryShare, color: Color) {
     val icon = CATEGORY_ICONS[share.category] ?: "📌"
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp).shadow(4.dp, RoundedCornerShape(14.dp), spotColor = Color.Black.copy(alpha = 0.05f)),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp)
+            .background(Color.White, RoundedCornerShape(16.dp))
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
@@ -411,15 +416,18 @@ fun CategoryLegendItem(share: CategoryShare, color: Color) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Box(
-                modifier = Modifier.size(40.dp).background(color.copy(alpha = 0.15f), RoundedCornerShape(12.dp)),
+                modifier = Modifier
+                    .size(44.dp)
+                    .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
+                    .background(color, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(icon, fontSize = 20.sp)
             }
-            Text(share.category, style = MaterialTheme.typography.bodyMedium, color = TextPrimary, modifier = Modifier.weight(1f))
+            Text(share.category, style = MaterialTheme.typography.titleMedium, color = SolidBlack, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
             Column(horizontalAlignment = Alignment.End) {
-                Text(formatCurrency(share.amount), style = MaterialTheme.typography.bodyMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
-                Text("${share.percentage.toInt()}%", style = MaterialTheme.typography.labelSmall, color = color)
+                Text(formatCurrency(share.amount), style = MaterialTheme.typography.titleSmall, color = SolidBlack, fontWeight = FontWeight.Black)
+                Text("${share.percentage.toInt()}%", style = MaterialTheme.typography.labelSmall, color = TextSecondary, fontWeight = FontWeight.Bold)
             }
         }
     }

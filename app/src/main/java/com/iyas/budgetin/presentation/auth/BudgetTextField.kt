@@ -1,6 +1,5 @@
 package com.iyas.budgetin.presentation.auth
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -10,9 +9,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
@@ -21,6 +18,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.iyas.budgetin.ui.theme.*
+import com.iyas.budgetin.ui.components.neoBrutalism
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,13 +34,15 @@ fun BudgetTextField(
     passwordVisible: Boolean = false,
     onTogglePasswordVisibility: () -> Unit = {}
 ) {
-    OutlinedTextField(
+    TextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .neoBrutalism(cornerRadius = 8.dp, shadowOffset = 4.dp),
         label = { Text(label, color = TextSecondary) },
         leadingIcon = {
-            Icon(leadingIcon, contentDescription = label, tint = PrimaryBlue, modifier = Modifier.size(20.dp))
+            Icon(leadingIcon, contentDescription = label, tint = SolidBlack, modifier = Modifier.size(24.dp))
         },
         trailingIcon = if (isPassword) {
             {
@@ -50,8 +50,8 @@ fun BudgetTextField(
                     Icon(
                         if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                         contentDescription = "Toggle",
-                        tint = TextSecondary,
-                        modifier = Modifier.size(20.dp)
+                        tint = SolidBlack,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
@@ -60,17 +60,16 @@ fun BudgetTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         keyboardActions = KeyboardActions(onAny = { onImeAction() }),
         singleLine = true,
-        shape = RoundedCornerShape(14.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = PrimaryBlue,
-            unfocusedBorderColor = DividerColor,
+        shape = RoundedCornerShape(8.dp),
+        colors = TextFieldDefaults.colors(
             focusedTextColor = TextPrimary,
             unfocusedTextColor = TextPrimary,
-            cursorColor = PrimaryBlue,
-            focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedContainerColor = MaterialTheme.colorScheme.background,
-            focusedLabelColor = PrimaryBlue,
-            unfocusedLabelColor = TextSecondary,
+            cursorColor = NeoPink,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
         )
     )
 }
