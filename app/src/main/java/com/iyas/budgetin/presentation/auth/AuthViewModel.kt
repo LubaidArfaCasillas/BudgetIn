@@ -2,6 +2,7 @@ package com.iyas.budgetin.presentation.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,8 @@ import com.google.firebase.auth.userProfileChangeRequest
 data class AuthUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    val isSuccess: Boolean = false
+    val isSuccess: Boolean = false,
+    val isAccountDeleted: Boolean = false
 )
 
 class AuthViewModel(
@@ -87,13 +89,32 @@ class AuthViewModel(
         auth.signOut()
     }
 
-    fun deleteAccount(onSuccess: () -> Unit) {
+    fun deleteAccount(password: String) {
+        val user = auth.currentUser
+        val email = user?.email
+        if (user == null || email == null) {
+            _uiState.value = AuthUiState(error = "Tidak ada pengguna yang login")
+            return
+        }
+        if (password.isBlank()) {
+            _uiState.value = AuthUiState(error = "Password tidak boleh kosong")
+            return
+        }
         viewModelScope.launch {
+            _uiState.value = AuthUiState(isLoading = true)
             try {
-                auth.currentUser?.delete()?.await()
-                onSuccess()
+                val credential = EmailAuthProvider.getCredential(email, password)
+                user.reauthenticate(credential).await()
+                user.delete().await()
+                _uiState.value = AuthUiState(isAccountDeleted = true)
             } catch (e: Exception) {
-                _uiState.value = AuthUiState(error = e.message ?: "Gagal menghapus akun")
+                val msg = when {
+                    e.message?.contains("password is invalid") == true -> "Password salah"
+                    e.message?.contains("wrong-password") == true -> "Password salah"
+                    e.message?.contains("INVALID_LOGIN_CREDENTIALS") == true -> "Password salah"
+                    else -> e.message ?: "Gagal menghapus akun"
+                }
+                _uiState.value = AuthUiState(error = msg)
             }
         }
     }
