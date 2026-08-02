@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.iyas.budgetin.presentation.account.AccountScreen
 import com.iyas.budgetin.presentation.auth.LoginScreen
 import com.iyas.budgetin.presentation.auth.RegisterScreen
 import com.iyas.budgetin.presentation.charts.ChartsScreen
@@ -58,9 +59,9 @@ fun BudgetInNavGraph(
                         launchSingleTop = true
                     }
                 },
-                onLogout = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0) { inclusive = true }
+                onNavigateToAccount = {
+                    navController.navigate(Screen.Account.route) {
+                        launchSingleTop = true
                     }
                 }
             )
@@ -70,7 +71,8 @@ fun BudgetInNavGraph(
             HistoryScreen(
                 onNavigateToHome = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
                 onNavigateToCharts = { navController.navigate(Screen.Charts.route) { launchSingleTop = true } },
-                onNavigateToAdd = { navController.navigate(Screen.AddTransaction.route) }
+                onNavigateToAdd = { navController.navigate(Screen.AddTransaction.route) },
+                onNavigateToAccount = { navController.navigate(Screen.Account.route) { launchSingleTop = true } }
             )
         }
 
@@ -78,7 +80,21 @@ fun BudgetInNavGraph(
             ChartsScreen(
                 onNavigateToHome = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
                 onNavigateToHistory = { navController.navigate(Screen.History.route) { launchSingleTop = true } },
-                onNavigateToAdd = { navController.navigate(Screen.AddTransaction.route) }
+                onNavigateToAdd = { navController.navigate(Screen.AddTransaction.route) },
+                onNavigateToAccount = { navController.navigate(Screen.Account.route) { launchSingleTop = true } }
+            )
+        }
+
+        composable(Screen.Account.route) {
+            AccountScreen(
+                onNavigateToHome = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
+                onNavigateToHistory = { navController.navigate(Screen.History.route) { launchSingleTop = true } },
+                onNavigateToCharts = { navController.navigate(Screen.Charts.route) { launchSingleTop = true } },
+                onLogout = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
 

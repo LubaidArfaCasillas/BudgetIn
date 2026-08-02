@@ -474,6 +474,7 @@ fun ChartsScreenPreview() {
             onNavigateToHome = {},
             onNavigateToHistory = {},
             onNavigateToAdd = {},
+            onNavigateToAccount = {},
             onYearChange = {}
         )
     }

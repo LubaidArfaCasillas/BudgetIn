@@ -2,7 +2,6 @@ package com.iyas.budgetin.presentation.home
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
-import com.iyas.budgetin.presentation.auth.AuthViewModel
 import com.iyas.budgetin.ui.theme.*
 import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.*
