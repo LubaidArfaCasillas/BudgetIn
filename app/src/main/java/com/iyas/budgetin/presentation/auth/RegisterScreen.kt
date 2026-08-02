@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,10 +55,11 @@ fun RegisterScreenContent(
     uiState: AuthUiState,
     onNavigateToLogin: () -> Unit,
     onRegisterSuccess: () -> Unit,
-    onRegister: (String, String, String) -> Unit,
+    onRegister: (String, String, String, String) -> Unit,
     onClearError: () -> Unit,
     animateEntry: Boolean = true
 ) {
+    var nickname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -140,6 +142,18 @@ fun RegisterScreenContent(
                     Column(modifier = Modifier.padding(24.dp)) {
 
                         BudgetTextField(
+                            value = nickname,
+                            onValueChange = { nickname = it; onClearError() },
+                            label = "Nama Panggilan",
+                            leadingIcon = Icons.Default.Person,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next,
+                            onImeAction = { focusManager.moveFocus(FocusDirection.Down) }
+                        )
+
+                        Spacer(Modifier.height(16.dp))
+
+                        BudgetTextField(
                             value = email,
                             onValueChange = { email = it; onClearError() },
                             label = "Email",
@@ -173,7 +187,7 @@ fun RegisterScreenContent(
                             leadingIcon = Icons.Default.Lock,
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done,
-                            onImeAction = { focusManager.clearFocus(); onRegister(email, password, confirmPassword) },
+                            onImeAction = { focusManager.clearFocus(); onRegister(email, password, confirmPassword, nickname) },
                             isPassword = true,
                             passwordVisible = confirmPasswordVisible,
                             onTogglePasswordVisibility = { confirmPasswordVisible = !confirmPasswordVisible }
@@ -200,7 +214,7 @@ fun RegisterScreenContent(
                         Spacer(Modifier.height(32.dp))
 
                         Button(
-                            onClick = { focusManager.clearFocus(); onRegister(email, password, confirmPassword) },
+                            onClick = { focusManager.clearFocus(); onRegister(email, password, confirmPassword, nickname) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
@@ -253,7 +267,7 @@ fun RegisterScreenPreview() {
             uiState = AuthUiState(),
             onNavigateToLogin = {},
             onRegisterSuccess = {},
-            onRegister = { _, _, _ -> },
+            onRegister = { _, _, _, _ -> },
             onClearError = {},
             animateEntry = false
         )

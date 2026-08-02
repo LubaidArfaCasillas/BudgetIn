@@ -46,6 +46,7 @@ fun ChartsScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToAdd: () -> Unit,
+    onNavigateToAccount: () -> Unit,
     viewModel: ChartsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -55,6 +56,7 @@ fun ChartsScreen(
         onNavigateToHome = onNavigateToHome,
         onNavigateToHistory = onNavigateToHistory,
         onNavigateToAdd = onNavigateToAdd,
+        onNavigateToAccount = onNavigateToAccount,
         onYearChange = viewModel::setYear
     )
 }
@@ -65,6 +67,7 @@ fun ChartsScreenContent(
     onNavigateToHome: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToAdd: () -> Unit,
+    onNavigateToAccount: () -> Unit,
     onYearChange: (Int) -> Unit
 ) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
@@ -89,7 +92,8 @@ fun ChartsScreenContent(
                 currentRoute = "charts",
                 onHomeClick = onNavigateToHome,
                 onHistoryClick = onNavigateToHistory,
-                onChartsClick = {}
+                onChartsClick = {},
+                onAccountClick = onNavigateToAccount
             )
         }
     ) { padding ->

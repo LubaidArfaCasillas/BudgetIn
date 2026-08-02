@@ -37,6 +37,7 @@ fun HistoryScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToCharts: () -> Unit,
     onNavigateToAdd: () -> Unit,
+    onNavigateToAccount: () -> Unit,
     viewModel: TransactionViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -46,6 +47,7 @@ fun HistoryScreen(
         onNavigateToHome = onNavigateToHome,
         onNavigateToCharts = onNavigateToCharts,
         onNavigateToAdd = onNavigateToAdd,
+        onNavigateToAccount = onNavigateToAccount,
         onSearchChange = viewModel::setSearch,
         onFilterChange = viewModel::setFilter,
         onDeleteTransaction = viewModel::deleteTransaction
@@ -59,6 +61,7 @@ fun HistoryScreenContent(
     onNavigateToHome: () -> Unit,
     onNavigateToCharts: () -> Unit,
     onNavigateToAdd: () -> Unit,
+    onNavigateToAccount: () -> Unit,
     onSearchChange: (String) -> Unit,
     onFilterChange: (FilterType) -> Unit,
     onDeleteTransaction: (String) -> Unit
@@ -118,7 +121,8 @@ fun HistoryScreenContent(
                 currentRoute = "history",
                 onHomeClick = onNavigateToHome,
                 onHistoryClick = {},
-                onChartsClick = onNavigateToCharts
+                onChartsClick = onNavigateToCharts,
+                onAccountClick = onNavigateToAccount
             )
         }
     ) { padding ->
@@ -356,6 +360,7 @@ fun HistoryScreenPreview() {
             onNavigateToHome = {},
             onNavigateToCharts = {},
             onNavigateToAdd = {},
+            onNavigateToAccount = {},
             onSearchChange = {},
             onFilterChange = {},
             onDeleteTransaction = {}

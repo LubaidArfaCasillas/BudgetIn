@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -41,25 +40,22 @@ fun HomeScreen(
     onNavigateToAdd: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToCharts: () -> Unit,
-    onLogout: () -> Unit,
-    homeViewModel: HomeViewModel = koinViewModel(),
-    authViewModel: AuthViewModel = koinViewModel()
+    onNavigateToAccount: () -> Unit,
+    homeViewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
     val auth = FirebaseAuth.getInstance()
     val userEmail = auth.currentUser?.email ?: ""
+    val displayName = auth.currentUser?.displayName
+    val userName = displayName.takeIf { !it.isNullOrBlank() } ?: userEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
 
     HomeScreenContent(
         uiState = uiState,
-        userEmail = userEmail,
+        userName = userName,
         onNavigateToAdd = onNavigateToAdd,
         onNavigateToHistory = onNavigateToHistory,
         onNavigateToCharts = onNavigateToCharts,
-        onLogout = onLogout,
-        onLogoutConfirmed = {
-            authViewModel.logout()
-            onLogout()
-        }
+        onNavigateToAccount = onNavigateToAccount
     )
 }
 
@@ -67,48 +63,12 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     uiState: HomeUiState,
-    userEmail: String,
+    userName: String,
     onNavigateToAdd: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToCharts: () -> Unit,
-    onLogout: () -> Unit,
-    onLogoutConfirmed: () -> Unit
+    onNavigateToAccount: () -> Unit
 ) {
-    var showLogoutDialog by remember { mutableStateOf(false) }
-
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            containerColor = Color.White,
-            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
-            title = { Text("Keluar", color = SolidBlack, fontWeight = FontWeight.Black) },
-            text = { Text("Apakah Anda yakin ingin keluar?", color = TextSecondary) },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showLogoutDialog = false
-                        onLogoutConfirmed()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
-                ) {
-                    Text("Keluar", color = Color.White, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { showLogoutDialog = false },
-                    border = BorderStroke(2.dp, SolidBlack),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
-                ) {
-                    Text("Batal", fontWeight = FontWeight.Bold)
-                }
-            }
-        )
-    }
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
@@ -129,7 +89,8 @@ fun HomeScreenContent(
                 currentRoute = "home",
                 onHomeClick = {},
                 onHistoryClick = onNavigateToHistory,
-                onChartsClick = onNavigateToCharts
+                onChartsClick = onNavigateToCharts,
+                onAccountClick = onNavigateToAccount
             )
         }
     ) { padding ->
@@ -147,36 +108,21 @@ fun HomeScreenContent(
                         .background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                "Hello,",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = TextSecondary,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                userEmail.substringBefore("@").replaceFirstChar { it.uppercase() },
-                                style = MaterialTheme.typography.titleLarge,
-                                color = SolidBlack,
-                                fontWeight = FontWeight.Black,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        IconButton(
-                            onClick = { showLogoutDialog = true },
-                            modifier = Modifier
-                                .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 2.dp)
-                                .background(Color.White, RoundedCornerShape(12.dp))
-                                .size(44.dp)
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = SolidBlack, modifier = Modifier.size(24.dp))
-                        }
+                    Column {
+                        Text(
+                            "Hello,",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            userName,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = SolidBlack,
+                            fontWeight = FontWeight.Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                 }
             }
@@ -426,7 +372,8 @@ fun BottomNavigationBar(
     currentRoute: String,
     onHomeClick: () -> Unit,
     onHistoryClick: () -> Unit,
-    onChartsClick: () -> Unit
+    onChartsClick: () -> Unit,
+    onAccountClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -462,6 +409,13 @@ fun BottomNavigationBar(
                 isSelected = currentRoute == "charts",
                 onClick = onChartsClick,
                 activeColor = NeoTeal
+            )
+            NavItem(
+                icon = Icons.Default.Person,
+                label = "Akun",
+                isSelected = currentRoute == "account",
+                onClick = onAccountClick,
+                activeColor = NeoPurple
             )
         }
     }
@@ -521,12 +475,11 @@ fun HomeScreenPreview() {
                 totalExpense = 725000.0,
                 isLoading = false
             ),
-            userEmail = "user@budgetin.com",
+            userName = "User",
             onNavigateToAdd = {},
             onNavigateToHistory = {},
             onNavigateToCharts = {},
-            onLogout = {},
-            onLogoutConfirmed = {}
+            onNavigateToAccount = {}
         )
     }
 }

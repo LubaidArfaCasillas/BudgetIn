@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.auth.userProfileChangeRequest
 
 data class AuthUiState(
     val isLoading: Boolean = false,
@@ -46,9 +47,9 @@ class AuthViewModel(
         }
     }
 
-    fun register(email: String, password: String, confirmPassword: String) {
-        if (email.isBlank() || password.isBlank()) {
-            _uiState.value = AuthUiState(error = "Email dan password tidak boleh kosong")
+    fun register(email: String, password: String, confirmPassword: String, nickname: String) {
+        if (email.isBlank() || password.isBlank() || nickname.isBlank()) {
+            _uiState.value = AuthUiState(error = "Email, password, dan nama tidak boleh kosong")
             return
         }
         if (password != confirmPassword) {
@@ -63,6 +64,13 @@ class AuthViewModel(
             _uiState.value = AuthUiState(isLoading = true)
             try {
                 auth.createUserWithEmailAndPassword(email.trim(), password).await()
+                val user = auth.currentUser
+                if (user != null) {
+                    val profileUpdates = userProfileChangeRequest {
+                        displayName = nickname.trim()
+                    }
+                    user.updateProfile(profileUpdates).await()
+                }
                 _uiState.value = AuthUiState(isSuccess = true)
             } catch (e: Exception) {
                 val msg = when {
