@@ -59,6 +59,11 @@ fun AccountScreen(
         onLogoutConfirmed = {
             authViewModel.logout()
             onLogout()
+        },
+        onDeleteAccount = {
+            authViewModel.deleteAccount {
+                onLogout()
+            }
         }
     )
 }
@@ -71,9 +76,11 @@ fun AccountScreenContent(
     onNavigateToHistory: () -> Unit,
     onNavigateToCharts: () -> Unit,
     onLogout: () -> Unit,
-    onLogoutConfirmed: () -> Unit
+    onLogoutConfirmed: () -> Unit,
+    onDeleteAccount: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     var visible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { visible = true }
@@ -101,6 +108,45 @@ fun AccountScreenContent(
             dismissButton = {
                 OutlinedButton(
                     onClick = { showLogoutDialog = false },
+                    border = BorderStroke(2.dp, SolidBlack),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
+                ) {
+                    Text("Batal", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            containerColor = Color.White,
+            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
+            title = { Text("Hapus Akun", color = ExpenseRed, fontWeight = FontWeight.Black) },
+            text = {
+                Text(
+                    "Apakah Anda yakin ingin menghapus akun? Tindakan ini tidak dapat dibatalkan dan semua data Anda akan hilang.",
+                    color = TextSecondary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteAccount()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
+                ) {
+                    Text("Hapus Akun", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteDialog = false },
                     border = BorderStroke(2.dp, SolidBlack),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
@@ -289,6 +335,35 @@ fun AccountScreenContent(
                     )
                 }
 
+                Spacer(Modifier.height(12.dp))
+
+                // Delete Account Button
+                OutlinedButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(2.dp, ExpenseRed),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = ExpenseRed),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        Icons.Default.DeleteForever,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = ExpenseRed
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        "Hapus Akun",
+                        fontWeight = FontWeight.Black,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = ExpenseRed
+                    )
+                }
+
                 Spacer(Modifier.height(100.dp))
             }
         }
@@ -348,7 +423,8 @@ fun AccountScreenPreview() {
             onNavigateToHistory = {},
             onNavigateToCharts = {},
             onLogout = {},
-            onLogoutConfirmed = {}
+            onLogoutConfirmed = {},
+            onDeleteAccount = {}
         )
     }
 }

@@ -87,6 +87,17 @@ class AuthViewModel(
         auth.signOut()
     }
 
+    fun deleteAccount(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                auth.currentUser?.delete()?.await()
+                onSuccess()
+            } catch (e: Exception) {
+                _uiState.value = AuthUiState(error = e.message ?: "Gagal menghapus akun")
+            }
+        }
+    }
+
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
