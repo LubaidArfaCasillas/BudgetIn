@@ -49,21 +49,14 @@ fun AccountScreen(
     val user = auth.currentUser
     val userEmail = user?.email ?: ""
     val displayName = user?.displayName
-    // currentUser jadi null setelah akun dihapus, jadi selalu sediakan fallback
+    // currentUser bisa null saat logout, jadi selalu sediakan fallback
     // agar userName tidak pernah kosong
     val userName = displayName?.takeIf { it.isNotBlank() }
         ?: userEmail.substringBefore("@").takeIf { it.isNotBlank() }?.replaceFirstChar { it.uppercase() }
         ?: "Pengguna"
 
-    // Navigate to login when account is deleted
-    LaunchedEffect(authUiState.isAccountDeleted) {
-        if (authUiState.isAccountDeleted) {
-            onLogout()
-        }
-    }
-
-    // Jangan render konten lagi setelah akun dihapus, tunggu navigasi ke login
-    if (authUiState.isAccountDeleted || user == null) return
+    // Jangan render konten lagi setelah logout, tunggu navigasi ke login
+    if (user == null) return
 
     AccountScreenContent(
         userName = userName,
@@ -75,9 +68,6 @@ fun AccountScreen(
         onLogoutConfirmed = {
             authViewModel.logout()
             onLogout()
-        },
-        onDeleteAccount = { password ->
-            authViewModel.deleteAccount(password)
         },
         onChangePassword = { oldPw, newPw, confirmPw ->
             authViewModel.changePassword(oldPw, newPw, confirmPw)
@@ -95,17 +85,12 @@ fun AccountScreenContent(
     onNavigateToHistory: () -> Unit,
     onNavigateToCharts: () -> Unit,
     onLogoutConfirmed: () -> Unit,
-    onDeleteAccount: (String) -> Unit,
     onChangePassword: (String, String, String) -> Unit,
     onClearError: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
     var showChangePasswordDialog by remember { mutableStateOf(false) }
-    
-    var deletePassword by remember { mutableStateOf("") }
-    var deletePasswordVisible by remember { mutableStateOf(false) }
-    
+
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmNewPassword by remember { mutableStateOf("") }
@@ -153,102 +138,6 @@ fun AccountScreenContent(
                     border = BorderStroke(2.dp, SolidBlack),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
-                ) {
-                    Text("Batal", fontWeight = FontWeight.Bold)
-                }
-            }
-        )
-    }
-
-    // Delete Account Dialog with password input
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                showDeleteDialog = false
-                deletePassword = ""
-                onClearError()
-            },
-            containerColor = Color.White,
-            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
-            title = { Text("Hapus Akun", color = ExpenseRed, fontWeight = FontWeight.Black) },
-            text = {
-                Column {
-                    Text(
-                        "Tindakan ini tidak dapat dibatalkan. Masukkan password Anda untuk konfirmasi.",
-                        color = TextSecondary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = deletePassword,
-                        onValueChange = { deletePassword = it; onClearError() },
-                        label = { Text("Password", fontWeight = FontWeight.Bold) },
-                        visualTransformation = if (deletePasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = { deletePasswordVisible = !deletePasswordVisible }) {
-                                Icon(
-                                    if (deletePasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = if (deletePasswordVisible) "Sembunyikan" else "Tampilkan",
-                                    tint = TextSecondary
-                                )
-                            }
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ExpenseRed,
-                            unfocusedBorderColor = SolidBlack,
-                            focusedLabelColor = ExpenseRed,
-                            unfocusedLabelColor = TextSecondary,
-                            focusedTextColor = SolidBlack,
-                            unfocusedTextColor = SolidBlack,
-                            cursorColor = ExpenseRed
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (authUiState.error != null) {
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            authUiState.error,
-                            color = ExpenseRed,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        onDeleteAccount(deletePassword)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp),
-                    enabled = !authUiState.isLoading
-                ) {
-                    if (authUiState.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            color = Color.White,
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text("Hapus Akun", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        deletePassword = ""
-                        onClearError()
-                    },
-                    border = BorderStroke(2.dp, SolidBlack),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack),
-                    enabled = !authUiState.isLoading
                 ) {
                     Text("Batal", fontWeight = FontWeight.Bold)
                 }
@@ -578,35 +467,6 @@ fun AccountScreenContent(
                     )
                 }
 
-                Spacer(Modifier.height(12.dp))
-
-                // Delete Account Button
-                OutlinedButton(
-                    onClick = { showDeleteDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(2.dp, ExpenseRed),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = ExpenseRed),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Icon(
-                        Icons.Default.DeleteForever,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = ExpenseRed
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        "Hapus Akun",
-                        fontWeight = FontWeight.Black,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = ExpenseRed
-                    )
-                }
-
                 Spacer(Modifier.height(100.dp))
             }
         }
@@ -667,7 +527,6 @@ fun AccountScreenPreview() {
             onNavigateToHistory = {},
             onNavigateToCharts = {},
             onLogoutConfirmed = {},
-            onDeleteAccount = {},
             onChangePassword = { _, _, _ -> },
             onClearError = {}
         )
