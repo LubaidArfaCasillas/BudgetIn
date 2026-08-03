@@ -49,8 +49,11 @@ fun AccountScreen(
     val user = auth.currentUser
     val userEmail = user?.email ?: ""
     val displayName = user?.displayName
-    val userName = displayName.takeIf { !it.isNullOrBlank() }
-        ?: userEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
+    // currentUser jadi null setelah akun dihapus, jadi selalu sediakan fallback
+    // agar userName tidak pernah kosong
+    val userName = displayName?.takeIf { it.isNotBlank() }
+        ?: userEmail.substringBefore("@").takeIf { it.isNotBlank() }?.replaceFirstChar { it.uppercase() }
+        ?: "Pengguna"
 
     // Navigate to login when account is deleted
     LaunchedEffect(authUiState.isAccountDeleted) {
@@ -58,6 +61,9 @@ fun AccountScreen(
             onLogout()
         }
     }
+
+    // Jangan render konten lagi setelah akun dihapus, tunggu navigasi ke login
+    if (authUiState.isAccountDeleted || user == null) return
 
     AccountScreenContent(
         userName = userName,
@@ -73,6 +79,9 @@ fun AccountScreen(
         onDeleteAccount = { password ->
             authViewModel.deleteAccount(password)
         },
+        onChangePassword = { oldPw, newPw, confirmPw ->
+            authViewModel.changePassword(oldPw, newPw, confirmPw)
+        },
         onClearError = authViewModel::clearError
     )
 }
@@ -87,15 +96,35 @@ fun AccountScreenContent(
     onNavigateToCharts: () -> Unit,
     onLogoutConfirmed: () -> Unit,
     onDeleteAccount: (String) -> Unit,
+    onChangePassword: (String, String, String) -> Unit,
     onClearError: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showChangePasswordDialog by remember { mutableStateOf(false) }
+    
     var deletePassword by remember { mutableStateOf("") }
     var deletePasswordVisible by remember { mutableStateOf(false) }
+    
+    var currentPassword by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmNewPassword by remember { mutableStateOf("") }
+    var currentPasswordVisible by remember { mutableStateOf(false) }
+    var newPasswordVisible by remember { mutableStateOf(false) }
+    
     var visible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { visible = true }
+    
+    LaunchedEffect(authUiState.isPasswordChanged) {
+        if (authUiState.isPasswordChanged) {
+            showChangePasswordDialog = false
+            currentPassword = ""
+            newPassword = ""
+            confirmNewPassword = ""
+            onClearError()
+        }
+    }
 
     // Logout Dialog
     if (showLogoutDialog) {
@@ -227,6 +256,132 @@ fun AccountScreenContent(
         )
     }
 
+    // Change Password Dialog
+    if (showChangePasswordDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showChangePasswordDialog = false
+                currentPassword = ""
+                newPassword = ""
+                confirmNewPassword = ""
+                onClearError()
+            },
+            containerColor = Color.White,
+            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
+            title = { Text("Ganti Password", color = SolidBlack, fontWeight = FontWeight.Black) },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = currentPassword,
+                        onValueChange = { currentPassword = it; onClearError() },
+                        label = { Text("Password Lama", fontWeight = FontWeight.Bold) },
+                        visualTransformation = if (currentPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { currentPasswordVisible = !currentPasswordVisible }) {
+                                Icon(
+                                    if (currentPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = null,
+                                    tint = TextSecondary
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = NeoPurple,
+                            unfocusedBorderColor = SolidBlack
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = newPassword,
+                        onValueChange = { newPassword = it; onClearError() },
+                        label = { Text("Password Baru", fontWeight = FontWeight.Bold) },
+                        visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { newPasswordVisible = !newPasswordVisible }) {
+                                Icon(
+                                    if (newPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = null,
+                                    tint = TextSecondary
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = NeoPurple,
+                            unfocusedBorderColor = SolidBlack
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = confirmNewPassword,
+                        onValueChange = { confirmNewPassword = it; onClearError() },
+                        label = { Text("Konfirmasi Password Baru", fontWeight = FontWeight.Bold) },
+                        visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = NeoPurple,
+                            unfocusedBorderColor = SolidBlack
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (authUiState.error != null) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            authUiState.error,
+                            color = ExpenseRed,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onChangePassword(currentPassword, newPassword, confirmNewPassword)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = NeoPurple),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp),
+                    enabled = !authUiState.isLoading
+                ) {
+                    if (authUiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Simpan", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        showChangePasswordDialog = false
+                        currentPassword = ""
+                        newPassword = ""
+                        confirmNewPassword = ""
+                        onClearError()
+                    },
+                    border = BorderStroke(2.dp, SolidBlack),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack),
+                    enabled = !authUiState.isLoading
+                ) {
+                    Text("Batal", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -286,7 +441,7 @@ fun AccountScreenContent(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                userName.first().uppercase(),
+                                userName.firstOrNull()?.uppercase() ?: "?",
                                 fontSize = 32.sp,
                                 fontWeight = FontWeight.Black,
                                 color = SolidBlack
@@ -366,6 +521,35 @@ fun AccountScreenContent(
                 }
 
                 Spacer(Modifier.height(24.dp))
+
+                // Change Password Button
+                OutlinedButton(
+                    onClick = { showChangePasswordDialog = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(2.dp, SolidBlack),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        Icons.Default.LockReset,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = SolidBlack
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        "Ganti Password",
+                        fontWeight = FontWeight.Black,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = SolidBlack
+                    )
+                }
+
+                Spacer(Modifier.height(12.dp))
 
                 // Logout Button
                 Button(
@@ -484,6 +668,7 @@ fun AccountScreenPreview() {
             onNavigateToCharts = {},
             onLogoutConfirmed = {},
             onDeleteAccount = {},
+            onChangePassword = { _, _, _ -> },
             onClearError = {}
         )
     }

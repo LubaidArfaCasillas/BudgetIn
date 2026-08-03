@@ -35,12 +35,20 @@ class TransactionRepositoryImpl(
             .orderBy("date", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    // Jangan crash jika error karena user dihapus/logout
+                    // Cukup kirim list kosong dan abaikan error permission
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 
                 if (snapshot != null) {
-                    val transactions = snapshot.documents.mapNotNull { it.toObject(Transaction::class.java) }
+                    val transactions = snapshot.documents.mapNotNull { 
+                        try {
+                            it.toObject(Transaction::class.java) 
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
                     trySend(transactions)
                 }
             }

@@ -1,6 +1,16 @@
 package com.iyas.budgetin.presentation.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,11 +28,35 @@ import com.iyas.budgetin.presentation.transaction.HistoryScreen
 fun BudgetInNavGraph(
     navController: NavHostController = rememberNavController()
 ) {
-    val startDest = if (FirebaseAuth.getInstance().currentUser != null) Screen.Home.route else Screen.Login.route
+    val auth = FirebaseAuth.getInstance()
+    var startDest by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            currentUser.reload().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    startDest = Screen.Home.route
+                } else {
+                    auth.signOut()
+                    startDest = Screen.Login.route
+                }
+            }
+        } else {
+            startDest = Screen.Login.route
+        }
+    }
+
+    if (startDest == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
 
     NavHost(
         navController = navController,
-        startDestination = startDest
+        startDestination = startDest!!
     ) {
         composable(Screen.Login.route) {
             LoginScreen(
@@ -92,7 +126,7 @@ fun BudgetInNavGraph(
                 onNavigateToCharts = { navController.navigate(Screen.Charts.route) { launchSingleTop = true } },
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
-                        popUpTo(0) { inclusive = true }
+                        popUpTo(navController.graph.id) { inclusive = true }
                     }
                 }
             )
