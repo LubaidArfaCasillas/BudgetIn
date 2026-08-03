@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,7 +46,8 @@ fun HomeScreen(
     val auth = FirebaseAuth.getInstance()
     val userEmail = auth.currentUser?.email ?: ""
     val displayName = auth.currentUser?.displayName
-    val userName = displayName.takeIf { !it.isNullOrBlank() } ?: userEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
+    val userName = (displayName.takeIf { !it.isNullOrBlank() } ?: userEmail.substringBefore("@"))
+        .replaceFirstChar { it.uppercase() }
 
     HomeScreenContent(
         uiState = uiState,
@@ -106,13 +108,14 @@ fun HomeScreenContent(
                         .background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                 ) {
-                    Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            "Hello,",
-                            style = MaterialTheme.typography.bodyMedium,
+                            "Halo,",
+                            style = MaterialTheme.typography.titleLarge,
                             color = TextSecondary,
                             fontWeight = FontWeight.Bold
                         )
+                        Spacer(Modifier.width(6.dp))
                         Text(
                             userName,
                             style = MaterialTheme.typography.titleLarge,
@@ -343,13 +346,15 @@ fun EmptyTransactionCard(onAdd: () -> Unit) {
             .background(Color.White, RoundedCornerShape(20.dp))
     ) {
         Column(
-            modifier = Modifier.padding(40.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("💸", fontSize = 64.sp)
             Spacer(Modifier.height(16.dp))
-            Text("Belum ada transaksi", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
-            Text("Tambahkan transaksi pertama Anda", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, modifier = Modifier.padding(top = 4.dp), fontWeight = FontWeight.Bold)
+            Text("Belum ada transaksi", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black, textAlign = TextAlign.Center)
+            Text("Tambahkan transaksi pertama Anda", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, modifier = Modifier.padding(top = 4.dp), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             Spacer(Modifier.height(24.dp))
             Button(
                 onClick = onAdd,
