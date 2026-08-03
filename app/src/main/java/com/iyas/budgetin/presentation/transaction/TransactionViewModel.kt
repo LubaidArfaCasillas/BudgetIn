@@ -110,6 +110,22 @@ class TransactionViewModel(
         }
     }
 
+    fun updateTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            _isSaving.value = true
+            // Tipe transaksi tidak boleh berubah saat edit, selalu pakai tipe aslinya
+            val original = _uiState.value.allTransactions.firstOrNull { it.id == transaction.id }
+            val updated = if (original != null) transaction.copy(type = original.type) else transaction
+            val result = repository.updateTransaction(updated)
+            _isSaving.value = false
+            if (result.isSuccess) {
+                _saveSuccess.value = true
+            } else {
+                _saveError.value = result.exceptionOrNull()?.message ?: "Gagal memperbarui"
+            }
+        }
+    }
+
     fun deleteTransaction(id: String) {
         viewModelScope.launch {
             repository.deleteTransaction(id)

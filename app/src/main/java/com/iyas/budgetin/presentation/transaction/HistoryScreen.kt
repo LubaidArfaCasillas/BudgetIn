@@ -38,6 +38,7 @@ fun HistoryScreen(
     onNavigateToCharts: () -> Unit,
     onNavigateToAdd: () -> Unit,
     onNavigateToAccount: () -> Unit,
+    onNavigateToEdit: (String) -> Unit,
     viewModel: TransactionViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -50,7 +51,8 @@ fun HistoryScreen(
         onNavigateToAccount = onNavigateToAccount,
         onSearchChange = viewModel::setSearch,
         onFilterChange = viewModel::setFilter,
-        onDeleteTransaction = viewModel::deleteTransaction
+        onDeleteTransaction = viewModel::deleteTransaction,
+        onNavigateToEdit = onNavigateToEdit
     )
 }
 
@@ -64,7 +66,8 @@ fun HistoryScreenContent(
     onNavigateToAccount: () -> Unit,
     onSearchChange: (String) -> Unit,
     onFilterChange: (FilterType) -> Unit,
-    onDeleteTransaction: (String) -> Unit
+    onDeleteTransaction: (String) -> Unit,
+    onNavigateToEdit: (String) -> Unit = {}
 ) {
     var showDeleteDialog by remember { mutableStateOf<Transaction?>(null) }
 
@@ -291,7 +294,8 @@ fun HistoryScreenContent(
                         ) {
                             TransactionItem(
                                 transaction = transaction,
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
+                                onClick = { onNavigateToEdit(transaction.id) }
                             )
                         }
                     }

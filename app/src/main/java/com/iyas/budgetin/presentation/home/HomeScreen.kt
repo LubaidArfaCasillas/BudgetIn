@@ -40,6 +40,7 @@ fun HomeScreen(
     onNavigateToHistory: () -> Unit,
     onNavigateToCharts: () -> Unit,
     onNavigateToAccount: () -> Unit,
+    onNavigateToEdit: (String) -> Unit,
     homeViewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
@@ -55,7 +56,8 @@ fun HomeScreen(
         onNavigateToAdd = onNavigateToAdd,
         onNavigateToHistory = onNavigateToHistory,
         onNavigateToCharts = onNavigateToCharts,
-        onNavigateToAccount = onNavigateToAccount
+        onNavigateToAccount = onNavigateToAccount,
+        onNavigateToEdit = onNavigateToEdit
     )
 }
 
@@ -67,7 +69,8 @@ fun HomeScreenContent(
     onNavigateToAdd: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToCharts: () -> Unit,
-    onNavigateToAccount: () -> Unit
+    onNavigateToAccount: () -> Unit,
+    onNavigateToEdit: (String) -> Unit = {}
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -168,7 +171,8 @@ fun HomeScreenContent(
                 items(uiState.transactions.take(5)) { transaction ->
                     TransactionItem(
                         transaction = transaction,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
+                        onClick = { onNavigateToEdit(transaction.id) }
                     )
                 }
             }

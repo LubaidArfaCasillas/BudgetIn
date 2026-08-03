@@ -12,9 +12,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
 import com.iyas.budgetin.presentation.account.AccountScreen
 import com.iyas.budgetin.presentation.auth.LoginScreen
@@ -22,6 +24,7 @@ import com.iyas.budgetin.presentation.auth.RegisterScreen
 import com.iyas.budgetin.presentation.charts.ChartsScreen
 import com.iyas.budgetin.presentation.home.HomeScreen
 import com.iyas.budgetin.presentation.transaction.AddTransactionScreen
+import com.iyas.budgetin.presentation.transaction.EditTransactionScreen
 import com.iyas.budgetin.presentation.transaction.HistoryScreen
 
 @Composable
@@ -97,7 +100,8 @@ fun BudgetInNavGraph(
                     navController.navigate(Screen.Account.route) {
                         launchSingleTop = true
                     }
-                }
+                },
+                onNavigateToEdit = { id -> navController.navigate(Screen.EditTransaction.createRoute(id)) }
             )
         }
 
@@ -106,7 +110,8 @@ fun BudgetInNavGraph(
                 onNavigateToHome = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
                 onNavigateToCharts = { navController.navigate(Screen.Charts.route) { launchSingleTop = true } },
                 onNavigateToAdd = { navController.navigate(Screen.AddTransaction.route) },
-                onNavigateToAccount = { navController.navigate(Screen.Account.route) { launchSingleTop = true } }
+                onNavigateToAccount = { navController.navigate(Screen.Account.route) { launchSingleTop = true } },
+                onNavigateToEdit = { id -> navController.navigate(Screen.EditTransaction.createRoute(id)) }
             )
         }
 
@@ -134,6 +139,16 @@ fun BudgetInNavGraph(
 
         composable(Screen.AddTransaction.route) {
             AddTransactionScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Screen.EditTransaction.route,
+            arguments = listOf(navArgument("transactionId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            EditTransactionScreen(
+                transactionId = backStackEntry.arguments?.getString("transactionId").orEmpty(),
                 onNavigateBack = { navController.popBackStack() }
             )
         }

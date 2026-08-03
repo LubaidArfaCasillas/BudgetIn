@@ -67,28 +67,85 @@ fun AddTransactionScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun EditTransactionScreen(
+    transactionId: String,
+    onNavigateBack: () -> Unit,
+    viewModel: TransactionViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val saveSuccess by viewModel.saveSuccess.collectAsState()
+    val saveError by viewModel.saveError.collectAsState()
+    val isSaving by viewModel.isSaving.collectAsState()
+
+    val transaction = uiState.allTransactions.firstOrNull { it.id == transactionId }
+
+    LaunchedEffect(saveSuccess) {
+        if (saveSuccess) {
+            viewModel.resetSaveState()
+            onNavigateBack()
+        }
+    }
+
+    when {
+        uiState.isLoading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = NeoPink, strokeWidth = 4.dp)
+            }
+        }
+        transaction == null -> {
+            // Transaksi sudah terhapus atau id tidak valid
+            LaunchedEffect(Unit) { onNavigateBack() }
+        }
+        else -> {
+            AddTransactionScreenContent(
+                onNavigateBack = onNavigateBack,
+                onSaveTransaction = viewModel::updateTransaction,
+                saveError = saveError,
+                isSaving = isSaving,
+                initialTransaction = transaction,
+                title = "Edit Transaksi",
+                saveButtonText = "Simpan Perubahan"
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun AddTransactionScreenContent(
     onNavigateBack: () -> Unit,
     onSaveTransaction: (Transaction) -> Unit,
     saveError: String?,
-    isSaving: Boolean
+    isSaving: Boolean,
+    initialTransaction: Transaction? = null,
+    title: String = "Tambah Transaksi",
+    saveButtonText: String = "Simpan Transaksi"
 ) {
     val context = LocalContext.current
+    val isEditing = initialTransaction != null
 
-    var amount by remember { mutableStateOf("") }
-    var note by remember { mutableStateOf("") }
-    var selectedType by remember { mutableStateOf(TransactionType.EXPENSE) }
-    var selectedCategory by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf(System.currentTimeMillis()) }
+    var amount by remember { mutableStateOf(initialTransaction?.amount?.toLong()?.toString() ?: "") }
+    var note by remember { mutableStateOf(initialTransaction?.note ?: "") }
+    var selectedType by remember { mutableStateOf(initialTransaction?.type ?: TransactionType.EXPENSE) }
+    var selectedCategory by remember { mutableStateOf(initialTransaction?.category ?: "") }
+    var selectedDate by remember { mutableStateOf(initialTransaction?.date ?: System.currentTimeMillis()) }
     var amountError by remember { mutableStateOf(false) }
     var categoryError by remember { mutableStateOf(false) }
 
-    val calendar = Calendar.getInstance()
+    // Buka date picker pada tanggal yang sedang dipilih, bukan selalu hari ini
+    val calendar = Calendar.getInstance().apply { timeInMillis = selectedDate }
     val datePicker = DatePickerDialog(
         context,
         { _, year, month, day ->
-            calendar.set(year, month, day)
-            selectedDate = calendar.timeInMillis
+            selectedDate = Calendar.getInstance().apply {
+                timeInMillis = selectedDate
+                set(year, month, day)
+            }.timeInMillis
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
@@ -97,9 +154,13 @@ fun AddTransactionScreenContent(
 
     val categories = if (selectedType == TransactionType.INCOME) INCOME_CATEGORIES else EXPENSE_CATEGORIES
 
-    // Reset category when type changes
+    // Reset kategori saat tipe diubah, tapi jangan hapus kategori awal saat edit
+    var lastType by remember { mutableStateOf(selectedType) }
     LaunchedEffect(selectedType) {
-        selectedCategory = ""
+        if (selectedType != lastType) {
+            selectedCategory = ""
+            lastType = selectedType
+        }
     }
 
     Column(
@@ -124,7 +185,7 @@ fun AddTransactionScreenContent(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SolidBlack)
                 }
                 Text(
-                    "Tambah Transaksi",
+                    title,
                     style = MaterialTheme.typography.titleLarge,
                     color = SolidBlack,
                     fontWeight = FontWeight.Black,
@@ -141,33 +202,55 @@ fun AddTransactionScreenContent(
         ) {
             Spacer(Modifier.height(8.dp))
 
-            // Type Selector
+            // Type Selector — dikunci saat edit, tipe transaksi tidak boleh dibalik
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 4.dp)
                     .background(Color.White, RoundedCornerShape(20.dp))
             ) {
-                Row(
-                    modifier = Modifier.padding(8.dp).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TypeButton(
-                        text = "Pengeluaran",
-                        emoji = "↓",
-                        selected = selectedType == TransactionType.EXPENSE,
-                        isExpense = true,
-                        modifier = Modifier.weight(1f),
-                        onClick = { selectedType = TransactionType.EXPENSE }
-                    )
-                    TypeButton(
-                        text = "Pemasukan",
-                        emoji = "↑",
-                        selected = selectedType == TransactionType.INCOME,
-                        isExpense = false,
-                        modifier = Modifier.weight(1f),
-                        onClick = { selectedType = TransactionType.INCOME }
-                    )
+                if (isEditing) {
+                    Column(modifier = Modifier.padding(8.dp).fillMaxWidth()) {
+                        TypeButton(
+                            text = if (selectedType == TransactionType.INCOME) "Pemasukan" else "Pengeluaran",
+                            emoji = if (selectedType == TransactionType.INCOME) "↑" else "↓",
+                            selected = true,
+                            isExpense = selectedType == TransactionType.EXPENSE,
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = false,
+                            onClick = {}
+                        )
+                        Text(
+                            "Tipe transaksi tidak dapat diubah",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextSecondary,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp)
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        TypeButton(
+                            text = "Pengeluaran",
+                            emoji = "↓",
+                            selected = selectedType == TransactionType.EXPENSE,
+                            isExpense = true,
+                            modifier = Modifier.weight(1f),
+                            onClick = { selectedType = TransactionType.EXPENSE }
+                        )
+                        TypeButton(
+                            text = "Pemasukan",
+                            emoji = "↑",
+                            selected = selectedType == TransactionType.INCOME,
+                            isExpense = false,
+                            modifier = Modifier.weight(1f),
+                            onClick = { selectedType = TransactionType.INCOME }
+                        )
+                    }
                 }
             }
 
@@ -331,6 +414,7 @@ fun AddTransactionScreenContent(
                     if (selectedCategory.isBlank()) { categoryError = true; return@Button }
                     onSaveTransaction(
                         Transaction(
+                            id = initialTransaction?.id ?: "",
                             amount = amt,
                             type = selectedType,
                             category = selectedCategory,
@@ -353,7 +437,7 @@ fun AddTransactionScreenContent(
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(Icons.Default.Save, contentDescription = null, tint = SolidBlack, modifier = Modifier.size(20.dp))
-                        Text("Simpan Transaksi", fontWeight = FontWeight.Black, color = SolidBlack, fontSize = 16.sp)
+                        Text(saveButtonText, fontWeight = FontWeight.Black, color = SolidBlack, fontSize = 16.sp)
                     }
                 }
             }
@@ -370,6 +454,7 @@ fun TypeButton(
     selected: Boolean,
     isExpense: Boolean,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     val color = if (isExpense) ExpenseRed else NeoTeal
@@ -380,7 +465,7 @@ fun TypeButton(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
             .background(bgColor)
-            .clickable(onClick = onClick)
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             .then(if (selected) Modifier.border(2.dp, SolidBlack, RoundedCornerShape(14.dp)) else Modifier)
     ) {
         Row(
