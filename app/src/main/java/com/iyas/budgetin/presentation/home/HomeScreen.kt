@@ -385,14 +385,16 @@ fun BottomNavigationBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 6.dp)
-            .background(Color.White, RoundedCornerShape(24.dp))
+            // Jaga kartu tetap di atas tombol navigasi bawaan HP
+            .navigationBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 5.dp)
+            .background(Color.White, RoundedCornerShape(20.dp))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp),
+                .padding(vertical = 6.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -438,15 +440,15 @@ fun NavItem(
 ) {
     Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
-                .size(48.dp)
+                .size(42.dp)
                 .background(if (isSelected) activeColor else Color.Transparent, RoundedCornerShape(12.dp))
                 .then(if (isSelected) Modifier.border(2.dp, SolidBlack, RoundedCornerShape(12.dp)) else Modifier),
             contentAlignment = Alignment.Center
@@ -455,11 +457,11 @@ fun NavItem(
                 icon,
                 contentDescription = label,
                 tint = if (isSelected) SolidBlack else TextSecondary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(22.dp)
             )
         }
         if (isSelected) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             Text(label, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = SolidBlack)
         }
     }
