@@ -387,7 +387,9 @@ fun BottomNavigationBar(
             .fillMaxWidth()
             // Jaga kartu tetap di atas tombol navigasi bawaan HP
             .navigationBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            // Tanpa padding atas, supaya konten terpotong tepat di garis atas
+            // kartu dan krem hanya tersisa di kiri, kanan, dan bawah
+            .padding(start = 16.dp, end = 16.dp, bottom = 10.dp)
             .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 5.dp)
             .background(Color.White, RoundedCornerShape(20.dp))
     ) {
