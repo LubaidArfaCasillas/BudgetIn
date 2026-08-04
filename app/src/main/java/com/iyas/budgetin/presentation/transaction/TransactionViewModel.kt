@@ -128,7 +128,14 @@ class TransactionViewModel(
 
     fun deleteTransaction(id: String) {
         viewModelScope.launch {
-            repository.deleteTransaction(id)
+            _isSaving.value = true
+            val result = repository.deleteTransaction(id)
+            _isSaving.value = false
+            if (result.isSuccess) {
+                _saveSuccess.value = true
+            } else {
+                _saveError.value = result.exceptionOrNull()?.message ?: "Gagal menghapus"
+            }
         }
     }
 

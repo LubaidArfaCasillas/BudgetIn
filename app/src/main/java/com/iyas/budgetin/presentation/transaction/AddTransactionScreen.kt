@@ -79,10 +79,20 @@ fun EditTransactionScreen(
 
     val transaction = uiState.allTransactions.firstOrNull { it.id == transactionId }
 
+    // Simpan dan hapus sama-sama memicu kembali ke layar sebelumnya, dan penghapusan
+    // juga membuat transaksi hilang dari list. Pastikan popBackStack hanya sekali.
+    var hasLeft by remember { mutableStateOf(false) }
+    val leaveOnce = {
+        if (!hasLeft) {
+            hasLeft = true
+            onNavigateBack()
+        }
+    }
+
     LaunchedEffect(saveSuccess) {
         if (saveSuccess) {
             viewModel.resetSaveState()
-            onNavigateBack()
+            leaveOnce()
         }
     }
 
@@ -99,7 +109,7 @@ fun EditTransactionScreen(
         }
         transaction == null -> {
             // Transaksi sudah terhapus atau id tidak valid
-            LaunchedEffect(Unit) { onNavigateBack() }
+            LaunchedEffect(Unit) { leaveOnce() }
         }
         else -> {
             AddTransactionScreenContent(
@@ -109,7 +119,8 @@ fun EditTransactionScreen(
                 isSaving = isSaving,
                 initialTransaction = transaction,
                 title = "Edit Transaksi",
-                saveButtonText = "Simpan Perubahan"
+                saveButtonText = "Simpan Perubahan",
+                onDeleteTransaction = { viewModel.deleteTransaction(transaction.id) }
             )
         }
     }
@@ -124,10 +135,51 @@ fun AddTransactionScreenContent(
     isSaving: Boolean,
     initialTransaction: Transaction? = null,
     title: String = "Tambah Transaksi",
-    saveButtonText: String = "Simpan Transaksi"
+    saveButtonText: String = "Simpan Transaksi",
+    onDeleteTransaction: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val isEditing = initialTransaction != null
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            containerColor = Color.White,
+            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
+            title = { Text("Hapus Transaksi", color = ExpenseRed, fontWeight = FontWeight.Black) },
+            text = {
+                Text(
+                    "Transaksi ini akan dihapus permanen. Lanjutkan?",
+                    color = TextSecondary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteTransaction?.invoke()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
+                ) {
+                    Text("Hapus", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDeleteDialog = false },
+                    border = BorderStroke(2.dp, SolidBlack),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
+                ) {
+                    Text("Batal", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
 
     var amount by remember { mutableStateOf(initialTransaction?.amount?.toLong()?.toString() ?: "") }
     var note by remember { mutableStateOf(initialTransaction?.note ?: "") }
@@ -439,6 +491,31 @@ fun AddTransactionScreenContent(
                         Icon(Icons.Default.Save, contentDescription = null, tint = SolidBlack, modifier = Modifier.size(20.dp))
                         Text(saveButtonText, fontWeight = FontWeight.Black, color = SolidBlack, fontSize = 16.sp)
                     }
+                }
+            }
+
+            // Delete button — hanya muncul saat mengedit transaksi yang sudah ada
+            if (onDeleteTransaction != null) {
+                Spacer(Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(2.dp, ExpenseRed),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = ExpenseRed),
+                    contentPadding = PaddingValues(0.dp),
+                    enabled = !isSaving
+                ) {
+                    Icon(
+                        Icons.Default.DeleteForever,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = ExpenseRed
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Hapus Transaksi", fontWeight = FontWeight.Black, color = ExpenseRed, fontSize = 16.sp)
                 }
             }
 
