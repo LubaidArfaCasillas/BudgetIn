@@ -100,8 +100,10 @@ fun HomeScreenContent(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(bottom = 16.dp)
+                // Hanya inset atas yang dipakai; bagian bawah dibiarkan agar
+                // konten menggulir di belakang navbar
+                .padding(top = padding.calculateTopPadding()),
+            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 16.dp)
         ) {
             item {
                 // Header
@@ -382,52 +384,65 @@ fun BottomNavigationBar(
     onChartsClick: () -> Unit,
     onAccountClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            // Jaga kartu tetap di atas tombol navigasi bawaan HP
-            .navigationBarsPadding()
-            // Tanpa padding atas, supaya konten terpotong tepat di garis atas
-            // kartu dan krem hanya tersisa di kiri, kanan, dan bawah
-            .padding(start = 16.dp, end = 16.dp, bottom = 10.dp)
-            .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 5.dp)
-            .background(Color.White, RoundedCornerShape(20.dp))
-    ) {
-        Row(
+    // Area di sekeliling kartu sengaja dibiarkan transparan agar konten yang
+    // menggulir di belakangnya terpotong mengikuti lengkung kartu. Krem hanya
+    // diisikan pada strip di bawah kartu supaya konten tidak menyembul ke
+    // area tombol navigasi HP.
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+                // bottom = 5dp menyediakan ruang tepat untuk bayangan kartu
+                .padding(start = 16.dp, end = 16.dp, bottom = 5.dp)
+                .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 5.dp)
+                .background(Color.White, RoundedCornerShape(20.dp))
         ) {
-            NavItem(
-                icon = Icons.Default.Home,
-                label = "Home",
-                isSelected = currentRoute == "home",
-                onClick = onHomeClick,
-                activeColor = NeoPink
-            )
-            NavItem(
-                icon = Icons.AutoMirrored.Filled.List,
-                label = "Riwayat",
-                isSelected = currentRoute == "history",
-                onClick = onHistoryClick,
-                activeColor = NeoYellow
-            )
-            NavItem(
-                icon = Icons.Default.PieChart,
-                label = "Grafik",
-                isSelected = currentRoute == "charts",
-                onClick = onChartsClick,
-                activeColor = NeoTeal
-            )
-            NavItem(
-                icon = Icons.Default.Person,
-                label = "Akun",
-                isSelected = currentRoute == "account",
-                onClick = onAccountClick,
-                activeColor = NeoPurple
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                NavItem(
+                    icon = Icons.Default.Home,
+                    label = "Home",
+                    isSelected = currentRoute == "home",
+                    onClick = onHomeClick,
+                    activeColor = NeoPink
+                )
+                NavItem(
+                    icon = Icons.AutoMirrored.Filled.List,
+                    label = "Riwayat",
+                    isSelected = currentRoute == "history",
+                    onClick = onHistoryClick,
+                    activeColor = NeoYellow
+                )
+                NavItem(
+                    icon = Icons.Default.PieChart,
+                    label = "Grafik",
+                    isSelected = currentRoute == "charts",
+                    onClick = onChartsClick,
+                    activeColor = NeoTeal
+                )
+                NavItem(
+                    icon = Icons.Default.Person,
+                    label = "Akun",
+                    isSelected = currentRoute == "account",
+                    onClick = onAccountClick,
+                    activeColor = NeoPurple
+                )
+            }
+        }
+
+        // Penutup krem di bawah kartu, sekaligus pengganjal tombol navigasi HP
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
     }
 }

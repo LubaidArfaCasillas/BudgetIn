@@ -290,7 +290,8 @@ fun AccountScreenContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
+                    // Bagian bawah tidak di-padding agar konten menggulir di belakang navbar
+                    .padding(top = padding.calculateTopPadding())
                     .verticalScroll(rememberScrollState())
             ) {
                 // Header
@@ -467,7 +468,7 @@ fun AccountScreenContent(
                     )
                 }
 
-                Spacer(Modifier.height(100.dp))
+                Spacer(Modifier.height(padding.calculateBottomPadding() + 40.dp))
             }
         }
     }

@@ -125,7 +125,6 @@ fun BudgetInNavGraph(
             HistoryScreen(
                 onNavigateToHome = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
                 onNavigateToCharts = { navController.navigate(Screen.Charts.route) { launchSingleTop = true } },
-                onNavigateToAdd = { navController.navigate(Screen.AddTransaction.route) },
                 onNavigateToAccount = { navController.navigate(Screen.Account.route) { launchSingleTop = true } },
                 onNavigateToEdit = { id -> navController.navigate(Screen.EditTransaction.createRoute(id)) }
             )
@@ -135,7 +134,6 @@ fun BudgetInNavGraph(
             ChartsScreen(
                 onNavigateToHome = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
                 onNavigateToHistory = { navController.navigate(Screen.History.route) { launchSingleTop = true } },
-                onNavigateToAdd = { navController.navigate(Screen.AddTransaction.route) },
                 onNavigateToAccount = { navController.navigate(Screen.Account.route) { launchSingleTop = true } }
             )
         }
