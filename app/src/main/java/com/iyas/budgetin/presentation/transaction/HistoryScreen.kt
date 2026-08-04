@@ -36,7 +36,6 @@ import org.koin.androidx.compose.koinViewModel
 fun HistoryScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToCharts: () -> Unit,
-    onNavigateToAdd: () -> Unit,
     onNavigateToAccount: () -> Unit,
     onNavigateToEdit: (String) -> Unit,
     viewModel: TransactionViewModel = koinViewModel()
@@ -47,7 +46,6 @@ fun HistoryScreen(
         uiState = uiState,
         onNavigateToHome = onNavigateToHome,
         onNavigateToCharts = onNavigateToCharts,
-        onNavigateToAdd = onNavigateToAdd,
         onNavigateToAccount = onNavigateToAccount,
         onSearchChange = viewModel::setSearch,
         onFilterChange = viewModel::setFilter,
@@ -62,7 +60,6 @@ fun HistoryScreenContent(
     uiState: HistoryUiState,
     onNavigateToHome: () -> Unit,
     onNavigateToCharts: () -> Unit,
-    onNavigateToAdd: () -> Unit,
     onNavigateToAccount: () -> Unit,
     onSearchChange: (String) -> Unit,
     onFilterChange: (FilterType) -> Unit,
@@ -106,19 +103,6 @@ fun HistoryScreenContent(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAdd,
-                containerColor = NeoPink,
-                contentColor = SolidBlack,
-                shape = RoundedCornerShape(18.dp),
-                modifier = Modifier
-                    .size(64.dp)
-                    .neoBrutalism(cornerRadius = 18.dp, shadowOffset = 4.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(32.dp))
-            }
-        },
         bottomBar = {
             BottomNavigationBar(
                 currentRoute = "history",
@@ -130,8 +114,9 @@ fun HistoryScreenContent(
         }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(bottom = 80.dp)
+            // Bagian bawah tidak di-padding agar konten menggulir di belakang navbar
+            modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding()),
+            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 24.dp)
         ) {
             item {
                 Box(
@@ -363,7 +348,6 @@ fun HistoryScreenPreview() {
             ),
             onNavigateToHome = {},
             onNavigateToCharts = {},
-            onNavigateToAdd = {},
             onNavigateToAccount = {},
             onSearchChange = {},
             onFilterChange = {},

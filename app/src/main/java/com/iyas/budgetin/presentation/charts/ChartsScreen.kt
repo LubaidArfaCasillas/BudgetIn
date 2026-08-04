@@ -45,7 +45,6 @@ val CHART_COLORS = listOf(
 fun ChartsScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToHistory: () -> Unit,
-    onNavigateToAdd: () -> Unit,
     onNavigateToAccount: () -> Unit,
     viewModel: ChartsViewModel = koinViewModel()
 ) {
@@ -55,7 +54,6 @@ fun ChartsScreen(
         uiState = uiState,
         onNavigateToHome = onNavigateToHome,
         onNavigateToHistory = onNavigateToHistory,
-        onNavigateToAdd = onNavigateToAdd,
         onNavigateToAccount = onNavigateToAccount,
         onYearChange = viewModel::setYear
     )
@@ -66,7 +64,6 @@ fun ChartsScreenContent(
     uiState: ChartsUiState,
     onNavigateToHome: () -> Unit,
     onNavigateToHistory: () -> Unit,
-    onNavigateToAdd: () -> Unit,
     onNavigateToAccount: () -> Unit,
     onYearChange: (Int) -> Unit
 ) {
@@ -74,19 +71,6 @@ fun ChartsScreenContent(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAdd,
-                containerColor = NeoPink,
-                contentColor = SolidBlack,
-                shape = RoundedCornerShape(18.dp),
-                modifier = Modifier
-                    .size(64.dp)
-                    .neoBrutalism(cornerRadius = 18.dp, shadowOffset = 4.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(32.dp))
-            }
-        },
         bottomBar = {
             BottomNavigationBar(
                 currentRoute = "charts",
@@ -98,8 +82,9 @@ fun ChartsScreenContent(
         }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(bottom = 100.dp)
+            // Bagian bawah tidak di-padding agar konten menggulir di belakang navbar
+            modifier = Modifier.fillMaxSize().padding(top = padding.calculateTopPadding()),
+            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 24.dp)
         ) {
             item {
                 Box(
@@ -473,7 +458,6 @@ fun ChartsScreenPreview() {
             ),
             onNavigateToHome = {},
             onNavigateToHistory = {},
-            onNavigateToAdd = {},
             onNavigateToAccount = {},
             onYearChange = {}
         )
