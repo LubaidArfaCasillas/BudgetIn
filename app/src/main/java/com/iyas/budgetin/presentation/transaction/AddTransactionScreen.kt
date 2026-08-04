@@ -219,13 +219,16 @@ fun AddTransactionScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            // Layar ini tanpa Scaffold, jadi inset status bar & navigation bar
+            // harus ditangani sendiri agar konten tidak terpotong
+            .systemBarsPadding()
     ) {
         // Top Bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 20.dp, vertical = 20.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
@@ -496,7 +499,7 @@ fun AddTransactionScreenContent(
 
             // Delete button — hanya muncul saat mengedit transaksi yang sudah ada
             if (onDeleteTransaction != null) {
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(16.dp))
                 OutlinedButton(
                     onClick = { showDeleteDialog = true },
                     modifier = Modifier
