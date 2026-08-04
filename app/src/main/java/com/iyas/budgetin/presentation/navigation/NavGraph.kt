@@ -1,5 +1,10 @@
 package com.iyas.budgetin.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,6 +31,17 @@ import com.iyas.budgetin.presentation.home.HomeScreen
 import com.iyas.budgetin.presentation.transaction.AddTransactionScreen
 import com.iyas.budgetin.presentation.transaction.EditTransactionScreen
 import com.iyas.budgetin.presentation.transaction.HistoryScreen
+
+// Transisi halaman form: naik dari bawah sambil fade, dan sebaliknya saat kembali
+private const val FORM_ANIM_MS = 300
+
+private fun formEnter() =
+    slideInVertically(animationSpec = tween(FORM_ANIM_MS)) { fullHeight -> fullHeight / 4 } +
+            fadeIn(animationSpec = tween(FORM_ANIM_MS))
+
+private fun formExit() =
+    slideOutVertically(animationSpec = tween(FORM_ANIM_MS)) { fullHeight -> fullHeight / 4 } +
+            fadeOut(animationSpec = tween(FORM_ANIM_MS))
 
 @Composable
 fun BudgetInNavGraph(
@@ -137,7 +153,11 @@ fun BudgetInNavGraph(
             )
         }
 
-        composable(Screen.AddTransaction.route) {
+        composable(
+            route = Screen.AddTransaction.route,
+            enterTransition = { formEnter() },
+            popExitTransition = { formExit() }
+        ) {
             AddTransactionScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
@@ -145,7 +165,9 @@ fun BudgetInNavGraph(
 
         composable(
             route = Screen.EditTransaction.route,
-            arguments = listOf(navArgument("transactionId") { type = NavType.StringType })
+            arguments = listOf(navArgument("transactionId") { type = NavType.StringType }),
+            enterTransition = { formEnter() },
+            popExitTransition = { formExit() }
         ) { backStackEntry ->
             EditTransactionScreen(
                 transactionId = backStackEntry.arguments?.getString("transactionId").orEmpty(),

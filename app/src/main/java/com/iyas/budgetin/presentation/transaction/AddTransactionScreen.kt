@@ -131,7 +131,7 @@ fun AddTransactionScreenContent(
 
     var amount by remember { mutableStateOf(initialTransaction?.amount?.toLong()?.toString() ?: "") }
     var note by remember { mutableStateOf(initialTransaction?.note ?: "") }
-    var selectedType by remember { mutableStateOf(initialTransaction?.type ?: TransactionType.EXPENSE) }
+    var selectedType by remember { mutableStateOf(initialTransaction?.type ?: TransactionType.INCOME) }
     var selectedCategory by remember { mutableStateOf(initialTransaction?.category ?: "") }
     var selectedDate by remember { mutableStateOf(initialTransaction?.date ?: System.currentTimeMillis()) }
     var amountError by remember { mutableStateOf(false) }
@@ -235,20 +235,20 @@ fun AddTransactionScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         TypeButton(
-                            text = "Pengeluaran",
-                            emoji = "↓",
-                            selected = selectedType == TransactionType.EXPENSE,
-                            isExpense = true,
-                            modifier = Modifier.weight(1f),
-                            onClick = { selectedType = TransactionType.EXPENSE }
-                        )
-                        TypeButton(
                             text = "Pemasukan",
                             emoji = "↑",
                             selected = selectedType == TransactionType.INCOME,
                             isExpense = false,
                             modifier = Modifier.weight(1f),
                             onClick = { selectedType = TransactionType.INCOME }
+                        )
+                        TypeButton(
+                            text = "Pengeluaran",
+                            emoji = "↓",
+                            selected = selectedType == TransactionType.EXPENSE,
+                            isExpense = true,
+                            modifier = Modifier.weight(1f),
+                            onClick = { selectedType = TransactionType.EXPENSE }
                         )
                     }
                 }
