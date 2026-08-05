@@ -188,6 +188,7 @@ fun AddTransactionScreenContent(
     val initialAmount = remember(initialTransaction) { initialTransaction?.amount?.toLong()?.toString() ?: "" }
     val initialNote = remember(initialTransaction) { initialTransaction?.note ?: "" }
     val initialCategory = remember(initialTransaction) { initialTransaction?.category ?: "" }
+    val initialType = remember(initialTransaction) { initialTransaction?.type ?: TransactionType.INCOME }
     // Transaksi tidak boleh bertanggal di masa depan. coerceAtMost juga menjaga
     // data lama yang terlanjur bertanggal maju agar tetap valid saat diedit.
     val initialDate = remember(initialTransaction) {
@@ -197,19 +198,20 @@ fun AddTransactionScreenContent(
 
     var amount by remember { mutableStateOf(initialAmount) }
     var note by remember { mutableStateOf(initialNote) }
-    var selectedType by remember { mutableStateOf(initialTransaction?.type ?: TransactionType.INCOME) }
+    var selectedType by remember { mutableStateOf(initialType) }
     var selectedCategory by remember { mutableStateOf(initialCategory) }
     var selectedDate by remember { mutableStateOf(initialDate) }
     var amountError by remember { mutableStateOf(false) }
     var categoryError by remember { mutableStateOf(false) }
 
-    // Tipe transaksi terkunci saat edit, jadi tidak perlu ikut dibandingkan
-    val hasUnsavedChanges = isEditing && (
-            amount != initialAmount ||
-                    note != initialNote ||
-                    selectedCategory != initialCategory ||
-                    selectedDate != initialDate
-            )
+    // Berlaku untuk kedua mode: saat tambah, pembandingnya adalah form kosong,
+    // jadi isian apa pun sudah dianggap perubahan yang belum tersimpan
+    val hasUnsavedChanges =
+        amount != initialAmount ||
+                note != initialNote ||
+                selectedType != initialType ||
+                selectedCategory != initialCategory ||
+                selectedDate != initialDate
 
     var showExitDialog by remember { mutableStateOf(false) }
     val requestExit = {
@@ -228,7 +230,11 @@ fun AddTransactionScreenContent(
             title = { Text("Belum Disimpan", color = SolidBlack, fontWeight = FontWeight.Black) },
             text = {
                 Text(
-                    "Perubahan pada transaksi ini belum disimpan dan akan hilang. Yakin ingin keluar?",
+                    if (isEditing) {
+                        "Perubahan pada transaksi ini belum disimpan dan akan hilang. Yakin ingin keluar?"
+                    } else {
+                        "Transaksi yang kamu isi belum disimpan dan akan hilang. Yakin ingin keluar?"
+                    },
                     color = TextSecondary,
                     fontWeight = FontWeight.Bold
                 )
@@ -253,7 +259,7 @@ fun AddTransactionScreenContent(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
                 ) {
-                    Text("Lanjut Edit", fontWeight = FontWeight.Bold)
+                    Text(if (isEditing) "Lanjut Edit" else "Lanjut Isi", fontWeight = FontWeight.Bold)
                 }
             }
         )
