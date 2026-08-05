@@ -155,7 +155,7 @@ fun ChartsScreenContent(
                             data = uiState.expenseByCategory,
                             colors = CHART_COLORS,
                             centerText = "Pengeluaran",
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
                         )
                     }
                     items(uiState.expenseByCategory.take(6)) { share ->
@@ -180,7 +180,7 @@ fun ChartsScreenContent(
                             data = uiState.incomeByCategory,
                             colors = CHART_COLORS,
                             centerText = "Pemasukan",
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
                         )
                     }
                     items(uiState.incomeByCategory.take(6)) { share ->

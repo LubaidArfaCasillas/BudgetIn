@@ -185,7 +185,14 @@ fun AddTransactionScreenContent(
     var note by remember { mutableStateOf(initialTransaction?.note ?: "") }
     var selectedType by remember { mutableStateOf(initialTransaction?.type ?: TransactionType.INCOME) }
     var selectedCategory by remember { mutableStateOf(initialTransaction?.category ?: "") }
-    var selectedDate by remember { mutableStateOf(initialTransaction?.date ?: System.currentTimeMillis()) }
+    // Transaksi tidak boleh bertanggal di masa depan. coerceAtMost juga menjaga
+    // data lama yang terlanjur bertanggal maju agar tetap valid saat diedit.
+    var selectedDate by remember {
+        mutableStateOf(
+            (initialTransaction?.date ?: System.currentTimeMillis())
+                .coerceAtMost(System.currentTimeMillis())
+        )
+    }
     var amountError by remember { mutableStateOf(false) }
     var categoryError by remember { mutableStateOf(false) }
 
@@ -202,7 +209,10 @@ fun AddTransactionScreenContent(
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
-    )
+    ).apply {
+        // Tanggal setelah hari ini dinonaktifkan langsung di kalendernya
+        this.datePicker.maxDate = System.currentTimeMillis()
+    }
 
     val categories = if (selectedType == TransactionType.INCOME) INCOME_CATEGORIES else EXPENSE_CATEGORIES
 
@@ -473,7 +483,7 @@ fun AddTransactionScreenContent(
                             amount = amt,
                             type = selectedType,
                             category = selectedCategory,
-                            date = selectedDate,
+                            date = selectedDate.coerceAtMost(System.currentTimeMillis()),
                             note = note.trim()
                         )
                     )
