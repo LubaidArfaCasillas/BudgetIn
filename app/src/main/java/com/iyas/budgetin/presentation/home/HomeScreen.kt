@@ -285,7 +285,7 @@ fun TransactionItem(
     onClick: () -> Unit = {}
 ) {
     val isIncome = transaction.type == TransactionType.INCOME
-    val icon = CATEGORY_ICONS[transaction.category] ?: if (isIncome) "💰" else "💸"
+    val icon = getTransactionIcon(transaction.type)
 
     Box(
         modifier = modifier

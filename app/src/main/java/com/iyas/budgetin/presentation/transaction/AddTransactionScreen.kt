@@ -283,7 +283,16 @@ fun AddTransactionScreenContent(
         this.datePicker.maxDate = System.currentTimeMillis()
     }
 
-    val categories = if (selectedType == TransactionType.INCOME) INCOME_CATEGORIES else EXPENSE_CATEGORIES
+    val customIncomeCategories = remember { mutableStateListOf<String>() }
+    val customExpenseCategories = remember { mutableStateListOf<String>() }
+    val categories = if (selectedType == TransactionType.INCOME)
+        INCOME_CATEGORIES + customIncomeCategories
+    else
+        EXPENSE_CATEGORIES + customExpenseCategories
+
+    var showAddCategoryDialog by remember { mutableStateOf(false) }
+    var newCategoryName by remember { mutableStateOf("") }
+    var newCategoryError by remember { mutableStateOf<String?>(null) }
 
     // Reset kategori saat tipe diubah, tapi jangan hapus kategori awal saat edit
     var lastType by remember { mutableStateOf(selectedType) }
@@ -292,6 +301,122 @@ fun AddTransactionScreenContent(
             selectedCategory = ""
             lastType = selectedType
         }
+    }
+
+    // Dialog tambah kategori
+    if (showAddCategoryDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showAddCategoryDialog = false
+                newCategoryName = ""
+                newCategoryError = null
+            },
+            containerColor = Color.White,
+            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
+            title = {
+                Text(
+                    "Tambah Kategori",
+                    color = SolidBlack,
+                    fontWeight = FontWeight.Black
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        if (selectedType == TransactionType.INCOME) "Kategori pemasukan baru" else "Kategori pengeluaran baru",
+                        color = TextSecondary,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = newCategoryName,
+                        onValueChange = {
+                            newCategoryName = it
+                            newCategoryError = null
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = {
+                            Text(
+                                "Nama kategori",
+                                color = TextSecondary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        singleLine = true,
+                        isError = newCategoryError != null,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                            unfocusedBorderColor = SolidBlack,
+                            focusedTextColor = SolidBlack,
+                            unfocusedTextColor = SolidBlack,
+                            cursorColor = SolidBlack,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            errorBorderColor = ExpenseRed
+                        )
+                    )
+                    if (newCategoryError != null) {
+                        Text(
+                            newCategoryError!!,
+                            color = ExpenseRed,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val name = newCategoryName.trim()
+                        when {
+                            name.isBlank() -> {
+                                newCategoryError = "Nama kategori tidak boleh kosong"
+                            }
+                            categories.any { it.equals(name, ignoreCase = true) } -> {
+                                newCategoryError = "Kategori sudah ada"
+                            }
+                            else -> {
+                                if (selectedType == TransactionType.INCOME) {
+                                    customIncomeCategories.add(name)
+                                } else {
+                                    customExpenseCategories.add(name)
+                                }
+                                selectedCategory = name
+                                categoryError = false
+                                showAddCategoryDialog = false
+                                newCategoryName = ""
+                                newCategoryError = null
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
+                ) {
+                    Text("Tambah", color = SolidBlack, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        showAddCategoryDialog = false
+                        newCategoryName = ""
+                        newCategoryError = null
+                    },
+                    border = BorderStroke(2.dp, SolidBlack),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
+                ) {
+                    Text("Batal", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
     }
 
     Column(
@@ -442,7 +567,6 @@ fun AddTransactionScreenContent(
 
             Spacer(Modifier.height(16.dp))
 
-            // Category Grid
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -468,6 +592,35 @@ fun AddTransactionScreenContent(
                                 type = selectedType,
                                 onClick = { selectedCategory = cat; categoryError = false }
                             )
+                        }
+                        // Tombol Tambah Kategori
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .clickable { showAddCategoryDialog = true }
+                                    .border(
+                                        width = 2.dp,
+                                        color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                                        shape = RoundedCornerShape(14.dp)
+                                    )
+                            ) {
+                                Box(
+                                    modifier = Modifier.padding(vertical = 14.dp, horizontal = 10.dp).fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        "+ Tambah",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                                        textAlign = TextAlign.Center,
+                                        maxLines = 1,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -647,7 +800,6 @@ fun CategoryChip(
     onClick: () -> Unit
 ) {
     val color = if (type == TransactionType.INCOME) NeoTeal else NeoPink
-    val icon = CATEGORY_ICONS[category] ?: "📌"
 
     Box(
         modifier = Modifier
@@ -657,19 +809,17 @@ fun CategoryChip(
             .clickable(onClick = onClick)
             .border(2.dp, if(selected) SolidBlack else DividerColor, RoundedCornerShape(14.dp))
     ) {
-        Column(
-            modifier = Modifier.padding(10.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.padding(vertical = 14.dp, horizontal = 10.dp).fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
-            Text(icon, fontSize = 22.sp, textAlign = TextAlign.Center)
             Text(
                 category,
                 style = MaterialTheme.typography.labelSmall,
                 color = if (selected) SolidBlack else TextSecondary,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
-                fontWeight = if (selected) FontWeight.Black else FontWeight.Bold,
-                modifier = Modifier.padding(top = 4.dp)
+                fontWeight = if (selected) FontWeight.Black else FontWeight.Bold
             )
         }
     }

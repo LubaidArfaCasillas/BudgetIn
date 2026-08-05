@@ -32,7 +32,7 @@ import com.iyas.budgetin.presentation.home.BottomNavigationBar
 import com.iyas.budgetin.ui.theme.*
 import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.formatCurrency
-import com.iyas.budgetin.utils.CATEGORY_ICONS
+import com.iyas.budgetin.utils.getTransactionIcon
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
@@ -159,7 +159,7 @@ fun ChartsScreenContent(
                         )
                     }
                     items(uiState.expenseByCategory.take(6)) { share ->
-                        CategoryLegendItem(share, CHART_COLORS[uiState.expenseByCategory.indexOf(share) % CHART_COLORS.size])
+                        CategoryLegendItem(share, CHART_COLORS[uiState.expenseByCategory.indexOf(share) % CHART_COLORS.size], isIncome = false)
                     }
                 }
 
@@ -184,7 +184,7 @@ fun ChartsScreenContent(
                         )
                     }
                     items(uiState.incomeByCategory.take(6)) { share ->
-                        CategoryLegendItem(share, CHART_COLORS[uiState.incomeByCategory.indexOf(share) % CHART_COLORS.size])
+                        CategoryLegendItem(share, CHART_COLORS[uiState.incomeByCategory.indexOf(share) % CHART_COLORS.size], isIncome = true)
                     }
                 }
 
@@ -390,8 +390,8 @@ fun MonthlyBarChart(
 }
 
 @Composable
-fun CategoryLegendItem(share: CategoryShare, color: Color) {
-    val icon = CATEGORY_ICONS[share.category] ?: "📌"
+fun CategoryLegendItem(share: CategoryShare, color: Color, isIncome: Boolean = false) {
+    val icon = getTransactionIcon(if (isIncome) com.iyas.budgetin.data.model.TransactionType.INCOME else com.iyas.budgetin.data.model.TransactionType.EXPENSE)
     Box(
         modifier = Modifier
             .fillMaxWidth()

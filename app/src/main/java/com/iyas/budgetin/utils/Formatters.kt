@@ -43,27 +43,14 @@ fun groupTransactionsByMonth(transactions: List<Transaction>): Map<String, List<
 }
 
 val INCOME_CATEGORIES = listOf(
-    "Gaji", "Freelance", "Investasi", "Bisnis", "Hadiah", "Lainnya"
+    "Gaji", "Freelance", "Investasi", "Bisnis", "Hadiah"
 )
 
 val EXPENSE_CATEGORIES = listOf(
     "Makan & Minum", "Transportasi", "Belanja", "Tagihan", "Hiburan",
-    "Kesehatan", "Pendidikan", "Tabungan", "Lainnya"
+    "Kesehatan", "Pendidikan", "Tabungan"
 )
 
-val CATEGORY_ICONS = mapOf(
-    "Gaji" to "💼",
-    "Freelance" to "💻",
-    "Investasi" to "📈",
-    "Bisnis" to "🏢",
-    "Hadiah" to "🎁",
-    "Makan & Minum" to "🍽️",
-    "Transportasi" to "🚗",
-    "Belanja" to "🛒",
-    "Tagihan" to "📄",
-    "Hiburan" to "🎮",
-    "Kesehatan" to "🏥",
-    "Pendidikan" to "📚",
-    "Tabungan" to "🏦",
-    "Lainnya" to "📌"
-)
+fun getTransactionIcon(type: TransactionType): String {
+    return if (type == TransactionType.INCOME) "💰" else "💸"
+}
