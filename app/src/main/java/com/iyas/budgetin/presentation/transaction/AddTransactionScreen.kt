@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
 import com.iyas.budgetin.ui.theme.*
+import com.iyas.budgetin.ui.components.ThousandSeparatorTransformation
 import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.*
 import org.koin.androidx.compose.koinViewModel
@@ -348,6 +349,7 @@ fun AddTransactionScreenContent(
                             modifier = Modifier.fillMaxWidth(),
                             placeholder = { Text("0", style = MaterialTheme.typography.headlineMedium, color = TextSecondary, fontWeight = FontWeight.Black) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            visualTransformation = ThousandSeparatorTransformation,
                             singleLine = true,
                             isError = amountError,
                             colors = OutlinedTextFieldDefaults.colors(
