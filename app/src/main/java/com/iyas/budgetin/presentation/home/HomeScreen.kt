@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -412,7 +411,7 @@ fun BottomNavigationBar(
                     activeColor = NeoPink
                 )
                 NavItem(
-                    icon = Icons.AutoMirrored.Filled.List,
+                    icon = Icons.Default.History,
                     label = "Riwayat",
                     isSelected = currentRoute == "history",
                     onClick = onHistoryClick,
