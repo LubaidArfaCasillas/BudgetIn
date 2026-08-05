@@ -1,6 +1,7 @@
 package com.iyas.budgetin.presentation.transaction
 
 import android.app.DatePickerDialog
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -182,20 +183,81 @@ fun AddTransactionScreenContent(
         )
     }
 
-    var amount by remember { mutableStateOf(initialTransaction?.amount?.toLong()?.toString() ?: "") }
-    var note by remember { mutableStateOf(initialTransaction?.note ?: "") }
-    var selectedType by remember { mutableStateOf(initialTransaction?.type ?: TransactionType.INCOME) }
-    var selectedCategory by remember { mutableStateOf(initialTransaction?.category ?: "") }
+    // Nilai awal dipisah agar bisa dipakai dua kali: mengisi form, dan menjadi
+    // pembanding untuk mendeteksi perubahan yang belum disimpan
+    val initialAmount = remember(initialTransaction) { initialTransaction?.amount?.toLong()?.toString() ?: "" }
+    val initialNote = remember(initialTransaction) { initialTransaction?.note ?: "" }
+    val initialCategory = remember(initialTransaction) { initialTransaction?.category ?: "" }
     // Transaksi tidak boleh bertanggal di masa depan. coerceAtMost juga menjaga
     // data lama yang terlanjur bertanggal maju agar tetap valid saat diedit.
-    var selectedDate by remember {
-        mutableStateOf(
-            (initialTransaction?.date ?: System.currentTimeMillis())
-                .coerceAtMost(System.currentTimeMillis())
-        )
+    val initialDate = remember(initialTransaction) {
+        (initialTransaction?.date ?: System.currentTimeMillis())
+            .coerceAtMost(System.currentTimeMillis())
     }
+
+    var amount by remember { mutableStateOf(initialAmount) }
+    var note by remember { mutableStateOf(initialNote) }
+    var selectedType by remember { mutableStateOf(initialTransaction?.type ?: TransactionType.INCOME) }
+    var selectedCategory by remember { mutableStateOf(initialCategory) }
+    var selectedDate by remember { mutableStateOf(initialDate) }
     var amountError by remember { mutableStateOf(false) }
     var categoryError by remember { mutableStateOf(false) }
+
+    // Tipe transaksi terkunci saat edit, jadi tidak perlu ikut dibandingkan
+    val hasUnsavedChanges = isEditing && (
+            amount != initialAmount ||
+                    note != initialNote ||
+                    selectedCategory != initialCategory ||
+                    selectedDate != initialDate
+            )
+
+    var showExitDialog by remember { mutableStateOf(false) }
+    val requestExit = {
+        if (hasUnsavedChanges) showExitDialog = true else onNavigateBack()
+    }
+
+    // Tombol back bawaan HP dicegat hanya bila ada perubahan; selain itu
+    // dibiarkan berperilaku normal
+    BackHandler(enabled = hasUnsavedChanges) { showExitDialog = true }
+
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            containerColor = Color.White,
+            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
+            title = { Text("Belum Disimpan", color = SolidBlack, fontWeight = FontWeight.Black) },
+            text = {
+                Text(
+                    "Perubahan pada transaksi ini belum disimpan dan akan hilang. Yakin ingin keluar?",
+                    color = TextSecondary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showExitDialog = false
+                        onNavigateBack()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
+                ) {
+                    Text("Keluar", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showExitDialog = false },
+                    border = BorderStroke(2.dp, SolidBlack),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
+                ) {
+                    Text("Lanjut Edit", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
 
     // Buka date picker pada tanggal yang sedang dipilih, bukan selalu hari ini
     val calendar = Calendar.getInstance().apply { timeInMillis = selectedDate }
@@ -243,7 +305,7 @@ fun AddTransactionScreenContent(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
-                    onClick = onNavigateBack,
+                    onClick = requestExit,
                     modifier = Modifier
                         .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 2.dp)
                         .background(Color.White, RoundedCornerShape(12.dp))
