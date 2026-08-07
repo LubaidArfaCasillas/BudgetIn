@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.iyas.budgetin.data.model.Category
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
 import com.iyas.budgetin.ui.theme.*
@@ -51,6 +52,10 @@ fun AddTransactionScreen(
     val saveSuccess by viewModel.saveSuccess.collectAsState()
     val saveError by viewModel.saveError.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
+    val categories by viewModel.categories.collectAsState()
+    val isSavingCategory by viewModel.isSavingCategory.collectAsState()
+    val categorySaveError by viewModel.categorySaveError.collectAsState()
+    val categorySaveSuccess by viewModel.categorySaveSuccess.collectAsState()
 
     LaunchedEffect(saveSuccess) {
         if (saveSuccess) {
@@ -63,7 +68,13 @@ fun AddTransactionScreen(
         onNavigateBack = onNavigateBack,
         onSaveTransaction = viewModel::addTransaction,
         saveError = saveError,
-        isSaving = isSaving
+        isSaving = isSaving,
+        customCategories = categories,
+        onAddCategory = viewModel::addCategory,
+        isSavingCategory = isSavingCategory,
+        categorySaveError = categorySaveError,
+        categorySaveSuccess = categorySaveSuccess,
+        onResetCategorySaveState = viewModel::resetCategorySaveState
     )
 }
 
@@ -78,6 +89,10 @@ fun EditTransactionScreen(
     val saveSuccess by viewModel.saveSuccess.collectAsState()
     val saveError by viewModel.saveError.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
+    val categories by viewModel.categories.collectAsState()
+    val isSavingCategory by viewModel.isSavingCategory.collectAsState()
+    val categorySaveError by viewModel.categorySaveError.collectAsState()
+    val categorySaveSuccess by viewModel.categorySaveSuccess.collectAsState()
 
     val transaction = uiState.allTransactions.firstOrNull { it.id == transactionId }
 
@@ -122,7 +137,13 @@ fun EditTransactionScreen(
                 initialTransaction = transaction,
                 title = "Edit Transaksi",
                 saveButtonText = "Simpan Perubahan",
-                onDeleteTransaction = { viewModel.deleteTransaction(transaction.id) }
+                onDeleteTransaction = { viewModel.deleteTransaction(transaction.id) },
+                customCategories = categories,
+                onAddCategory = viewModel::addCategory,
+                isSavingCategory = isSavingCategory,
+                categorySaveError = categorySaveError,
+                categorySaveSuccess = categorySaveSuccess,
+                onResetCategorySaveState = viewModel::resetCategorySaveState
             )
         }
     }
@@ -138,7 +159,13 @@ fun AddTransactionScreenContent(
     initialTransaction: Transaction? = null,
     title: String = "Tambah Transaksi",
     saveButtonText: String = "Simpan Transaksi",
-    onDeleteTransaction: (() -> Unit)? = null
+    onDeleteTransaction: (() -> Unit)? = null,
+    customCategories: List<Category> = emptyList(),
+    onAddCategory: (String, TransactionType) -> Unit = { _, _ -> },
+    isSavingCategory: Boolean = false,
+    categorySaveError: String? = null,
+    categorySaveSuccess: Boolean = false,
+    onResetCategorySaveState: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val isEditing = initialTransaction != null
@@ -283,16 +310,31 @@ fun AddTransactionScreenContent(
         this.datePicker.maxDate = System.currentTimeMillis()
     }
 
-    val customIncomeCategories = remember { mutableStateListOf<String>() }
-    val customExpenseCategories = remember { mutableStateListOf<String>() }
     val categories = if (selectedType == TransactionType.INCOME)
-        INCOME_CATEGORIES + customIncomeCategories
+        INCOME_CATEGORIES + customCategories.filter { it.type == TransactionType.INCOME }.map { it.name }
     else
-        EXPENSE_CATEGORIES + customExpenseCategories
+        EXPENSE_CATEGORIES + customCategories.filter { it.type == TransactionType.EXPENSE }.map { it.name }
 
     var showAddCategoryDialog by remember { mutableStateOf(false) }
     var newCategoryName by remember { mutableStateOf("") }
     var newCategoryError by remember { mutableStateOf<String?>(null) }
+
+    // Tutup dialog begitu kategori berhasil tersimpan ke Firestore
+    LaunchedEffect(categorySaveSuccess) {
+        if (categorySaveSuccess) {
+            showAddCategoryDialog = false
+            newCategoryName = ""
+            newCategoryError = null
+            onResetCategorySaveState()
+        }
+    }
+
+    // Tampilkan error dari penyimpanan Firestore di dalam dialog
+    LaunchedEffect(categorySaveError) {
+        if (categorySaveError != null) {
+            newCategoryError = categorySaveError
+        }
+    }
 
     // Reset kategori saat tipe diubah, tapi jangan hapus kategori awal saat edit
     var lastType by remember { mutableStateOf(selectedType) }
@@ -380,26 +422,27 @@ fun AddTransactionScreenContent(
                                 newCategoryError = "Kategori sudah ada"
                             }
                             else -> {
-                                if (selectedType == TransactionType.INCOME) {
-                                    customIncomeCategories.add(name)
-                                } else {
-                                    customExpenseCategories.add(name)
-                                }
-                                selectedCategory = name
-                                categoryError = false
-                                showAddCategoryDialog = false
-                                newCategoryName = ""
                                 newCategoryError = null
+                                onAddCategory(name, selectedType)
                             }
                         }
                     },
+                    enabled = !isSavingCategory,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
                 ) {
-                    Text("Tambah", color = SolidBlack, fontWeight = FontWeight.Bold)
+                    if (isSavingCategory) {
+                        CircularProgressIndicator(
+                            color = SolidBlack,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    } else {
+                        Text("Tambah", color = SolidBlack, fontWeight = FontWeight.Bold)
+                    }
                 }
             },
             dismissButton = {
@@ -593,34 +636,35 @@ fun AddTransactionScreenContent(
                                 onClick = { selectedCategory = cat; categoryError = false }
                             )
                         }
-                        // Tombol Tambah Kategori
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(14.dp))
-                                    .background(MaterialTheme.colorScheme.background)
-                                    .clickable { showAddCategoryDialog = true }
-                                    .border(
-                                        width = 2.dp,
-                                        color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
-                                        shape = RoundedCornerShape(14.dp)
-                                    )
-                            ) {
-                                Box(
-                                    modifier = Modifier.padding(vertical = 14.dp, horizontal = 10.dp).fillMaxWidth(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        "+ Tambah",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
-                                        textAlign = TextAlign.Center,
-                                        maxLines = 1,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // Tombol Tambah Kategori
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(MaterialTheme.colorScheme.background)
+                            .clickable { showAddCategoryDialog = true }
+                            .border(
+                                width = 2.dp,
+                                color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                                shape = RoundedCornerShape(14.dp)
+                            )
+                    ) {
+                        Box(
+                            modifier = Modifier.padding(vertical = 14.dp, horizontal = 10.dp).fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "+ Tambah Kategori",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }

@@ -2,8 +2,10 @@ package com.iyas.budgetin.presentation.transaction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iyas.budgetin.data.model.Category
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
+import com.iyas.budgetin.domain.repository.CategoryRepository
 import com.iyas.budgetin.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -21,7 +23,8 @@ data class HistoryUiState(
 )
 
 class TransactionViewModel(
-    private val repository: TransactionRepository
+    private val repository: TransactionRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryUiState())
@@ -37,8 +40,48 @@ class TransactionViewModel(
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
 
+    // Kategori kustom
+    private val _categories = MutableStateFlow<List<Category>>(emptyList())
+    val categories: StateFlow<List<Category>> = _categories.asStateFlow()
+
+    private val _isSavingCategory = MutableStateFlow(false)
+    val isSavingCategory: StateFlow<Boolean> = _isSavingCategory.asStateFlow()
+
+    private val _categorySaveError = MutableStateFlow<String?>(null)
+    val categorySaveError: StateFlow<String?> = _categorySaveError.asStateFlow()
+
+    private val _categorySaveSuccess = MutableStateFlow(false)
+    val categorySaveSuccess: StateFlow<Boolean> = _categorySaveSuccess.asStateFlow()
+
     init {
         loadTransactions()
+        loadCategories()
+    }
+
+    private fun loadCategories() {
+        viewModelScope.launch {
+            categoryRepository.getCategories().collect { list ->
+                _categories.value = list
+            }
+        }
+    }
+
+    fun addCategory(name: String, type: TransactionType) {
+        viewModelScope.launch {
+            _isSavingCategory.value = true
+            val result = categoryRepository.addCategory(Category(name = name, type = type))
+            _isSavingCategory.value = false
+            if (result.isSuccess) {
+                _categorySaveSuccess.value = true
+            } else {
+                _categorySaveError.value = result.exceptionOrNull()?.message ?: "Gagal menambah kategori"
+            }
+        }
+    }
+
+    fun resetCategorySaveState() {
+        _categorySaveSuccess.value = false
+        _categorySaveError.value = null
     }
 
     private fun loadTransactions() {
