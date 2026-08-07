@@ -53,6 +53,15 @@ class TransactionViewModel(
     private val _categorySaveSuccess = MutableStateFlow(false)
     val categorySaveSuccess: StateFlow<Boolean> = _categorySaveSuccess.asStateFlow()
 
+    private val _isDeletingCategory = MutableStateFlow(false)
+    val isDeletingCategory: StateFlow<Boolean> = _isDeletingCategory.asStateFlow()
+
+    private val _categoryDeleteError = MutableStateFlow<String?>(null)
+    val categoryDeleteError: StateFlow<String?> = _categoryDeleteError.asStateFlow()
+
+    private val _categoryDeleteSuccess = MutableStateFlow(false)
+    val categoryDeleteSuccess: StateFlow<Boolean> = _categoryDeleteSuccess.asStateFlow()
+
     init {
         loadTransactions()
         loadCategories()
@@ -82,6 +91,24 @@ class TransactionViewModel(
     fun resetCategorySaveState() {
         _categorySaveSuccess.value = false
         _categorySaveError.value = null
+    }
+
+    fun deleteCategory(id: String) {
+        viewModelScope.launch {
+            _isDeletingCategory.value = true
+            val result = categoryRepository.deleteCategory(id)
+            _isDeletingCategory.value = false
+            if (result.isSuccess) {
+                _categoryDeleteSuccess.value = true
+            } else {
+                _categoryDeleteError.value = result.exceptionOrNull()?.message ?: "Gagal menghapus kategori"
+            }
+        }
+    }
+
+    fun resetCategoryDeleteState() {
+        _categoryDeleteSuccess.value = false
+        _categoryDeleteError.value = null
     }
 
     private fun loadTransactions() {

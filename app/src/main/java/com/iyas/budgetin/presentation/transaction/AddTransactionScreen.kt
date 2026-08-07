@@ -56,6 +56,9 @@ fun AddTransactionScreen(
     val isSavingCategory by viewModel.isSavingCategory.collectAsState()
     val categorySaveError by viewModel.categorySaveError.collectAsState()
     val categorySaveSuccess by viewModel.categorySaveSuccess.collectAsState()
+    val isDeletingCategory by viewModel.isDeletingCategory.collectAsState()
+    val categoryDeleteError by viewModel.categoryDeleteError.collectAsState()
+    val categoryDeleteSuccess by viewModel.categoryDeleteSuccess.collectAsState()
 
     LaunchedEffect(saveSuccess) {
         if (saveSuccess) {
@@ -74,7 +77,12 @@ fun AddTransactionScreen(
         isSavingCategory = isSavingCategory,
         categorySaveError = categorySaveError,
         categorySaveSuccess = categorySaveSuccess,
-        onResetCategorySaveState = viewModel::resetCategorySaveState
+        onResetCategorySaveState = viewModel::resetCategorySaveState,
+        onDeleteCategory = viewModel::deleteCategory,
+        isDeletingCategory = isDeletingCategory,
+        categoryDeleteError = categoryDeleteError,
+        categoryDeleteSuccess = categoryDeleteSuccess,
+        onResetCategoryDeleteState = viewModel::resetCategoryDeleteState
     )
 }
 
@@ -93,6 +101,9 @@ fun EditTransactionScreen(
     val isSavingCategory by viewModel.isSavingCategory.collectAsState()
     val categorySaveError by viewModel.categorySaveError.collectAsState()
     val categorySaveSuccess by viewModel.categorySaveSuccess.collectAsState()
+    val isDeletingCategory by viewModel.isDeletingCategory.collectAsState()
+    val categoryDeleteError by viewModel.categoryDeleteError.collectAsState()
+    val categoryDeleteSuccess by viewModel.categoryDeleteSuccess.collectAsState()
 
     val transaction = uiState.allTransactions.firstOrNull { it.id == transactionId }
 
@@ -143,7 +154,12 @@ fun EditTransactionScreen(
                 isSavingCategory = isSavingCategory,
                 categorySaveError = categorySaveError,
                 categorySaveSuccess = categorySaveSuccess,
-                onResetCategorySaveState = viewModel::resetCategorySaveState
+                onResetCategorySaveState = viewModel::resetCategorySaveState,
+                onDeleteCategory = viewModel::deleteCategory,
+                isDeletingCategory = isDeletingCategory,
+                categoryDeleteError = categoryDeleteError,
+                categoryDeleteSuccess = categoryDeleteSuccess,
+                onResetCategoryDeleteState = viewModel::resetCategoryDeleteState
             )
         }
     }
@@ -165,7 +181,12 @@ fun AddTransactionScreenContent(
     isSavingCategory: Boolean = false,
     categorySaveError: String? = null,
     categorySaveSuccess: Boolean = false,
-    onResetCategorySaveState: () -> Unit = {}
+    onResetCategorySaveState: () -> Unit = {},
+    onDeleteCategory: (String) -> Unit = {},
+    isDeletingCategory: Boolean = false,
+    categoryDeleteError: String? = null,
+    categoryDeleteSuccess: Boolean = false,
+    onResetCategoryDeleteState: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val isEditing = initialTransaction != null
@@ -310,10 +331,10 @@ fun AddTransactionScreenContent(
         this.datePicker.maxDate = System.currentTimeMillis()
     }
 
-    val categories = if (selectedType == TransactionType.INCOME)
-        INCOME_CATEGORIES + customCategories.filter { it.type == TransactionType.INCOME }.map { it.name }
-    else
-        EXPENSE_CATEGORIES + customCategories.filter { it.type == TransactionType.EXPENSE }.map { it.name }
+    val defaultCategoryNames = if (selectedType == TransactionType.INCOME) INCOME_CATEGORIES else EXPENSE_CATEGORIES
+    val currentCustomCategories = customCategories.filter { it.type == selectedType }
+    val categories = defaultCategoryNames + currentCustomCategories.map { it.name }
+    val selectedCustomCategory = currentCustomCategories.firstOrNull { it.name == selectedCategory }
 
     var showAddCategoryDialog by remember { mutableStateOf(false) }
     var newCategoryName by remember { mutableStateOf("") }
@@ -334,6 +355,74 @@ fun AddTransactionScreenContent(
         if (categorySaveError != null) {
             newCategoryError = categorySaveError
         }
+    }
+
+    // Dialog hapus kategori
+    var categoryToDelete by remember { mutableStateOf<Category?>(null) }
+
+    LaunchedEffect(categoryDeleteSuccess) {
+        if (categoryDeleteSuccess) {
+            if (selectedCategory == categoryToDelete?.name) selectedCategory = ""
+            categoryToDelete = null
+            onResetCategoryDeleteState()
+        }
+    }
+
+    if (categoryToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { if (!isDeletingCategory) categoryToDelete = null },
+            containerColor = Color.White,
+            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
+            title = { Text("Hapus Kategori", color = ExpenseRed, fontWeight = FontWeight.Black) },
+            text = {
+                Column {
+                    Text(
+                        "Kategori \"${categoryToDelete?.name}\" akan dihapus permanen. Transaksi yang sudah memakai kategori ini tidak akan berubah. Lanjutkan?",
+                        color = TextSecondary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (categoryDeleteError != null) {
+                        Text(
+                            categoryDeleteError,
+                            color = ExpenseRed,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { categoryToDelete?.let { onDeleteCategory(it.id) } },
+                    enabled = !isDeletingCategory,
+                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
+                ) {
+                    if (isDeletingCategory) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    } else {
+                        Text("Hapus", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { categoryToDelete = null },
+                    enabled = !isDeletingCategory,
+                    border = BorderStroke(2.dp, SolidBlack),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack)
+                ) {
+                    Text("Batal", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
     }
 
     // Reset kategori saat tipe diubah, tapi jangan hapus kategori awal saat edit
@@ -640,31 +729,71 @@ fun AddTransactionScreenContent(
 
                     Spacer(Modifier.height(16.dp))
 
-                    // Tombol Tambah Kategori
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(MaterialTheme.colorScheme.background)
-                            .clickable { showAddCategoryDialog = true }
-                            .border(
-                                width = 2.dp,
-                                color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
-                                shape = RoundedCornerShape(14.dp)
-                            )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        // Tombol Tambah Kategori
                         Box(
-                            modifier = Modifier.padding(vertical = 14.dp, horizontal = 10.dp).fillMaxWidth(),
-                            contentAlignment = Alignment.Center
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(MaterialTheme.colorScheme.background)
+                                .clickable { showAddCategoryDialog = true }
+                                .border(
+                                    width = 2.dp,
+                                    color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                                    shape = RoundedCornerShape(14.dp)
+                                )
                         ) {
-                            Text(
-                                "+ Tambah Kategori",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
-                                textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Box(
+                                modifier = Modifier.padding(vertical = 14.dp, horizontal = 10.dp).fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    "+ Tambah Kategori",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        // Tombol Hapus Kategori, hanya muncul saat kategori kustom sedang dipilih
+                        AnimatedVisibility(
+                            visible = selectedCustomCategory != null,
+                            enter = fadeIn(tween(150)) + expandHorizontally(tween(150)),
+                            exit = fadeOut(tween(150)) + shrinkHorizontally(tween(150))
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(ExpenseRed.copy(alpha = 0.12f))
+                                    .clickable { categoryToDelete = selectedCustomCategory }
+                                    .border(width = 2.dp, color = ExpenseRed, shape = RoundedCornerShape(14.dp))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(vertical = 14.dp, horizontal = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = null,
+                                        tint = ExpenseRed,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        "Hapus",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = ExpenseRed,
+                                        maxLines = 1,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
                         }
                     }
                 }

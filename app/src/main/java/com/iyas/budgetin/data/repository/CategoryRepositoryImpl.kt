@@ -67,4 +67,15 @@ class CategoryRepositoryImpl(
             Result.failure(e)
         }
     }
+
+    override suspend fun deleteCategory(id: String): Result<Unit> {
+        val collection = getCategoriesCollection() ?: return Result.failure(Exception("User not logged in"))
+
+        return try {
+            collection.document(id).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
