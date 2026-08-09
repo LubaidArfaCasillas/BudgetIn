@@ -12,6 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +34,6 @@ import com.iyas.budgetin.presentation.home.BottomNavigationBar
 import com.iyas.budgetin.ui.theme.*
 import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.formatCurrency
-import com.iyas.budgetin.utils.getTransactionIcon
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
@@ -314,11 +315,11 @@ fun MonthlyBarChart(
             Spacer(Modifier.height(6.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Box(Modifier.size(10.dp).border(1.dp, SolidBlack, CircleShape).background(NeoYellow, CircleShape))
+                    Box(Modifier.size(10.dp).border(1.dp, SolidBlack, CircleShape).background(IncomeGreen, CircleShape))
                     Text("Pemasukan", style = MaterialTheme.typography.labelSmall, color = SolidBlack, fontWeight = FontWeight.Bold)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Box(Modifier.size(10.dp).border(1.dp, SolidBlack, CircleShape).background(NeoPurple, CircleShape))
+                    Box(Modifier.size(10.dp).border(1.dp, SolidBlack, CircleShape).background(ExpenseRed, CircleShape))
                     Text("Pengeluaran", style = MaterialTheme.typography.labelSmall, color = SolidBlack, fontWeight = FontWeight.Bold)
                 }
             }
@@ -346,7 +347,7 @@ fun MonthlyBarChart(
                                 .width(barWidth)
                                 .height(incomeH.coerceAtLeast(2.dp))
                                 .border(1.dp, SolidBlack, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(NeoYellow, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .background(IncomeGreen, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
                         )
                     }
                     Column(
@@ -361,7 +362,7 @@ fun MonthlyBarChart(
                                 .width(barWidth)
                                 .height(expH.coerceAtLeast(2.dp))
                                 .border(1.dp, SolidBlack, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(NeoPurple, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .background(ExpenseRed, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
                         )
                     }
                 }
@@ -391,7 +392,6 @@ fun MonthlyBarChart(
 
 @Composable
 fun CategoryLegendItem(share: CategoryShare, color: Color, isIncome: Boolean = false) {
-    val icon = getTransactionIcon(if (isIncome) com.iyas.budgetin.data.model.TransactionType.INCOME else com.iyas.budgetin.data.model.TransactionType.EXPENSE)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -408,12 +408,36 @@ fun CategoryLegendItem(share: CategoryShare, color: Color, isIncome: Boolean = f
                 modifier = Modifier
                     .size(44.dp)
                     .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
-                    .background(color, RoundedCornerShape(12.dp)),
+                    .background(
+                        if (isIncome) IncomeGreen else ExpenseRed,
+                        RoundedCornerShape(12.dp)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(icon, fontSize = 20.sp)
+                Box(
+                    modifier = Modifier
+                        .size(26.dp)
+                        .border(2.dp, SolidBlack, CircleShape)
+                        .background(Color.White, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                        contentDescription = if (isIncome) "Pemasukan" else "Pengeluaran",
+                        tint = if (isIncome) IncomeGreen else ExpenseRed,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
-            Text(share.category, style = MaterialTheme.typography.titleMedium, color = SolidBlack, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .border(1.dp, SolidBlack, CircleShape)
+                        .background(color, CircleShape)
+                )
+                Text(share.category, style = MaterialTheme.typography.titleMedium, color = SolidBlack, fontWeight = FontWeight.Black, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
             Column(horizontalAlignment = Alignment.End) {
                 Text(formatCurrency(share.amount), style = MaterialTheme.typography.titleSmall, color = SolidBlack, fontWeight = FontWeight.Black)
                 Text("${share.percentage.toInt()}%", style = MaterialTheme.typography.labelSmall, color = TextSecondary, fontWeight = FontWeight.Bold)
