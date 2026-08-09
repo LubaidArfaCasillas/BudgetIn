@@ -285,7 +285,6 @@ fun TransactionItem(
     onClick: () -> Unit = {}
 ) {
     val isIncome = transaction.type == TransactionType.INCOME
-    val icon = getTransactionIcon(transaction.type)
 
     Box(
         modifier = modifier
@@ -304,12 +303,25 @@ fun TransactionItem(
                     .size(48.dp)
                     .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
                     .background(
-                        if (isIncome) NeoYellow else NeoPurple,
+                        if (isIncome) IncomeGreen else ExpenseRed,
                         RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(icon, fontSize = 24.sp)
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .border(2.dp, SolidBlack, CircleShape)
+                        .background(Color.White, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                        contentDescription = if (isIncome) "Pemasukan" else "Pengeluaran",
+                        tint = if (isIncome) IncomeGreen else ExpenseRed,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(

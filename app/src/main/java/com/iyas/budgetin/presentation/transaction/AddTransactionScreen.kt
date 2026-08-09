@@ -862,7 +862,7 @@ fun AddTransactionScreenContent(
                         .background(ExpenseRed.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
                 ) {
                     Text(saveError ?: "", color = ExpenseRed, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(12.dp))
-                }
+                } 
             }
 
             Spacer(Modifier.height(24.dp))
