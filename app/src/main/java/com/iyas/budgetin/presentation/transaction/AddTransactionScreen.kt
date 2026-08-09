@@ -253,11 +253,12 @@ fun AddTransactionScreenContent(
     var categoryError by remember { mutableStateOf(false) }
 
     // Berlaku untuk kedua mode: saat tambah, pembandingnya adalah form kosong,
-    // jadi isian apa pun sudah dianggap perubahan yang belum tersimpan
+    // jadi isian apa pun sudah dianggap perubahan yang belum tersimpan.
+    // Ganti tab Pemasukan/Pengeluaran saja tidak dihitung sebagai perubahan
+    // karena bukan isian data, cuma pemilihan tipe.
     val hasUnsavedChanges =
         amount != initialAmount ||
                 note != initialNote ||
-                selectedType != initialType ||
                 selectedCategory != initialCategory ||
                 selectedDate != initialDate
 
