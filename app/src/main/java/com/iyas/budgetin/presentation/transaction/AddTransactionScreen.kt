@@ -589,6 +589,7 @@ fun AddTransactionScreenContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
         ) {
