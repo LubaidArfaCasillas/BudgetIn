@@ -302,26 +302,15 @@ fun TransactionItem(
                 modifier = Modifier
                     .size(48.dp)
                     .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
-                    .background(
-                        if (isIncome) IncomeGreen else ExpenseRed,
-                        RoundedCornerShape(12.dp)
-                    ),
+                    .background(Color.White, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .border(2.dp, SolidBlack, CircleShape)
-                        .background(Color.White, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                        contentDescription = if (isIncome) "Pemasukan" else "Pengeluaran",
-                        tint = if (isIncome) IncomeGreen else ExpenseRed,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
+                Icon(
+                    imageVector = if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                    contentDescription = if (isIncome) "Pemasukan" else "Pengeluaran",
+                    tint = if (isIncome) IncomeGreen else ExpenseRed,
+                    modifier = Modifier.size(28.dp)
+                )
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -513,7 +502,7 @@ fun HomeScreenPreview() {
                 isLoading = false
             ),
             userName = "User",
-            onNavigateToAdd = {},
+            onNavigateToAdd = {},   
             onNavigateToHistory = {},
             onNavigateToCharts = {},
             onNavigateToAccount = {}
