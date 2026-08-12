@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -144,18 +146,13 @@ fun HomeScreenContent(
 
             item {
                 // Recent transactions header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Transaksi Terbaru", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
-                    TextButton(onClick = onNavigateToHistory) {
-                        Text("See All", color = NeoPink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    }
-                }
+                Text(
+                    "Transaksi Terbaru",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = SolidBlack,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+                )
             }
 
             if (uiState.isLoading) {
@@ -169,12 +166,59 @@ fun HomeScreenContent(
                     EmptyTransactionCard(onNavigateToAdd)
                 }
             } else {
-                items(uiState.transactions.take(5)) { transaction ->
+                val visibleTransactions = uiState.transactions.take(5)
+                val hasMoreTransactions = uiState.transactions.size > visibleTransactions.size
+                // Jumlah kartu terakhir yang ikut memudar, supaya transisinya terasa lebih panjang
+                val fadeCount = if (hasMoreTransactions) minOf(2, visibleTransactions.size) else 0
+                val normalTransactions = visibleTransactions.dropLast(fadeCount)
+
+                items(normalTransactions) { transaction ->
                     TransactionItem(
                         transaction = transaction,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
                         onClick = { onNavigateToEdit(transaction.id) }
                     )
+                }
+
+                if (fadeCount > 0) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            Column {
+                                visibleTransactions.takeLast(fadeCount).forEach { transaction ->
+                                    TransactionItem(
+                                        transaction = transaction,
+                                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
+                                        onClick = { onNavigateToEdit(transaction.id) }
+                                    )
+                                }
+                            }
+                            // Beri efek fade di beberapa transaksi terakhir yang tampil agar
+                            // pengguna baru sadar masih ada transaksi lain di bawahnya
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .padding(horizontal = 20.dp, vertical = 6.dp)
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                MaterialTheme.colorScheme.background.copy(alpha = 0.9f)
+                                            )
+                                        ),
+                                        RoundedCornerShape(16.dp)
+                                    )
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    TextButton(
+                        onClick = onNavigateToHistory,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp)
+                    ) {
+                        Text("See All", color = NeoPink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
 
