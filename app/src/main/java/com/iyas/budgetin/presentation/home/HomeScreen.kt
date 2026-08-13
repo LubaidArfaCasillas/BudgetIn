@@ -73,6 +73,20 @@ fun HomeScreenContent(
     onNavigateToAccount: () -> Unit,
     onNavigateToEdit: (String) -> Unit = {}
 ) {
+    val showAllThisMonth = remember { mutableStateOf(false) }
+
+    val currentMonthTransactions = remember(uiState.transactions) {
+        val currentCalendar = java.util.Calendar.getInstance()
+        val currentMonth = currentCalendar.get(java.util.Calendar.MONTH)
+        val currentYear = currentCalendar.get(java.util.Calendar.YEAR)
+        
+        uiState.transactions.filter {
+            val itemCalendar = java.util.Calendar.getInstance()
+            itemCalendar.timeInMillis = it.date
+            itemCalendar.get(java.util.Calendar.MONTH) == currentMonth && itemCalendar.get(java.util.Calendar.YEAR) == currentYear
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
@@ -166,11 +180,12 @@ fun HomeScreenContent(
                     EmptyTransactionCard(onNavigateToAdd)
                 }
             } else {
-                val visibleTransactions = uiState.transactions.take(5)
-                val hasMoreTransactions = uiState.transactions.size > visibleTransactions.size
+                val displayedTransactions = if (showAllThisMonth.value) currentMonthTransactions else uiState.transactions.take(5)
+                val hasMoreTransactions = if (showAllThisMonth.value) false else uiState.transactions.size > 5
+                
                 // Jumlah kartu terakhir yang ikut memudar, supaya transisinya terasa lebih panjang
-                val fadeCount = if (hasMoreTransactions) minOf(2, visibleTransactions.size) else 0
-                val normalTransactions = visibleTransactions.dropLast(fadeCount)
+                val fadeCount = if (hasMoreTransactions) minOf(2, displayedTransactions.size) else 0
+                val normalTransactions = displayedTransactions.dropLast(fadeCount)
 
                 items(normalTransactions) { transaction ->
                     TransactionItem(
@@ -184,7 +199,7 @@ fun HomeScreenContent(
                     item {
                         Box(modifier = Modifier.fillMaxWidth()) {
                             Column {
-                                visibleTransactions.takeLast(fadeCount).forEach { transaction ->
+                                displayedTransactions.takeLast(fadeCount).forEach { transaction ->
                                     TransactionItem(
                                         transaction = transaction,
                                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
@@ -214,10 +229,10 @@ fun HomeScreenContent(
 
                 item {
                     TextButton(
-                        onClick = onNavigateToHistory,
+                        onClick = { showAllThisMonth.value = !showAllThisMonth.value },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp)
                     ) {
-                        Text("See All", color = NeoPink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                        Text(if (showAllThisMonth.value) "Show Less" else "See All", color = NeoPink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -553,3 +568,4 @@ fun HomeScreenPreview() {
         )
     }
 }
+
