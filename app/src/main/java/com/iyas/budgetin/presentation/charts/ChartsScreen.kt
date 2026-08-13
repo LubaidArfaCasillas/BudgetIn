@@ -406,28 +406,17 @@ fun CategoryLegendItem(share: CategoryShare, color: Color, isIncome: Boolean = f
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(48.dp)
                     .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
-                    .background(
-                        if (isIncome) IncomeGreen else ExpenseRed,
-                        RoundedCornerShape(12.dp)
-                    ),
+                    .background(Color.White, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(26.dp)
-                        .border(2.dp, SolidBlack, CircleShape)
-                        .background(Color.White, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
-                        contentDescription = if (isIncome) "Pemasukan" else "Pengeluaran",
-                        tint = if (isIncome) IncomeGreen else ExpenseRed,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
+                Icon(
+                    imageVector = if (isIncome) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                    contentDescription = if (isIncome) "Pemasukan" else "Pengeluaran",
+                    tint = if (isIncome) IncomeGreen else ExpenseRed,
+                    modifier = Modifier.size(28.dp)
+                )
             }
             Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Box(
