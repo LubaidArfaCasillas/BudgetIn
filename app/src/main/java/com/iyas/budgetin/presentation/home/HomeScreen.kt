@@ -232,7 +232,21 @@ fun HomeScreenContent(
                         onClick = { showAllThisMonth.value = !showAllThisMonth.value },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp)
                     ) {
-                        Text(if (showAllThisMonth.value) "Show Less" else "See All", color = NeoPink, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = if (showAllThisMonth.value) "Tampilkan Sedikit" else "Lihat Semua",
+                                color = NeoPink,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Icon(
+                                imageVector = if (showAllThisMonth.value) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = NeoPink,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
             }
