@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -211,6 +212,8 @@ fun DonutChart(
     modifier: Modifier = Modifier
 ) {
     val animProgress = remember { Animatable(0f) }
+    var isExpanded by remember { mutableStateOf(false) }
+
     LaunchedEffect(data) {
         animProgress.snapTo(0f)
         animProgress.animateTo(1f, tween(900, easing = EaseOutCubic))
@@ -267,7 +270,9 @@ fun DonutChart(
             Spacer(Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                data.take(5).forEachIndexed { index, share ->
+                val displayData = if (isExpanded) data else data.take(5)
+                
+                displayData.forEachIndexed { index, share ->
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Box(
                             modifier = Modifier
@@ -282,7 +287,15 @@ fun DonutChart(
                     }
                 }
                 if (data.size > 5) {
-                    Text("+ ${data.size - 5} lainnya", style = MaterialTheme.typography.labelSmall, color = SolidBlack, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = if (isExpanded) "Sembunyikan" else "+ ${data.size - 5} lainnya",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable { isExpanded = !isExpanded }
+                            .padding(vertical = 4.dp)
+                    )
                 }
             }
         }
