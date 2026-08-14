@@ -51,10 +51,25 @@ private val defaultCategoryColorIndex = mapOf(
 )
 
 /**
- * Mengembalikan warna dari palet Neo Brutalism berdasarkan nama kategori secara deterministik.
+ * Mengembalikan warna berdasarkan nama kategori secara deterministik.
+ * Untuk kategori custom, warna di-generate (HSV) dengan rentang hue aman
+ * (menghindari merah dan hijau) untuk meminimalisir tabrakan warna.
  */
 fun getCategoryColor(categoryName: String): Color {
-    val index = defaultCategoryColorIndex[categoryName]
-        ?: (categoryName.hashCode().absoluteValue % neoBrutalismPalette.size)
-    return neoBrutalismPalette[index]
+    // 1. Cek apakah ini kategori default
+    defaultCategoryColorIndex[categoryName]?.let { index ->
+        return neoBrutalismPalette[index]
+    }
+
+    // 2. Kategori custom: Generate warna dari hash (0..194)
+    // Range hue yang aman: 25..60 (Orange/Yellow) dan 170..330 (Cyan/Blue/Purple/Magenta)
+    val normalizedHash = (categoryName.hashCode().absoluteValue % 195)
+    val hue = if (normalizedHash < 35) {
+        normalizedHash + 25f
+    } else {
+        (normalizedHash - 35) + 170f
+    }
+
+    // Gunakan saturasi dan value tinggi untuk tema cerah/Neo Brutalism
+    return Color.hsv(hue = hue, saturation = 0.7f, value = 0.95f)
 }
