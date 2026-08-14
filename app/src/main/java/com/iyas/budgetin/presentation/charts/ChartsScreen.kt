@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -121,15 +120,15 @@ fun ChartsScreenContent(
                                         fontWeight = FontWeight.Black,
                                         style = MaterialTheme.typography.titleMedium
                                     )
-                                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Pilih Tahun", tint = SolidBlack)
                                 }
                                 DropdownMenu(
                                     expanded = expanded,
-                                    onDismissRequest = { expanded = false }
+                                    onDismissRequest = { expanded = false },
+                                    modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp))
                                 ) {
                                     for (year in currentYear downTo 2000) {
                                         DropdownMenuItem(
-                                            text = { Text(year.toString(), fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Normal) },
+                                            text = { Text(year.toString(), color = SolidBlack, fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Normal) },
                                             onClick = {
                                                 onYearChange(year)
                                                 expanded = false
