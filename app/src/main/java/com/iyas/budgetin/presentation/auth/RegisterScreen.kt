@@ -102,7 +102,7 @@ fun RegisterScreenContent(
                             .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 2.dp)
                             .background(Color.White, RoundedCornerShape(12.dp))
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SolidBlack)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = SolidBlack)
                     }
                 }
                 

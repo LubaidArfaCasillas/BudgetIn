@@ -277,7 +277,7 @@ fun BalanceCard(
             .padding(24.dp)
     ) {
         Column {
-            Text("TOTAL BALANCE", style = MaterialTheme.typography.labelLarge, color = Color.White, fontWeight = FontWeight.Black)
+            Text("TOTAL SALDO", style = MaterialTheme.typography.labelLarge, color = Color.White, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(4.dp))
             Text(
                 formatCurrency(animBalance.toDouble()),

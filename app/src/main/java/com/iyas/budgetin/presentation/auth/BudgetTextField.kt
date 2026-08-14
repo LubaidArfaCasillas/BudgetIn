@@ -49,7 +49,7 @@ fun BudgetTextField(
                 IconButton(onClick = onTogglePasswordVisibility) {
                     Icon(
                         if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = "Toggle",
+                        contentDescription = "Tampilkan/Sembunyikan Sandi",
                         tint = SolidBlack,
                         modifier = Modifier.size(24.dp)
                     )

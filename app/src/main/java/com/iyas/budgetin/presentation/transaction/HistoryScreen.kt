@@ -269,7 +269,7 @@ fun HistoryScreenContent(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White, modifier = Modifier.size(24.dp))
+                                        Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.White, modifier = Modifier.size(24.dp))
                                         Text("Hapus", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
                                     }
                                 }
