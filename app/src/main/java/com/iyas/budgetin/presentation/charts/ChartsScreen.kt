@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -98,21 +99,54 @@ fun ChartsScreenContent(
                     ) {
                         Text("Grafik Keuangan", style = MaterialTheme.typography.headlineMedium, color = SolidBlack, fontWeight = FontWeight.Black)
                         // Year selector
+                        var expanded by remember { mutableStateOf(false) }
+
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(onClick = { onYearChange(uiState.selectedYear - 1) }) {
-                                Text("<", color = SolidBlack, fontWeight = FontWeight.Black, fontSize = 24.sp)
+                            if (uiState.selectedYear > 2000) {
+                                IconButton(onClick = { onYearChange(uiState.selectedYear - 1) }) {
+                                    Text("<", color = SolidBlack, fontWeight = FontWeight.Black, fontSize = 24.sp)
+                                }
+                            } else {
+                                Spacer(modifier = Modifier.width(48.dp))
                             }
-                            Text(
-                                uiState.selectedYear.toString(),
-                                color = SolidBlack,
-                                fontWeight = FontWeight.Black,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            IconButton(
-                                onClick = { onYearChange(uiState.selectedYear + 1) },
-                                enabled = uiState.selectedYear < currentYear
-                            ) {
-                                Text(">", color = if (uiState.selectedYear < currentYear) SolidBlack else TextSecondary, fontWeight = FontWeight.Black, fontSize = 24.sp)
+                            
+                            Box {
+                                Row(
+                                    modifier = Modifier.clickable { expanded = true }.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        uiState.selectedYear.toString(),
+                                        color = SolidBlack,
+                                        fontWeight = FontWeight.Black,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Pilih Tahun", tint = SolidBlack)
+                                }
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    for (year in currentYear downTo 2000) {
+                                        DropdownMenuItem(
+                                            text = { Text(year.toString(), fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Normal) },
+                                            onClick = {
+                                                onYearChange(year)
+                                                expanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            
+                            if (uiState.selectedYear < currentYear) {
+                                IconButton(
+                                    onClick = { onYearChange(uiState.selectedYear + 1) }
+                                ) {
+                                    Text(">", color = SolidBlack, fontWeight = FontWeight.Black, fontSize = 24.sp)
+                                }
+                            } else {
+                                Spacer(modifier = Modifier.width(48.dp))
                             }
                         }
                     }
