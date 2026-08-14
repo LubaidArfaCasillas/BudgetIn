@@ -34,13 +34,9 @@ import com.iyas.budgetin.presentation.home.BottomNavigationBar
 import com.iyas.budgetin.ui.theme.*
 import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.formatCurrency
+import com.iyas.budgetin.utils.getCategoryColor
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
-
-val CHART_COLORS = listOf(
-    NeoPink, NeoYellow, NeoPurple, NeoTeal,
-    ChartColor5, ChartColor6, ChartColor7, ChartColor8
-)
 
 @Composable
 fun ChartsScreen(
@@ -154,13 +150,13 @@ fun ChartsScreenContent(
                     item {
                         DonutChart(
                             data = uiState.expenseByCategory,
-                            colors = CHART_COLORS,
+                            colors = uiState.expenseByCategory.map { getCategoryColor(it.category) },
                             centerText = "Pengeluaran",
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
                         )
                     }
                     items(uiState.expenseByCategory.take(6)) { share ->
-                        CategoryLegendItem(share, CHART_COLORS[uiState.expenseByCategory.indexOf(share) % CHART_COLORS.size], isIncome = false)
+                        CategoryLegendItem(share, isIncome = false)
                     }
                 }
 
@@ -179,13 +175,13 @@ fun ChartsScreenContent(
                     item {
                         DonutChart(
                             data = uiState.incomeByCategory,
-                            colors = CHART_COLORS,
+                            colors = uiState.incomeByCategory.map { getCategoryColor(it.category) },
                             centerText = "Pemasukan",
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
                         )
                     }
                     items(uiState.incomeByCategory.take(6)) { share ->
-                        CategoryLegendItem(share, CHART_COLORS[uiState.incomeByCategory.indexOf(share) % CHART_COLORS.size], isIncome = true)
+                        CategoryLegendItem(share, isIncome = true)
                     }
                 }
 
@@ -391,7 +387,9 @@ fun MonthlyBarChart(
 }
 
 @Composable
-fun CategoryLegendItem(share: CategoryShare, color: Color, isIncome: Boolean = false) {
+fun CategoryLegendItem(share: CategoryShare, isIncome: Boolean = false) {
+    val cardColor = getCategoryColor(share.category)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -423,7 +421,7 @@ fun CategoryLegendItem(share: CategoryShare, color: Color, isIncome: Boolean = f
                     modifier = Modifier
                         .size(10.dp)
                         .border(1.dp, SolidBlack, CircleShape)
-                        .background(color, CircleShape)
+                        .background(cardColor, CircleShape)
                 )
                 Text(share.category, style = MaterialTheme.typography.titleMedium, color = SolidBlack, fontWeight = FontWeight.Black, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
