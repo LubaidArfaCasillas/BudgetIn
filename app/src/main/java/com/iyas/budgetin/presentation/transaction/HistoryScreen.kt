@@ -49,6 +49,7 @@ fun HistoryScreen(
         onNavigateToAccount = onNavigateToAccount,
         onSearchChange = viewModel::setSearch,
         onFilterChange = viewModel::setFilter,
+        onMonthYearChange = viewModel::setMonthYear,
         onDeleteTransaction = viewModel::deleteTransaction,
         onNavigateToEdit = onNavigateToEdit
     )
@@ -63,6 +64,7 @@ fun HistoryScreenContent(
     onNavigateToAccount: () -> Unit,
     onSearchChange: (String) -> Unit,
     onFilterChange: (FilterType) -> Unit,
+    onMonthYearChange: (Int, Int) -> Unit,
     onDeleteTransaction: (String) -> Unit,
     onNavigateToEdit: (String) -> Unit = {}
 ) {
@@ -119,7 +121,10 @@ fun HistoryScreenContent(
             contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 24.dp)
         ) {
             item {
-                Box(
+                val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+                val months = listOf("Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des")
+                
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.background)
@@ -131,6 +136,89 @@ fun HistoryScreenContent(
                         color = SolidBlack,
                         fontWeight = FontWeight.Black
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Bulan Dropdown
+                        var expandedMonth by remember { mutableStateOf(false) }
+                        Box(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
+                                    .background(Color.White, RoundedCornerShape(8.dp))
+                                    .clickable { expandedMonth = true }
+                                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    months[uiState.selectedMonth],
+                                    color = SolidBlack,
+                                    fontWeight = FontWeight.Black,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = SolidBlack)
+                            }
+                            DropdownMenu(
+                                expanded = expandedMonth,
+                                onDismissRequest = { expandedMonth = false },
+                                modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp))
+                            ) {
+                                months.forEachIndexed { index, monthName ->
+                                    DropdownMenuItem(
+                                        text = { Text(monthName, color = SolidBlack, fontWeight = if (index == uiState.selectedMonth) FontWeight.Black else FontWeight.Normal) },
+                                        onClick = {
+                                            onMonthYearChange(index, uiState.selectedYear)
+                                            expandedMonth = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        // Tahun Dropdown
+                        var expandedYear by remember { mutableStateOf(false) }
+                        Box(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
+                                    .background(Color.White, RoundedCornerShape(8.dp))
+                                    .clickable { expandedYear = true }
+                                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    uiState.selectedYear.toString(),
+                                    color = SolidBlack,
+                                    fontWeight = FontWeight.Black,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = SolidBlack)
+                            }
+                            DropdownMenu(
+                                expanded = expandedYear,
+                                onDismissRequest = { expandedYear = false },
+                                modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).heightIn(max = 300.dp)
+                            ) {
+                                for (year in currentYear downTo 2000) {
+                                    DropdownMenuItem(
+                                        text = { Text(year.toString(), color = SolidBlack, fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Normal) },
+                                        onClick = {
+                                            onMonthYearChange(uiState.selectedMonth, year)
+                                            expandedYear = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -232,57 +320,44 @@ fun HistoryScreenContent(
                     }
                 }
             } else {
-                // Group by month
-                val grouped = groupTransactionsByMonth(uiState.filteredTransactions)
-                grouped.forEach { (month, txList) ->
-                    item {
-                        Text(
-                            month,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = SolidBlack,
-                            fontWeight = FontWeight.Black,
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-                        )
-                    }
-                    items(txList, key = { it.id }) { transaction ->
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = { value ->
-                                if (value == SwipeToDismissBoxValue.EndToStart) {
-                                    showDeleteDialog = transaction
-                                }
-                                false
+                items(uiState.filteredTransactions, key = { it.id }) { transaction ->
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { value ->
+                            if (value == SwipeToDismissBoxValue.EndToStart) {
+                                showDeleteDialog = transaction
                             }
-                        )
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            backgroundContent = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = 20.dp, vertical = 6.dp)
-                                        .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp)
-                                        .background(ExpenseRed, RoundedCornerShape(16.dp)),
-                                    contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(end = 20.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.White, modifier = Modifier.size(24.dp))
-                                        Text("Hapus", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
-                                    }
-                                }
-                            },
-                            enableDismissFromStartToEnd = false,
-                            modifier = Modifier.animateItem()
-                        ) {
-                            TransactionItem(
-                                transaction = transaction,
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
-                                onClick = { onNavigateToEdit(transaction.id) }
-                            )
+                            false
                         }
+                    )
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 20.dp, vertical = 6.dp)
+                                    .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp)
+                                    .background(ExpenseRed, RoundedCornerShape(16.dp)),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(end = 20.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.White, modifier = Modifier.size(24.dp))
+                                    Text("Hapus", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                                }
+                            }
+                        },
+                        enableDismissFromStartToEnd = false,
+                        modifier = Modifier.animateItem()
+                    ) {
+                        TransactionItem(
+                            transaction = transaction,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
+                            onClick = { onNavigateToEdit(transaction.id) }
+                        )
                     }
                 }
             }
@@ -344,6 +419,8 @@ fun HistoryScreenPreview() {
             uiState = HistoryUiState(
                 allTransactions = sampleTransactions,
                 filteredTransactions = sampleTransactions,
+                selectedMonth = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH),
+                selectedYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR),
                 isLoading = false
             ),
             onNavigateToHome = {},
@@ -351,6 +428,7 @@ fun HistoryScreenPreview() {
             onNavigateToAccount = {},
             onSearchChange = {},
             onFilterChange = {},
+            onMonthYearChange = { _, _ -> },
             onDeleteTransaction = {}
         )
     }

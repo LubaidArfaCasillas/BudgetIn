@@ -18,6 +18,8 @@ data class HistoryUiState(
     val searchQuery: String = "",
     val filterType: FilterType = FilterType.ALL,
     val selectedCategory: String? = null,
+    val selectedMonth: Int = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH),
+    val selectedYear: Int = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR),
     val isLoading: Boolean = true,
     val error: String? = null
 )
@@ -117,7 +119,7 @@ class TransactionViewModel(
                 .catch { e -> _uiState.update { it.copy(isLoading = false, error = e.message) } }
                 .collect { transactions ->
                     _uiState.update { state ->
-                        val filtered = applyFilters(transactions, state.searchQuery, state.filterType, state.selectedCategory)
+                        val filtered = applyFilters(transactions, state.searchQuery, state.filterType, state.selectedCategory, state.selectedMonth, state.selectedYear)
                         state.copy(allTransactions = transactions, filteredTransactions = filtered, isLoading = false)
                     }
                 }
@@ -126,22 +128,29 @@ class TransactionViewModel(
 
     fun setSearch(query: String) {
         _uiState.update { state ->
-            val filtered = applyFilters(state.allTransactions, query, state.filterType, state.selectedCategory)
+            val filtered = applyFilters(state.allTransactions, query, state.filterType, state.selectedCategory, state.selectedMonth, state.selectedYear)
             state.copy(searchQuery = query, filteredTransactions = filtered)
         }
     }
 
     fun setFilter(filterType: FilterType) {
         _uiState.update { state ->
-            val filtered = applyFilters(state.allTransactions, state.searchQuery, filterType, state.selectedCategory)
+            val filtered = applyFilters(state.allTransactions, state.searchQuery, filterType, state.selectedCategory, state.selectedMonth, state.selectedYear)
             state.copy(filterType = filterType, filteredTransactions = filtered)
         }
     }
 
     fun setCategory(category: String?) {
         _uiState.update { state ->
-            val filtered = applyFilters(state.allTransactions, state.searchQuery, state.filterType, category)
+            val filtered = applyFilters(state.allTransactions, state.searchQuery, state.filterType, category, state.selectedMonth, state.selectedYear)
             state.copy(selectedCategory = category, filteredTransactions = filtered)
+        }
+    }
+
+    fun setMonthYear(month: Int, year: Int) {
+        _uiState.update { state ->
+            val filtered = applyFilters(state.allTransactions, state.searchQuery, state.filterType, state.selectedCategory, month, year)
+            state.copy(selectedMonth = month, selectedYear = year, filteredTransactions = filtered)
         }
     }
 
@@ -149,9 +158,15 @@ class TransactionViewModel(
         transactions: List<Transaction>,
         query: String,
         filterType: FilterType,
-        category: String?
+        category: String?,
+        month: Int,
+        year: Int
     ): List<Transaction> {
         return transactions
+            .filter { tx ->
+                val cal = java.util.Calendar.getInstance().apply { timeInMillis = tx.date }
+                cal.get(java.util.Calendar.MONTH) == month && cal.get(java.util.Calendar.YEAR) == year
+            }
             .filter { tx ->
                 when (filterType) {
                     FilterType.INCOME -> tx.type == TransactionType.INCOME
