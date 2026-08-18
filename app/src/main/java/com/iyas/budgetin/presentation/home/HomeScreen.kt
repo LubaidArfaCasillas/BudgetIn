@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -276,16 +277,33 @@ fun BalanceCard(
         modifier = modifier
             .fillMaxWidth()
             .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 8.dp)
-            .background(NeoPink, RoundedCornerShape(24.dp))
-            .padding(24.dp)
+            .background(NeoYellow, RoundedCornerShape(24.dp))
     ) {
-        Column {
-            Text("TOTAL SALDO", style = MaterialTheme.typography.labelLarge, color = Color.White, fontWeight = FontWeight.Black)
+        // Watermark logo "₿" dimiringkan 45°
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(24.dp)),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Text(
+                "₿",
+                fontSize = 160.sp,
+                color = SolidBlack.copy(alpha = 0.07f),
+                fontWeight = FontWeight.Black,
+                modifier = Modifier
+                    .offset(x = 20.dp, y = (-10).dp)
+                    .graphicsLayer { rotationZ = -45f }
+            )
+        }
+
+        Column(modifier = Modifier.padding(24.dp)) {
+            Text("TOTAL SALDO", style = MaterialTheme.typography.labelLarge, color = SolidBlack, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(4.dp))
             Text(
                 formatCurrency(animBalance.toDouble()),
                 style = MaterialTheme.typography.displayMedium,
-                color = Color.White,
+                color = SolidBlack,
                 fontWeight = FontWeight.Black
             )
             
@@ -323,7 +341,7 @@ fun BalanceStatCard(
     Box(
         modifier = modifier
             .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp)
-            .background(if(isIncome) NeoYellow else Color.White, RoundedCornerShape(16.dp))
+            .background(if(isIncome) IncomeGreen else ExpenseRed, RoundedCornerShape(16.dp))
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -334,17 +352,17 @@ fun BalanceStatCard(
                 modifier = Modifier
                     .size(32.dp)
                     .border(2.dp, SolidBlack, CircleShape)
-                    .background(if (isIncome) Color.White else NeoTeal, CircleShape),
+                    .background(Color.White, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(icon, fontSize = 16.sp, color = SolidBlack, fontWeight = FontWeight.Black)
+                Text(icon, fontSize = 16.sp, color = if (isIncome) IncomeGreen else ExpenseRed, fontWeight = FontWeight.Black)
             }
             Column {
-                Text(label, style = MaterialTheme.typography.labelSmall, color = SolidBlack, fontWeight = FontWeight.Bold)
+                Text(label, style = MaterialTheme.typography.labelSmall, color = Color.White, fontWeight = FontWeight.Bold)
                 Text(
                     formatCurrency(amount),
                     style = MaterialTheme.typography.bodySmall,
-                    color = SolidBlack,
+                    color = Color.White,
                     fontWeight = FontWeight.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
