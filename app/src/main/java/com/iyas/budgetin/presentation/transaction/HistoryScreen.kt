@@ -2,6 +2,7 @@ package com.iyas.budgetin.presentation.transaction
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,10 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.iyas.budgetin.R
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
 import com.iyas.budgetin.presentation.home.BottomNavigationBar
@@ -322,7 +325,11 @@ fun HistoryScreenContent(
                         modifier = Modifier.fillMaxWidth().padding(40.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("🔍", style = MaterialTheme.typography.displayMedium)
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_nothing_found),
+                            contentDescription = "Tidak ada transaksi",
+                            modifier = Modifier.size(64.dp)
+                        )
                         Spacer(Modifier.height(16.dp))
                         Text("Tidak ada transaksi", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
                         Text("Coba ubah filter atau kata kunci pencarian", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
