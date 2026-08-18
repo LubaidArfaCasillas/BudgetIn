@@ -3,6 +3,7 @@ package com.iyas.budgetin.presentation.charts
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,12 +26,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.iyas.budgetin.R
 import com.iyas.budgetin.presentation.home.BottomNavigationBar
 import com.iyas.budgetin.ui.theme.*
 import com.iyas.budgetin.ui.components.neoBrutalism
@@ -225,7 +228,11 @@ fun ChartsScreenContent(
                             modifier = Modifier.fillMaxWidth().padding(40.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("📊", style = MaterialTheme.typography.displayMedium)
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_empty_chart),
+                                contentDescription = "Belum ada data",
+                                modifier = Modifier.size(64.dp)
+                            )
                             Spacer(Modifier.height(12.dp))
                             Text("Belum ada data", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
                             Text("Tambahkan transaksi untuk melihat grafik", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, fontWeight = FontWeight.Bold)

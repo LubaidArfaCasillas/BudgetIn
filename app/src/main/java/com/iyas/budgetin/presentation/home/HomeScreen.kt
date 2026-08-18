@@ -2,6 +2,7 @@ package com.iyas.budgetin.presentation.home
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
+import com.iyas.budgetin.R
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
 import com.iyas.budgetin.ui.theme.*
@@ -430,7 +433,11 @@ fun EmptyTransactionCard(onAdd: () -> Unit) {
                 .padding(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("💸", fontSize = 64.sp)
+            Image(
+                painter = painterResource(id = R.drawable.ic_empty_wallet),
+                contentDescription = "Belum ada transaksi",
+                modifier = Modifier.size(64.dp)
+            )
             Spacer(Modifier.height(16.dp))
             Text("Belum ada transaksi", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black, textAlign = TextAlign.Center)
             Text("Tambahkan transaksi pertama Anda", style = MaterialTheme.typography.bodyMedium, color = TextSecondary, modifier = Modifier.padding(top = 4.dp), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
