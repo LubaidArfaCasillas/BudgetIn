@@ -217,7 +217,9 @@ fun HistoryScreenContent(
 
             // Month and Year Dropdowns
             item {
-                val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+                val cal = java.util.Calendar.getInstance()
+                val currentYear = cal.get(java.util.Calendar.YEAR)
+                val currentMonth = cal.get(java.util.Calendar.MONTH)
                 val months = listOf("Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des")
                 
                 Row(
@@ -254,13 +256,16 @@ fun HistoryScreenContent(
                             modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp))
                         ) {
                             months.forEachIndexed { index, monthName ->
-                                DropdownMenuItem(
-                                    text = { Text(monthName, color = SolidBlack, fontWeight = if (index == uiState.selectedMonth) FontWeight.Black else FontWeight.Normal) },
-                                    onClick = {
-                                        onMonthYearChange(index, uiState.selectedYear)
-                                        expandedMonth = false
-                                    }
-                                )
+                                val isEnabled = uiState.selectedYear < currentYear || (uiState.selectedYear == currentYear && index <= currentMonth)
+                                if (isEnabled) {
+                                    DropdownMenuItem(
+                                        text = { Text(monthName, color = SolidBlack, fontWeight = if (index == uiState.selectedMonth) FontWeight.Black else FontWeight.Normal) },
+                                        onClick = {
+                                            onMonthYearChange(index, uiState.selectedYear)
+                                            expandedMonth = false
+                                        }
+                                    )
+                                }
                             }
                         }
                     }

@@ -149,8 +149,13 @@ class TransactionViewModel(
 
     fun setMonthYear(month: Int, year: Int) {
         _uiState.update { state ->
-            val filtered = applyFilters(state.allTransactions, state.searchQuery, state.filterType, state.selectedCategory, month, year)
-            state.copy(selectedMonth = month, selectedYear = year, filteredTransactions = filtered)
+            val cal = java.util.Calendar.getInstance()
+            val currentYear = cal.get(java.util.Calendar.YEAR)
+            val currentMonth = cal.get(java.util.Calendar.MONTH)
+            val validMonth = if (year == currentYear && month > currentMonth) currentMonth else month
+
+            val filtered = applyFilters(state.allTransactions, state.searchQuery, state.filterType, state.selectedCategory, validMonth, year)
+            state.copy(selectedMonth = validMonth, selectedYear = year, filteredTransactions = filtered)
         }
     }
 
