@@ -295,7 +295,7 @@ fun DonutChart(
                     }
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(centerText, style = MaterialTheme.typography.labelSmall, color = TextSecondary, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
+                    Text(centerText, style = MaterialTheme.typography.labelSmall, color = SolidBlack, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
                     Text(
                         formatCurrency(data.sumOf { it.amount }),
                         style = MaterialTheme.typography.labelLarge,

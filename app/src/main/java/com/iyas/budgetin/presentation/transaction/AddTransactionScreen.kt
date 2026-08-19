@@ -947,7 +947,7 @@ fun TypeButton(
 ) {
     val color = if (isExpense) ExpenseRed else NeoTeal
     val bgColor = if (selected) color else Color.Transparent
-    val textColor = if (selected) if(isExpense) Color.White else SolidBlack else TextSecondary
+    val textColor = if (selected) SolidBlack else TextSecondary
 
     Box(
         modifier = modifier
