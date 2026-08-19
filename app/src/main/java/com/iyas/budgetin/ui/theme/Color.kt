@@ -7,6 +7,7 @@ val NeoPink = Color(0xFFD91656)
 val NeoYellow = Color(0xFFFFC107)
 val NeoPurple = Color(0xFF8A2BE2)
 val NeoTeal = Color(0xFF008080)
+val NeoBlue = Color(0xFF49F2ED) // Warna eksak untuk teks "denda"
 val SolidBlack = Color(0xFF000000)
 val OffWhite = Color(0xFFFFFBF0)
 

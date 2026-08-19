@@ -277,7 +277,7 @@ fun BalanceCard(
         modifier = modifier
             .fillMaxWidth()
             .neoBrutalism(cornerRadius = 24.dp, shadowOffset = 8.dp)
-            .background(NeoYellow, RoundedCornerShape(24.dp))
+            .background(NeoBlue, RoundedCornerShape(24.dp))
     ) {
         // Watermark logo "₿" dimiringkan 45°
         Box(
