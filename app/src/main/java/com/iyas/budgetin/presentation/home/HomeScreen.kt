@@ -62,7 +62,8 @@ fun HomeScreen(
         onNavigateToHistory = onNavigateToHistory,
         onNavigateToCharts = onNavigateToCharts,
         onNavigateToAccount = onNavigateToAccount,
-        onNavigateToEdit = onNavigateToEdit
+        onNavigateToEdit = onNavigateToEdit,
+        onToggleShowAll = homeViewModel::toggleShowAll
     )
 }
 
@@ -75,10 +76,9 @@ fun HomeScreenContent(
     onNavigateToHistory: () -> Unit,
     onNavigateToCharts: () -> Unit,
     onNavigateToAccount: () -> Unit,
-    onNavigateToEdit: (String) -> Unit = {}
+    onNavigateToEdit: (String) -> Unit = {},
+    onToggleShowAll: () -> Unit = {}
 ) {
-    val showAllThisMonth = remember { mutableStateOf(false) }
-
     val currentMonthTransactions = remember(uiState.transactions) {
         val currentCalendar = java.util.Calendar.getInstance()
         val currentMonth = currentCalendar.get(java.util.Calendar.MONTH)
@@ -184,8 +184,8 @@ fun HomeScreenContent(
                     EmptyTransactionCard(onNavigateToAdd)
                 }
             } else {
-                val displayedTransactions = if (showAllThisMonth.value) currentMonthTransactions else uiState.transactions.take(5)
-                val hasMoreTransactions = if (showAllThisMonth.value) false else uiState.transactions.size > 5
+                val displayedTransactions = if (uiState.showAllThisMonth) currentMonthTransactions else uiState.transactions.take(5)
+                val hasMoreTransactions = if (uiState.showAllThisMonth) false else uiState.transactions.size > 5
                 
                 // Jumlah kartu terakhir yang ikut memudar, supaya transisinya terasa lebih panjang
                 val fadeCount = if (hasMoreTransactions) minOf(2, displayedTransactions.size) else 0
@@ -233,19 +233,19 @@ fun HomeScreenContent(
 
                 item {
                     TextButton(
-                        onClick = { showAllThisMonth.value = !showAllThisMonth.value },
+                        onClick = onToggleShowAll,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = if (showAllThisMonth.value) "Tampilkan Sedikit" else "Lihat Semua",
+                                text = if (uiState.showAllThisMonth) "Tampilkan Sedikit" else "Lihat Semua",
                                 color = NeoPink,
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(Modifier.width(4.dp))
                             Icon(
-                                imageVector = if (showAllThisMonth.value) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                imageVector = if (uiState.showAllThisMonth) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                                 contentDescription = null,
                                 tint = NeoPink,
                                 modifier = Modifier.size(20.dp)

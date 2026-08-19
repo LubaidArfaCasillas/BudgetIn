@@ -14,7 +14,8 @@ data class HomeUiState(
     val totalIncome: Double = 0.0,
     val totalExpense: Double = 0.0,
     val isLoading: Boolean = true,
-    val error: String? = null
+    val error: String? = null,
+    val showAllThisMonth: Boolean = false
 )
 
 class HomeViewModel(
@@ -52,5 +53,9 @@ class HomeViewModel(
         viewModelScope.launch {
             repository.deleteTransaction(id)
         }
+    }
+
+    fun toggleShowAll() {
+        _uiState.update { it.copy(showAllThisMonth = !it.showAllThisMonth) }
     }
 }
