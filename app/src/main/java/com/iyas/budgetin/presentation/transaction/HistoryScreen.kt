@@ -183,7 +183,7 @@ fun HistoryScreenContent(
                             label = "Semua",
                             selected = uiState.filterType == FilterType.ALL,
                             onClick = { onFilterChange(FilterType.ALL) },
-                            color = NeoTeal
+                            color = NeoYellow
                         )
                     }
                     item {
@@ -191,7 +191,7 @@ fun HistoryScreenContent(
                             label = "Pemasukan",
                             selected = uiState.filterType == FilterType.INCOME,
                             onClick = { onFilterChange(FilterType.INCOME) },
-                            color = NeoYellow
+                            color = IncomeGreen
                         )
                     }
                     item {
@@ -199,7 +199,7 @@ fun HistoryScreenContent(
                             label = "Pengeluaran",
                             selected = uiState.filterType == FilterType.EXPENSE,
                             onClick = { onFilterChange(FilterType.EXPENSE) },
-                            color = NeoPurple
+                            color = ExpenseRed
                         )
                     }
                 }
@@ -213,8 +213,8 @@ fun HistoryScreenContent(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    MiniSummaryCard(label = "Pemasukan", amount = totalIn, color = NeoYellow, modifier = Modifier.weight(1f))
-                    MiniSummaryCard(label = "Pengeluaran", amount = totalOut, color = NeoPurple, modifier = Modifier.weight(1f))
+                    MiniSummaryCard(label = "Pemasukan", amount = totalIn, color = IncomeGreen, modifier = Modifier.weight(1f))
+                    MiniSummaryCard(label = "Pengeluaran", amount = totalOut, color = ExpenseRed, modifier = Modifier.weight(1f))
                 }
             }
 
