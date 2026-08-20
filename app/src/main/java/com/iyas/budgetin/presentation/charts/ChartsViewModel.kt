@@ -10,14 +10,15 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 data class CategoryShare(val category: String, val amount: Double, val percentage: Float)
-data class MonthlyData(val month: String, val monthIndex: Int, val income: Double, val expense: Double)
+data class ChartBarData(val label: String, val index: Int, val income: Double, val expense: Double)
 
 data class ChartsUiState(
     val transactions: List<Transaction> = emptyList(),
     val expenseByCategory: List<CategoryShare> = emptyList(),
     val incomeByCategory: List<CategoryShare> = emptyList(),
-    val monthlyData: List<MonthlyData> = emptyList(),
+    val chartData: List<ChartBarData> = emptyList(),
     val selectedYear: Int = Calendar.getInstance().get(Calendar.YEAR),
+    val selectedMonth: Int? = Calendar.getInstance().get(Calendar.MONTH),
     val isLoading: Boolean = true
 )
 
@@ -38,7 +39,7 @@ class ChartsViewModel(
                 .catch { _uiState.update { it.copy(isLoading = false) } }
                 .collect { transactions ->
                     _uiState.update { state ->
-                        computeCharts(transactions, state.selectedYear)
+                        computeCharts(transactions, state.selectedYear, state.selectedMonth)
                     }
                 }
         }
@@ -46,19 +47,27 @@ class ChartsViewModel(
 
     fun setYear(year: Int) {
         _uiState.update { state ->
-            computeCharts(state.transactions, year)
+            computeCharts(state.transactions, year, state.selectedMonth)
         }
     }
 
-    private fun computeCharts(transactions: List<Transaction>, year: Int): ChartsUiState {
+    fun setMonth(month: Int?) {
+        _uiState.update { state ->
+            computeCharts(state.transactions, state.selectedYear, month)
+        }
+    }
+
+    private fun computeCharts(transactions: List<Transaction>, year: Int, month: Int?): ChartsUiState {
         val calendar = Calendar.getInstance()
-        val yearlyTx = transactions.filter {
+        val periodTx = transactions.filter {
             calendar.time = Date(it.date)
-            calendar.get(Calendar.YEAR) == year
+            val txYear = calendar.get(Calendar.YEAR)
+            val txMonth = calendar.get(Calendar.MONTH)
+            txYear == year && (month == null || txMonth == month)
         }
 
         // Expense by category
-        val expGroups = yearlyTx
+        val expGroups = periodTx
             .filter { it.type == TransactionType.EXPENSE }
             .groupBy { it.category }
             .mapValues { it.value.sumOf { tx -> tx.amount } }
@@ -68,7 +77,7 @@ class ChartsViewModel(
         }.sortedByDescending { it.amount }
 
         // Income by category
-        val incGroups = yearlyTx
+        val incGroups = periodTx
             .filter { it.type == TransactionType.INCOME }
             .groupBy { it.category }
             .mapValues { it.value.sumOf { tx -> tx.amount } }
@@ -77,23 +86,40 @@ class ChartsViewModel(
             CategoryShare(cat, amt, if (totalInc > 0) (amt / totalInc * 100).toFloat() else 0f)
         }.sortedByDescending { it.amount }
 
-        // Monthly data
-        val monthlyData = (0..11).map { monthIndex ->
-            val monthTx = yearlyTx.filter {
-                calendar.time = Date(it.date)
-                calendar.get(Calendar.MONTH) == monthIndex
+        // Dynamic chart data
+        val chartData = if (month == null) {
+            (0..11).map { monthIndex ->
+                val monthTx = periodTx.filter {
+                    calendar.time = Date(it.date)
+                    calendar.get(Calendar.MONTH) == monthIndex
+                }
+                val income = monthTx.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
+                val expense = monthTx.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
+                ChartBarData(getMonthName(monthIndex), monthIndex, income, expense)
             }
-            val income = monthTx.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
-            val expense = monthTx.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
-            MonthlyData(getMonthName(monthIndex), monthIndex, income, expense)
+        } else {
+            calendar.set(Calendar.YEAR, year)
+            calendar.set(Calendar.MONTH, month)
+            val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            
+            (1..daysInMonth).map { day ->
+                val dayTx = periodTx.filter {
+                    calendar.time = Date(it.date)
+                    calendar.get(Calendar.DAY_OF_MONTH) == day
+                }
+                val income = dayTx.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
+                val expense = dayTx.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
+                ChartBarData(day.toString(), day, income, expense)
+            }
         }
 
         return ChartsUiState(
             transactions = transactions,
             expenseByCategory = expenseByCategory,
             incomeByCategory = incomeByCategory,
-            monthlyData = monthlyData,
+            chartData = chartData,
             selectedYear = year,
+            selectedMonth = month,
             isLoading = false
         )
     }

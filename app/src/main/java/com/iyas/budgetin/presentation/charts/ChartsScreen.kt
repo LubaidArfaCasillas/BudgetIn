@@ -42,6 +42,9 @@ import com.iyas.budgetin.utils.getCategoryColor
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+
 @Composable
 fun ChartsScreen(
     onNavigateToHome: () -> Unit,
@@ -56,7 +59,8 @@ fun ChartsScreen(
         onNavigateToHome = onNavigateToHome,
         onNavigateToHistory = onNavigateToHistory,
         onNavigateToAccount = onNavigateToAccount,
-        onYearChange = viewModel::setYear
+        onYearChange = viewModel::setYear,
+        onMonthChange = viewModel::setMonth
     )
 }
 
@@ -66,7 +70,8 @@ fun ChartsScreenContent(
     onNavigateToHome: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToAccount: () -> Unit,
-    onYearChange: (Int) -> Unit
+    onYearChange: (Int) -> Unit,
+    onMonthChange: (Int?) -> Unit
 ) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
@@ -100,55 +105,60 @@ fun ChartsScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("Grafik Keuangan", style = MaterialTheme.typography.headlineMedium, color = SolidBlack, fontWeight = FontWeight.Black)
-                        // Year selector
-                        var expanded by remember { mutableStateOf(false) }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (uiState.selectedYear > 2000) {
-                                IconButton(onClick = { onYearChange(uiState.selectedYear - 1) }) {
-                                    Text("<", color = SolidBlack, fontWeight = FontWeight.Black, fontSize = 24.sp)
-                                }
-                            } else {
-                                Spacer(modifier = Modifier.width(48.dp))
-                            }
-                            
+                        
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            // Month selector
+                            var monthExpanded by remember { mutableStateOf(false) }
                             Box {
+                                val monthText = if (uiState.selectedMonth == null) "Semua" else {
+                                    listOf("Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des")[uiState.selectedMonth]
+                                }
                                 Row(
-                                    modifier = Modifier.clickable { expanded = true }.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    modifier = Modifier.clickable { monthExpanded = true }.border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).background(Color.White, RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        uiState.selectedYear.toString(),
-                                        color = SolidBlack,
-                                        fontWeight = FontWeight.Black,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
+                                    Text(monthText, color = SolidBlack, fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleSmall)
                                 }
                                 DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false },
-                                    modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp))
+                                    expanded = monthExpanded,
+                                    onDismissRequest = { monthExpanded = false },
+                                    modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).heightIn(max = 300.dp)
                                 ) {
-                                    for (year in currentYear downTo 2000) {
+                                    DropdownMenuItem(
+                                        text = { Text("Semua Bulan", color = SolidBlack, fontWeight = if (uiState.selectedMonth == null) FontWeight.Black else FontWeight.Normal) },
+                                        onClick = { onMonthChange(null); monthExpanded = false }
+                                    )
+                                    val months = listOf("Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des")
+                                    months.forEachIndexed { index, m ->
                                         DropdownMenuItem(
-                                            text = { Text(year.toString(), color = SolidBlack, fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Normal) },
-                                            onClick = {
-                                                onYearChange(year)
-                                                expanded = false
-                                            }
+                                            text = { Text(m, color = SolidBlack, fontWeight = if (uiState.selectedMonth == index) FontWeight.Black else FontWeight.Normal) },
+                                            onClick = { onMonthChange(index); monthExpanded = false }
                                         )
                                     }
                                 }
                             }
-                            
-                            if (uiState.selectedYear < currentYear) {
-                                IconButton(
-                                    onClick = { onYearChange(uiState.selectedYear + 1) }
+
+                            // Year selector
+                            var yearExpanded by remember { mutableStateOf(false) }
+                            Box {
+                                Row(
+                                    modifier = Modifier.clickable { yearExpanded = true }.border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).background(Color.White, RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(">", color = SolidBlack, fontWeight = FontWeight.Black, fontSize = 24.sp)
+                                    Text(uiState.selectedYear.toString(), color = SolidBlack, fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleSmall)
                                 }
-                            } else {
-                                Spacer(modifier = Modifier.width(48.dp))
+                                DropdownMenu(
+                                    expanded = yearExpanded,
+                                    onDismissRequest = { yearExpanded = false },
+                                    modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).heightIn(max = 300.dp)
+                                ) {
+                                    for (year in currentYear downTo 2000) {
+                                        DropdownMenuItem(
+                                            text = { Text(year.toString(), color = SolidBlack, fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Normal) },
+                                            onClick = { onYearChange(year); yearExpanded = false }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -162,10 +172,10 @@ fun ChartsScreenContent(
                     }
                 }
             } else {
-                // Monthly bar chart
+                // Dynamic bar chart
                 item {
-                    MonthlyBarChart(
-                        monthlyData = uiState.monthlyData,
+                    DynamicBarChart(
+                        chartData = uiState.chartData,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 20.dp, vertical = 8.dp)
@@ -343,13 +353,13 @@ fun DonutChart(
 }
 
 @Composable
-fun MonthlyBarChart(
-    monthlyData: List<MonthlyData>,
+fun DynamicBarChart(
+    chartData: List<ChartBarData>,
     modifier: Modifier = Modifier
 ) {
-    val maxValue = monthlyData.maxOf { maxOf(it.income, it.expense) }.takeIf { it > 0 } ?: 1.0
+    val maxValue = chartData.maxOf { maxOf(it.income, it.expense) }.takeIf { it > 0 } ?: 1.0
     val animProgress = remember { Animatable(0f) }
-    LaunchedEffect(monthlyData) {
+    LaunchedEffect(chartData) {
         animProgress.snapTo(0f)
         animProgress.animateTo(1f, tween(800, easing = EaseOutCubic))
     }
@@ -360,7 +370,7 @@ fun MonthlyBarChart(
             .background(Color.White, RoundedCornerShape(24.dp))
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Text("Tren Bulanan", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
+            Text(if (chartData.size > 12) "Tren Harian" else "Tren Bulanan", style = MaterialTheme.typography.titleLarge, color = SolidBlack, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(6.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -376,63 +386,69 @@ fun MonthlyBarChart(
             Spacer(Modifier.height(24.dp))
 
             val chartHeight = 140.dp
-            val barWidth = 10.dp
+            val barWidth = if (chartData.size > 12) 6.dp else 10.dp
+            val isScrollable = chartData.size > 12
+            val scrollState = rememberScrollState()
 
-            Row(
-                modifier = Modifier.fillMaxWidth().height(chartHeight),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                monthlyData.forEach { monthData ->
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom
+            Box(modifier = Modifier.fillMaxWidth().then(if (isScrollable) Modifier.horizontalScroll(scrollState) else Modifier)) {
+                Column(modifier = if (isScrollable) Modifier.padding(horizontal = 8.dp) else Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = if (isScrollable) Modifier.height(chartHeight) else Modifier.fillMaxWidth().height(chartHeight),
+                        horizontalArrangement = if (isScrollable) Arrangement.spacedBy(6.dp) else Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.Bottom
                     ) {
-                        // income bar
-                        val incomeH = ((monthData.income / maxValue) * chartHeight.value * animProgress.value).dp
-                        Box(
-                            modifier = Modifier
-                                .width(barWidth)
-                                .height(incomeH.coerceAtLeast(2.dp))
-                                .border(1.dp, SolidBlack, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(IncomeGreen, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                        )
+                        chartData.forEach { data ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(2.dp), modifier = if (isScrollable) Modifier else Modifier.weight(1f)) {
+                                Column(
+                                    modifier = if (isScrollable) Modifier else Modifier.weight(1f),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Bottom
+                                ) {
+                                    val incomeH = ((data.income / maxValue) * chartHeight.value * animProgress.value).dp
+                                    Box(
+                                        modifier = Modifier
+                                            .width(barWidth)
+                                            .height(incomeH.coerceAtLeast(2.dp))
+                                            .border(1.dp, SolidBlack, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                            .background(IncomeGreen, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                    )
+                                }
+                                Column(
+                                    modifier = if (isScrollable) Modifier else Modifier.weight(1f),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Bottom
+                                ) {
+                                    val expH = ((data.expense / maxValue) * chartHeight.value * animProgress.value).dp
+                                    Box(
+                                        modifier = Modifier
+                                            .width(barWidth)
+                                            .height(expH.coerceAtLeast(2.dp))
+                                            .border(1.dp, SolidBlack, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                            .background(ExpenseRed, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                    )
+                                }
+                            }
+                        }
                     }
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom
+
+                    HorizontalDivider(color = SolidBlack, thickness = 2.dp, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+
+                    Row(
+                        modifier = if (isScrollable) Modifier.padding(top = 8.dp) else Modifier.fillMaxWidth().padding(top = 8.dp),
+                        horizontalArrangement = if (isScrollable) Arrangement.spacedBy(6.dp) else Arrangement.SpaceEvenly
                     ) {
-                        // expense bar
-                        val expH = ((monthData.expense / maxValue) * chartHeight.value * animProgress.value).dp
-                        Box(
-                            modifier = Modifier
-                                .width(barWidth)
-                                .height(expH.coerceAtLeast(2.dp))
-                                .border(1.dp, SolidBlack, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(ExpenseRed, RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                        )
+                        chartData.forEach { data ->
+                            Text(
+                                data.label,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = SolidBlack,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                modifier = if (isScrollable) Modifier.width((barWidth * 2) + 2.dp) else Modifier.weight(1f),
+                                fontSize = if (isScrollable) 8.sp else 9.sp
+                            )
+                        }
                     }
-                }
-            }
-
-            HorizontalDivider(color = SolidBlack, thickness = 2.dp, modifier = Modifier.padding(top = 4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                monthlyData.forEach { data ->
-                    Text(
-                        data.month,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = SolidBlack,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.weight(2f),
-                        fontSize = 9.sp
-                    )
                 }
             }
         }
@@ -491,9 +507,9 @@ fun CategoryLegendItem(share: CategoryShare, isIncome: Boolean = false) {
 fun ChartsScreenPreview() {
     val sampleMonthlyData = (0..11).map { i ->
         val months = listOf("Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des")
-        MonthlyData(
-            month = months[i],
-            monthIndex = i,
+        ChartBarData(
+            label = months[i],
+            index = i,
             income = listOf(5000000.0, 4500000.0, 6000000.0, 5500000.0, 7000000.0, 4000000.0, 5200000.0, 6500000.0, 5800000.0, 4800000.0, 5100000.0, 7500000.0)[i],
             expense = listOf(3000000.0, 3500000.0, 4000000.0, 2800000.0, 4500000.0, 3200000.0, 3800000.0, 4200000.0, 3600000.0, 3100000.0, 3900000.0, 5000000.0)[i]
         )
@@ -514,16 +530,18 @@ fun ChartsScreenPreview() {
     BudgetInTheme(darkTheme = false) {
         ChartsScreenContent(
             uiState = ChartsUiState(
-                monthlyData = sampleMonthlyData,
+                chartData = sampleMonthlyData,
                 expenseByCategory = sampleExpenseByCategory,
                 incomeByCategory = sampleIncomeByCategory,
                 selectedYear = 2026,
+                selectedMonth = null,
                 isLoading = false
             ),
             onNavigateToHome = {},
             onNavigateToHistory = {},
             onNavigateToAccount = {},
-            onYearChange = {}
+            onYearChange = {},
+            onMonthChange = {}
         )
     }
 }
