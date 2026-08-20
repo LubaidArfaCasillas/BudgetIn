@@ -12,10 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,6 +41,7 @@ import java.util.Calendar
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
 
 @Composable
 fun ChartsScreen(
@@ -94,74 +92,149 @@ fun ChartsScreenContent(
             contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 24.dp)
         ) {
             item {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.background)
-                        .padding(horizontal = 20.dp, vertical = 20.dp)
+                        .padding(horizontal = 20.dp, vertical = 16.dp)
                 ) {
+                    Text(
+                        "Grafik Keuangan",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = SolidBlack,
+                        fontWeight = FontWeight.Black
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    
+                    // Period Filter Dropdowns (Neo-Brutalism Selector)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Grafik Keuangan", style = MaterialTheme.typography.headlineMedium, color = SolidBlack, fontWeight = FontWeight.Black)
-                        
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            // Month selector
-                            var monthExpanded by remember { mutableStateOf(false) }
-                            Box {
-                                val monthText = if (uiState.selectedMonth == null) "Semua" else {
-                                    listOf("Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des")[uiState.selectedMonth]
-                                }
-                                Row(
-                                    modifier = Modifier.clickable { monthExpanded = true }.border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).background(Color.White, RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 6.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(monthText, color = SolidBlack, fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleSmall)
-                                }
-                                DropdownMenu(
-                                    expanded = monthExpanded,
-                                    onDismissRequest = { monthExpanded = false },
-                                    modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).heightIn(max = 300.dp)
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text("Semua Bulan", color = SolidBlack, fontWeight = if (uiState.selectedMonth == null) FontWeight.Black else FontWeight.Normal) },
-                                        onClick = { onMonthChange(null); monthExpanded = false }
+                        // Month selector
+                        var monthExpanded by remember { mutableStateOf(false) }
+                        Box(modifier = Modifier.weight(1f)) {
+                            val monthText = if (uiState.selectedMonth == null) "Semua Bulan" else {
+                                val fullMonths = listOf("Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember")
+                                fullMonths[uiState.selectedMonth]
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 3.dp)
+                                    .background(Color.White, RoundedCornerShape(12.dp))
+                                    .clickable { monthExpanded = true }
+                                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = null,
+                                        tint = SolidBlack,
+                                        modifier = Modifier.size(18.dp)
                                     )
-                                    val months = listOf("Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des")
-                                    months.forEachIndexed { index, m ->
-                                        val isEnabled = uiState.selectedYear < currentYear || (uiState.selectedYear == currentYear && index <= currentMonth)
-                                        if (isEnabled) {
-                                            DropdownMenuItem(
-                                                text = { Text(m, color = SolidBlack, fontWeight = if (uiState.selectedMonth == index) FontWeight.Black else FontWeight.Normal) },
-                                                onClick = { onMonthChange(index); monthExpanded = false }
-                                            )
-                                        }
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        monthText,
+                                        color = SolidBlack,
+                                        fontWeight = FontWeight.Black,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = SolidBlack,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = monthExpanded,
+                                onDismissRequest = { monthExpanded = false },
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
+                                    .heightIn(max = 320.dp)
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            "Semua Bulan",
+                                            color = if (uiState.selectedMonth == null) NeoPink else SolidBlack,
+                                            fontWeight = if (uiState.selectedMonth == null) FontWeight.Black else FontWeight.Bold
+                                        )
+                                    },
+                                    onClick = { onMonthChange(null); monthExpanded = false }
+                                )
+                                val fullMonths = listOf("Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember")
+                                fullMonths.forEachIndexed { index, m ->
+                                    val isEnabled = uiState.selectedYear < currentYear || (uiState.selectedYear == currentYear && index <= currentMonth)
+                                    if (isEnabled) {
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    m,
+                                                    color = if (uiState.selectedMonth == index) NeoPink else SolidBlack,
+                                                    fontWeight = if (uiState.selectedMonth == index) FontWeight.Black else FontWeight.Bold
+                                                )
+                                            },
+                                            onClick = { onMonthChange(index); monthExpanded = false }
+                                        )
                                     }
                                 }
                             }
+                        }
 
-                            // Year selector
-                            var yearExpanded by remember { mutableStateOf(false) }
-                            Box {
-                                Row(
-                                    modifier = Modifier.clickable { yearExpanded = true }.border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).background(Color.White, RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 6.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(uiState.selectedYear.toString(), color = SolidBlack, fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleSmall)
-                                }
-                                DropdownMenu(
-                                    expanded = yearExpanded,
-                                    onDismissRequest = { yearExpanded = false },
-                                    modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).heightIn(max = 300.dp)
-                                ) {
-                                    for (year in currentYear downTo 2000) {
-                                        DropdownMenuItem(
-                                            text = { Text(year.toString(), color = SolidBlack, fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Normal) },
-                                            onClick = { onYearChange(year); yearExpanded = false }
-                                        )
-                                    }
+                        // Year selector
+                        var yearExpanded by remember { mutableStateOf(false) }
+                        Box(modifier = Modifier.weight(0.7f)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 3.dp)
+                                    .background(Color.White, RoundedCornerShape(12.dp))
+                                    .clickable { yearExpanded = true }
+                                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    uiState.selectedYear.toString(),
+                                    color = SolidBlack,
+                                    fontWeight = FontWeight.Black,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = SolidBlack,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = yearExpanded,
+                                onDismissRequest = { yearExpanded = false },
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
+                                    .heightIn(max = 320.dp)
+                            ) {
+                                for (year in currentYear downTo 2000) {
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                year.toString(),
+                                                color = if (year == uiState.selectedYear) NeoPink else SolidBlack,
+                                                fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Bold
+                                            )
+                                        },
+                                        onClick = { onYearChange(year); yearExpanded = false }
+                                    )
                                 }
                             }
                         }
