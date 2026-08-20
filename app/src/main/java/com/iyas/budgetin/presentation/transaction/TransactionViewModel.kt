@@ -1,5 +1,6 @@
 package com.iyas.budgetin.presentation.transaction
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iyas.budgetin.data.model.Category
@@ -26,10 +27,25 @@ data class HistoryUiState(
 
 class TransactionViewModel(
     private val repository: TransactionRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HistoryUiState())
+    private val initialMonth = savedStateHandle.get<Int>("selectedMonth") ?: java.util.Calendar.getInstance().get(java.util.Calendar.MONTH)
+    private val initialYear = savedStateHandle.get<Int>("selectedYear") ?: java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+    private val initialFilter = savedStateHandle.get<String>("filterType")?.let {
+        runCatching { FilterType.valueOf(it) }.getOrNull()
+    } ?: FilterType.ALL
+    private val initialSearch = savedStateHandle.get<String>("searchQuery") ?: ""
+
+    private val _uiState = MutableStateFlow(
+        HistoryUiState(
+            selectedMonth = initialMonth,
+            selectedYear = initialYear,
+            filterType = initialFilter,
+            searchQuery = initialSearch
+        )
+    )
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
 
     // For add/edit
@@ -127,6 +143,7 @@ class TransactionViewModel(
     }
 
     fun setSearch(query: String) {
+        savedStateHandle["searchQuery"] = query
         _uiState.update { state ->
             val filtered = applyFilters(state.allTransactions, query, state.filterType, state.selectedCategory, state.selectedMonth, state.selectedYear)
             state.copy(searchQuery = query, filteredTransactions = filtered)
@@ -134,6 +151,7 @@ class TransactionViewModel(
     }
 
     fun setFilter(filterType: FilterType) {
+        savedStateHandle["filterType"] = filterType.name
         _uiState.update { state ->
             val filtered = applyFilters(state.allTransactions, state.searchQuery, filterType, state.selectedCategory, state.selectedMonth, state.selectedYear)
             state.copy(filterType = filterType, filteredTransactions = filtered)
@@ -148,12 +166,15 @@ class TransactionViewModel(
     }
 
     fun setMonthYear(month: Int, year: Int) {
-        _uiState.update { state ->
-            val cal = java.util.Calendar.getInstance()
-            val currentYear = cal.get(java.util.Calendar.YEAR)
-            val currentMonth = cal.get(java.util.Calendar.MONTH)
-            val validMonth = if (year == currentYear && month > currentMonth) currentMonth else month
+        val cal = java.util.Calendar.getInstance()
+        val currentYear = cal.get(java.util.Calendar.YEAR)
+        val currentMonth = cal.get(java.util.Calendar.MONTH)
+        val validMonth = if (year == currentYear && month > currentMonth) currentMonth else month
 
+        savedStateHandle["selectedMonth"] = validMonth
+        savedStateHandle["selectedYear"] = year
+
+        _uiState.update { state ->
             val filtered = applyFilters(state.allTransactions, state.searchQuery, state.filterType, state.selectedCategory, validMonth, year)
             state.copy(selectedMonth = validMonth, selectedYear = year, filteredTransactions = filtered)
         }

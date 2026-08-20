@@ -1,5 +1,6 @@
 package com.iyas.budgetin.presentation.charts
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iyas.budgetin.data.model.Transaction
@@ -23,10 +24,23 @@ data class ChartsUiState(
 )
 
 class ChartsViewModel(
-    private val repository: TransactionRepository
+    private val repository: TransactionRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ChartsUiState())
+    private val initialYear = savedStateHandle.get<Int>("selectedYear") ?: Calendar.getInstance().get(Calendar.YEAR)
+    private val initialMonth = if (savedStateHandle.contains("selectedMonth")) {
+        savedStateHandle.get<Int?>("selectedMonth")
+    } else {
+        Calendar.getInstance().get(Calendar.MONTH)
+    }
+
+    private val _uiState = MutableStateFlow(
+        ChartsUiState(
+            selectedYear = initialYear,
+            selectedMonth = initialMonth
+        )
+    )
     val uiState: StateFlow<ChartsUiState> = _uiState.asStateFlow()
 
     init {
@@ -46,12 +60,14 @@ class ChartsViewModel(
     }
 
     fun setYear(year: Int) {
+        savedStateHandle["selectedYear"] = year
         _uiState.update { state ->
             computeCharts(state.transactions, year, state.selectedMonth)
         }
     }
 
     fun setMonth(month: Int?) {
+        savedStateHandle["selectedMonth"] = month
         _uiState.update { state ->
             computeCharts(state.transactions, state.selectedYear, month)
         }

@@ -165,7 +165,7 @@ fun HomeScreenContent(
             item {
                 // Recent transactions header
                 Text(
-                    "Transaksi Terbaru",
+                    "Transaksi Bulan Ini",
                     style = MaterialTheme.typography.titleLarge,
                     color = SolidBlack,
                     fontWeight = FontWeight.Black,
@@ -179,13 +179,13 @@ fun HomeScreenContent(
                         CircularProgressIndicator(color = NeoPink, strokeWidth = 4.dp)
                     }
                 }
-            } else if (uiState.transactions.isEmpty()) {
+            } else if (currentMonthTransactions.isEmpty()) {
                 item {
                     EmptyTransactionCard(onNavigateToAdd)
                 }
             } else {
-                val displayedTransactions = if (uiState.showAllThisMonth) currentMonthTransactions else uiState.transactions.take(5)
-                val hasMoreTransactions = if (uiState.showAllThisMonth) false else uiState.transactions.size > 5
+                val displayedTransactions = if (uiState.showAllThisMonth) currentMonthTransactions else currentMonthTransactions.take(5)
+                val hasMoreTransactions = if (uiState.showAllThisMonth) false else currentMonthTransactions.size > 5
                 
                 // Jumlah kartu terakhir yang ikut memudar, supaya transisinya terasa lebih panjang
                 val fadeCount = if (hasMoreTransactions) minOf(2, displayedTransactions.size) else 0
@@ -231,25 +231,27 @@ fun HomeScreenContent(
                     }
                 }
 
-                item {
-                    TextButton(
-                        onClick = onToggleShowAll,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = if (uiState.showAllThisMonth) "Tampilkan Sedikit" else "Lihat Semua",
-                                color = NeoPink,
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(Modifier.width(4.dp))
-                            Icon(
-                                imageVector = if (uiState.showAllThisMonth) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                contentDescription = null,
-                                tint = NeoPink,
-                                modifier = Modifier.size(20.dp)
-                            )
+                if (currentMonthTransactions.size > 5) {
+                    item {
+                        TextButton(
+                            onClick = onToggleShowAll,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = if (uiState.showAllThisMonth) "Tampilkan Sedikit" else "Lihat Semua",
+                                    color = NeoPink,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Icon(
+                                    imageVector = if (uiState.showAllThisMonth) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                    contentDescription = null,
+                                    tint = NeoPink,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
                     }
                 }
