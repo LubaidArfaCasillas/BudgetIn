@@ -60,16 +60,37 @@ class ChartsViewModel(
     }
 
     fun setYear(year: Int) {
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+
+        val validMonth = if (year == currentYear && _uiState.value.selectedMonth != null && _uiState.value.selectedMonth!! > currentMonth) {
+            currentMonth
+        } else {
+            _uiState.value.selectedMonth
+        }
+
         savedStateHandle["selectedYear"] = year
+        savedStateHandle["selectedMonth"] = validMonth
         _uiState.update { state ->
-            computeCharts(state.transactions, year, state.selectedMonth)
+            computeCharts(state.transactions, year, validMonth)
         }
     }
 
     fun setMonth(month: Int?) {
-        savedStateHandle["selectedMonth"] = month
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+
+        val validMonth = if (_uiState.value.selectedYear == currentYear && month != null && month > currentMonth) {
+            currentMonth
+        } else {
+            month
+        }
+
+        savedStateHandle["selectedMonth"] = validMonth
         _uiState.update { state ->
-            computeCharts(state.transactions, state.selectedYear, month)
+            computeCharts(state.transactions, state.selectedYear, validMonth)
         }
     }
 

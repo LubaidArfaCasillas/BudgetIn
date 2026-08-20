@@ -74,6 +74,7 @@ fun ChartsScreenContent(
     onMonthChange: (Int?) -> Unit
 ) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+    val currentMonth = Calendar.getInstance().get(Calendar.MONTH)
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -130,10 +131,13 @@ fun ChartsScreenContent(
                                     )
                                     val months = listOf("Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des")
                                     months.forEachIndexed { index, m ->
-                                        DropdownMenuItem(
-                                            text = { Text(m, color = SolidBlack, fontWeight = if (uiState.selectedMonth == index) FontWeight.Black else FontWeight.Normal) },
-                                            onClick = { onMonthChange(index); monthExpanded = false }
-                                        )
+                                        val isEnabled = uiState.selectedYear < currentYear || (uiState.selectedYear == currentYear && index <= currentMonth)
+                                        if (isEnabled) {
+                                            DropdownMenuItem(
+                                                text = { Text(m, color = SolidBlack, fontWeight = if (uiState.selectedMonth == index) FontWeight.Black else FontWeight.Normal) },
+                                                onClick = { onMonthChange(index); monthExpanded = false }
+                                            )
+                                        }
                                     }
                                 }
                             }
