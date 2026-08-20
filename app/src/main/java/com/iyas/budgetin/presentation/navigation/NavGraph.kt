@@ -104,17 +104,23 @@ fun BudgetInNavGraph(
                 onNavigateToAdd = { navController.navigate(Screen.AddTransaction.route) },
                 onNavigateToHistory = {
                     navController.navigate(Screen.History.route) {
+                        popUpTo(Screen.Home.route) { saveState = true }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 onNavigateToCharts = {
                     navController.navigate(Screen.Charts.route) {
+                        popUpTo(Screen.Home.route) { saveState = true }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 onNavigateToAccount = {
                     navController.navigate(Screen.Account.route) {
+                        popUpTo(Screen.Home.route) { saveState = true }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 onNavigateToEdit = { id -> navController.navigate(Screen.EditTransaction.createRoute(id)) }
@@ -123,26 +129,80 @@ fun BudgetInNavGraph(
 
         composable(Screen.History.route) {
             HistoryScreen(
-                onNavigateToHome = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
-                onNavigateToCharts = { navController.navigate(Screen.Charts.route) { launchSingleTop = true } },
-                onNavigateToAccount = { navController.navigate(Screen.Account.route) { launchSingleTop = true } },
+                onNavigateToHome = { 
+                    navController.navigate(Screen.Home.route) { 
+                        popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    } 
+                },
+                onNavigateToCharts = { 
+                    navController.navigate(Screen.Charts.route) { 
+                        popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    } 
+                },
+                onNavigateToAccount = { 
+                    navController.navigate(Screen.Account.route) { 
+                        popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    } 
+                },
                 onNavigateToEdit = { id -> navController.navigate(Screen.EditTransaction.createRoute(id)) }
             )
         }
 
         composable(Screen.Charts.route) {
             ChartsScreen(
-                onNavigateToHome = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
-                onNavigateToHistory = { navController.navigate(Screen.History.route) { launchSingleTop = true } },
-                onNavigateToAccount = { navController.navigate(Screen.Account.route) { launchSingleTop = true } }
+                onNavigateToHome = { 
+                    navController.navigate(Screen.Home.route) { 
+                        popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    } 
+                },
+                onNavigateToHistory = { 
+                    navController.navigate(Screen.History.route) { 
+                        popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    } 
+                },
+                onNavigateToAccount = { 
+                    navController.navigate(Screen.Account.route) { 
+                        popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    } 
+                }
             )
         }
 
         composable(Screen.Account.route) {
             AccountScreen(
-                onNavigateToHome = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
-                onNavigateToHistory = { navController.navigate(Screen.History.route) { launchSingleTop = true } },
-                onNavigateToCharts = { navController.navigate(Screen.Charts.route) { launchSingleTop = true } },
+                onNavigateToHome = { 
+                    navController.navigate(Screen.Home.route) { 
+                        popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    } 
+                },
+                onNavigateToHistory = { 
+                    navController.navigate(Screen.History.route) { 
+                        popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    } 
+                },
+                onNavigateToCharts = { 
+                    navController.navigate(Screen.Charts.route) { 
+                        popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    } 
+                },
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(navController.graph.id) { inclusive = true }

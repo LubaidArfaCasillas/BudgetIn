@@ -1,5 +1,6 @@
 package com.iyas.budgetin.presentation.home
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iyas.budgetin.data.model.Transaction
@@ -19,10 +20,13 @@ data class HomeUiState(
 )
 
 class HomeViewModel(
-    private val repository: TransactionRepository
+    private val repository: TransactionRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
+    private val _uiState = MutableStateFlow(
+        HomeUiState(showAllThisMonth = savedStateHandle.get<Boolean>("showAllThisMonth") ?: false)
+    )
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
@@ -56,6 +60,8 @@ class HomeViewModel(
     }
 
     fun toggleShowAll() {
-        _uiState.update { it.copy(showAllThisMonth = !it.showAllThisMonth) }
+        val newValue = !_uiState.value.showAllThisMonth
+        savedStateHandle["showAllThisMonth"] = newValue
+        _uiState.update { it.copy(showAllThisMonth = newValue) }
     }
 }
