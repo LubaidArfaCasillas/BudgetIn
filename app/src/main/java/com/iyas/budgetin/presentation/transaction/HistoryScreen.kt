@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -223,46 +224,71 @@ fun HistoryScreenContent(
                 val cal = java.util.Calendar.getInstance()
                 val currentYear = cal.get(java.util.Calendar.YEAR)
                 val currentMonth = cal.get(java.util.Calendar.MONTH)
-                val months = listOf("Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des")
+                val fullMonths = listOf("Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember")
                 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Bulan Dropdown
+                    // Month Selector
                     var expandedMonth by remember { mutableStateOf(false) }
                     Box(modifier = Modifier.weight(1f)) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
-                                .background(Color.White, RoundedCornerShape(8.dp))
+                                .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 3.dp)
+                                .background(Color.White, RoundedCornerShape(12.dp))
                                 .clickable { expandedMonth = true }
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                months[uiState.selectedMonth],
-                                color = SolidBlack,
-                                fontWeight = FontWeight.Black,
-                                style = MaterialTheme.typography.titleMedium
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = null,
+                                    tint = SolidBlack,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    fullMonths[uiState.selectedMonth],
+                                    color = SolidBlack,
+                                    fontWeight = FontWeight.Black,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = null,
+                                tint = SolidBlack,
+                                modifier = Modifier.size(20.dp)
                             )
-                            Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = SolidBlack)
                         }
                         DropdownMenu(
                             expanded = expandedMonth,
                             onDismissRequest = { expandedMonth = false },
-                            modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp))
+                            modifier = Modifier
+                                .background(Color.White)
+                                .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
+                                .heightIn(max = 320.dp)
                         ) {
-                            months.forEachIndexed { index, monthName ->
+                            fullMonths.forEachIndexed { index, monthName ->
                                 val isEnabled = uiState.selectedYear < currentYear || (uiState.selectedYear == currentYear && index <= currentMonth)
                                 if (isEnabled) {
                                     DropdownMenuItem(
-                                        text = { Text(monthName, color = SolidBlack, fontWeight = if (index == uiState.selectedMonth) FontWeight.Black else FontWeight.Normal) },
+                                        text = {
+                                            Text(
+                                                monthName,
+                                                color = if (index == uiState.selectedMonth) NeoPink else SolidBlack,
+                                                fontWeight = if (index == uiState.selectedMonth) FontWeight.Black else FontWeight.Bold
+                                            )
+                                        },
                                         onClick = {
                                             onMonthYearChange(index, uiState.selectedYear)
                                             expandedMonth = false
@@ -273,16 +299,16 @@ fun HistoryScreenContent(
                         }
                     }
 
-                    // Tahun Dropdown
+                    // Year Selector
                     var expandedYear by remember { mutableStateOf(false) }
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box(modifier = Modifier.weight(0.7f)) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
-                                .background(Color.White, RoundedCornerShape(8.dp))
+                                .neoBrutalism(cornerRadius = 12.dp, shadowOffset = 3.dp)
+                                .background(Color.White, RoundedCornerShape(12.dp))
                                 .clickable { expandedYear = true }
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -290,18 +316,32 @@ fun HistoryScreenContent(
                                 uiState.selectedYear.toString(),
                                 color = SolidBlack,
                                 fontWeight = FontWeight.Black,
-                                style = MaterialTheme.typography.titleMedium
+                                style = MaterialTheme.typography.titleSmall
                             )
-                            Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = SolidBlack)
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = null,
+                                tint = SolidBlack,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
                         DropdownMenu(
                             expanded = expandedYear,
                             onDismissRequest = { expandedYear = false },
-                            modifier = Modifier.background(Color.White).border(2.dp, SolidBlack, RoundedCornerShape(8.dp)).heightIn(max = 300.dp)
+                            modifier = Modifier
+                                .background(Color.White)
+                                .border(2.dp, SolidBlack, RoundedCornerShape(12.dp))
+                                .heightIn(max = 320.dp)
                         ) {
                             for (year in currentYear downTo 2000) {
                                 DropdownMenuItem(
-                                    text = { Text(year.toString(), color = SolidBlack, fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Normal) },
+                                    text = {
+                                        Text(
+                                            year.toString(),
+                                            color = if (year == uiState.selectedYear) NeoPink else SolidBlack,
+                                            fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Bold
+                                        )
+                                    },
                                     onClick = {
                                         onMonthYearChange(uiState.selectedMonth, year)
                                         expandedYear = false
