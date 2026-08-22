@@ -479,7 +479,7 @@ fun AddTransactionScreenContent(
                         isError = newCategoryError != null,
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                            focusedBorderColor = if (selectedType == TransactionType.INCOME) IncomeGreen else ExpenseRed,
                             unfocusedBorderColor = SolidBlack,
                             focusedTextColor = SolidBlack,
                             unfocusedTextColor = SolidBlack,
@@ -519,7 +519,7 @@ fun AddTransactionScreenContent(
                     },
                     enabled = !isSavingCategory,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink
+                        containerColor = if (selectedType == TransactionType.INCOME) IncomeGreen else ExpenseRed
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
@@ -663,7 +663,7 @@ fun AddTransactionScreenContent(
                         Text(
                             "Rp",
                             style = MaterialTheme.typography.headlineMedium,
-                            color = if (selectedType == TransactionType.INCOME) NeoTeal else ExpenseRed,
+                            color = if (selectedType == TransactionType.INCOME) IncomeGreen else ExpenseRed,
                             fontWeight = FontWeight.Black,
                             modifier = Modifier.padding(end = 8.dp)
                         )
@@ -680,7 +680,7 @@ fun AddTransactionScreenContent(
                             singleLine = true,
                             isError = amountError,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = if (selectedType == TransactionType.INCOME) NeoTeal else ExpenseRed,
+                                focusedBorderColor = if (selectedType == TransactionType.INCOME) IncomeGreen else ExpenseRed,
                                 unfocusedBorderColor = SolidBlack,
                                 focusedTextColor = SolidBlack,
                                 unfocusedTextColor = SolidBlack,
@@ -744,7 +744,7 @@ fun AddTransactionScreenContent(
                                 .clickable { showAddCategoryDialog = true }
                                 .border(
                                     width = 2.dp,
-                                    color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                                    color = if (selectedType == TransactionType.INCOME) IncomeGreen else ExpenseRed,
                                     shape = RoundedCornerShape(14.dp)
                                 )
                         ) {
@@ -755,7 +755,7 @@ fun AddTransactionScreenContent(
                                 Text(
                                     "+ Tambah Kategori",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = if (selectedType == TransactionType.INCOME) NeoTeal else NeoPink,
+                                    color = if (selectedType == TransactionType.INCOME) IncomeGreen else ExpenseRed,
                                     textAlign = TextAlign.Center,
                                     maxLines = 1,
                                     fontWeight = FontWeight.Bold
@@ -891,7 +891,7 @@ fun AddTransactionScreenContent(
                     .height(56.dp)
                     .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = NeoTeal),
+                colors = ButtonDefaults.buttonColors(containerColor = IncomeGreen),
                 contentPadding = PaddingValues(0.dp),
                 enabled = !isSaving
             ) {
@@ -945,7 +945,7 @@ fun TypeButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    val color = if (isExpense) ExpenseRed else NeoTeal
+    val color = if (isExpense) ExpenseRed else IncomeGreen
     val bgColor = if (selected) color else Color.Transparent
     val textColor = if (selected) SolidBlack else TextSecondary
 
@@ -974,7 +974,7 @@ fun CategoryChip(
     type: TransactionType,
     onClick: () -> Unit
 ) {
-    val color = if (type == TransactionType.INCOME) NeoTeal else NeoPink
+    val color = if (type == TransactionType.INCOME) IncomeGreen else ExpenseRed
 
     Box(
         modifier = Modifier
