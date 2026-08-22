@@ -73,6 +73,8 @@ fun ChartsScreenContent(
 ) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
     val currentMonth = Calendar.getInstance().get(Calendar.MONTH)
+    var isExpenseCardsExpanded by remember { mutableStateOf(false) }
+    var isIncomeCardsExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -165,7 +167,7 @@ fun ChartsScreenContent(
                                     text = {
                                         Text(
                                             "Semua Bulan",
-                                            color = if (uiState.selectedMonth == null) NeoPink else SolidBlack,
+                                            color = if (uiState.selectedMonth == null) NeoTeal else SolidBlack,
                                             fontWeight = if (uiState.selectedMonth == null) FontWeight.Black else FontWeight.Bold
                                         )
                                     },
@@ -179,7 +181,7 @@ fun ChartsScreenContent(
                                             text = {
                                                 Text(
                                                     m,
-                                                    color = if (uiState.selectedMonth == index) NeoPink else SolidBlack,
+                                                    color = if (uiState.selectedMonth == index) NeoTeal else SolidBlack,
                                                     fontWeight = if (uiState.selectedMonth == index) FontWeight.Black else FontWeight.Bold
                                                 )
                                             },
@@ -229,7 +231,7 @@ fun ChartsScreenContent(
                                         text = {
                                             Text(
                                                 year.toString(),
-                                                color = if (year == uiState.selectedYear) NeoPink else SolidBlack,
+                                                color = if (year == uiState.selectedYear) NeoTeal else SolidBlack,
                                                 fontWeight = if (year == uiState.selectedYear) FontWeight.Black else FontWeight.Bold
                                             )
                                         },
@@ -245,7 +247,7 @@ fun ChartsScreenContent(
             if (uiState.isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = NeoPink, strokeWidth = 4.dp)
+                        CircularProgressIndicator(color = NeoTeal, strokeWidth = 4.dp)
                     }
                 }
             } else {
@@ -279,8 +281,30 @@ fun ChartsScreenContent(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
                         )
                     }
-                    items(uiState.expenseByCategory.take(6)) { share ->
+                    val expenseDisplay = if (isExpenseCardsExpanded) uiState.expenseByCategory else uiState.expenseByCategory.take(5)
+                    items(expenseDisplay) { share ->
                         CategoryLegendItem(share, isIncome = false)
+                    }
+                    if (uiState.expenseByCategory.size > 5) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp, vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = if (isExpenseCardsExpanded) "Sembunyikan" else "+ ${uiState.expenseByCategory.size - 5} lainnya",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = NeoTeal,
+                                    fontWeight = FontWeight.Black,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable { isExpenseCardsExpanded = !isExpenseCardsExpanded }
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -304,8 +328,30 @@ fun ChartsScreenContent(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
                         )
                     }
-                    items(uiState.incomeByCategory.take(6)) { share ->
+                    val incomeDisplay = if (isIncomeCardsExpanded) uiState.incomeByCategory else uiState.incomeByCategory.take(5)
+                    items(incomeDisplay) { share ->
                         CategoryLegendItem(share, isIncome = true)
+                    }
+                    if (uiState.incomeByCategory.size > 5) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp, vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = if (isIncomeCardsExpanded) "Sembunyikan" else "+ ${uiState.incomeByCategory.size - 5} lainnya",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = NeoTeal,
+                                    fontWeight = FontWeight.Black,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable { isIncomeCardsExpanded = !isIncomeCardsExpanded }
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -417,11 +463,12 @@ fun DonutChart(
                     Text(
                         text = if (isExpanded) "Sembunyikan" else "+ ${data.size - 5} lainnya",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
+                        color = NeoTeal,
+                        fontWeight = FontWeight.Black,
                         modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
                             .clickable { isExpanded = !isExpanded }
-                            .padding(vertical = 4.dp)
+                            .padding(vertical = 4.dp, horizontal = 2.dp)
                     )
                 }
             }
