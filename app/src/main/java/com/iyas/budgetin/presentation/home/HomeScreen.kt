@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -116,7 +118,11 @@ fun HomeScreenContent(
             )
         }
     ) { padding ->
+        val listState = rememberLazyListState()
+        val coroutineScope = rememberCoroutineScope()
+
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 // Hanya inset atas yang dipakai; bagian bawah dibiarkan agar
@@ -124,7 +130,7 @@ fun HomeScreenContent(
                 .padding(top = padding.calculateTopPadding()),
             contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 16.dp)
         ) {
-            item {
+            item(key = "header") {
                 // Header
                 Box(
                     modifier = Modifier
@@ -152,7 +158,7 @@ fun HomeScreenContent(
                 }
             }
 
-            item {
+            item(key = "balance_card") {
                 // Balance Card
                 BalanceCard(
                     balance = uiState.balance,
@@ -162,7 +168,7 @@ fun HomeScreenContent(
                 )
             }
 
-            item {
+            item(key = "transactions_header") {
                 // Recent transactions header
                 Text(
                     "Transaksi Bulan Ini",
@@ -174,55 +180,63 @@ fun HomeScreenContent(
             }
 
             if (uiState.isLoading) {
-                item {
+                item(key = "loading") {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = NeoPink, strokeWidth = 4.dp)
                     }
                 }
             } else if (currentMonthTransactions.isEmpty()) {
-                item {
+                item(key = "empty") {
                     EmptyTransactionCard(onNavigateToAdd)
                 }
             } else {
-                val displayedTransactions = if (uiState.showAllThisMonth) currentMonthTransactions else currentMonthTransactions.take(5)
-                val hasMoreTransactions = if (uiState.showAllThisMonth) false else currentMonthTransactions.size > 5
-                
-                // Jumlah kartu terakhir yang ikut memudar, supaya transisinya terasa lebih panjang
-                val fadeCount = if (hasMoreTransactions) minOf(2, displayedTransactions.size) else 0
-                val normalTransactions = displayedTransactions.dropLast(fadeCount)
+                val isExpanded = uiState.showAllThisMonth
+                val displayedTransactions = if (isExpanded) currentMonthTransactions else currentMonthTransactions.take(5)
+                val hasMoreTransactions = currentMonthTransactions.size > 5
 
-                items(normalTransactions) { transaction ->
-                    TransactionItem(
-                        transaction = transaction,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
-                        onClick = { onNavigateToEdit(transaction.id) }
+                itemsIndexed(
+                    items = displayedTransactions,
+                    key = { _, transaction -> transaction.id }
+                ) { index, transaction ->
+                    val isLastTwoWhenCollapsed = !isExpanded && hasMoreTransactions && index >= displayedTransactions.size - 2
+                    val fadeAlphaTarget = if (isLastTwoWhenCollapsed) {
+                        if (index == displayedTransactions.size - 1) 0.85f else 0.4f
+                    } else 0f
+
+                    val fadeAlpha by animateFloatAsState(
+                        targetValue = fadeAlphaTarget,
+                        animationSpec = tween(durationMillis = 300),
+                        label = "fade_alpha_${transaction.id}"
                     )
-                }
 
-                if (fadeCount > 0) {
-                    item {
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            Column {
-                                displayedTransactions.takeLast(fadeCount).forEach { transaction ->
-                                    TransactionItem(
-                                        transaction = transaction,
-                                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
-                                        onClick = { onNavigateToEdit(transaction.id) }
-                                    )
-                                }
-                            }
-                            // Beri efek fade di beberapa transaksi terakhir yang tampil agar
-                            // pengguna baru sadar masih ada transaksi lain di bawahnya
+                    Box(
+                        modifier = Modifier
+                            .animateItem()
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 6.dp)
+                    ) {
+                        TransactionItem(
+                            transaction = transaction,
+                            onClick = { onNavigateToEdit(transaction.id) }
+                        )
+
+                        if (fadeAlpha > 0.01f) {
                             Box(
                                 modifier = Modifier
                                     .matchParentSize()
-                                    .padding(horizontal = 20.dp, vertical = 6.dp)
                                     .background(
                                         Brush.verticalGradient(
-                                            colors = listOf(
-                                                Color.Transparent,
-                                                MaterialTheme.colorScheme.background.copy(alpha = 0.9f)
-                                            )
+                                            colors = if (index == displayedTransactions.size - 1) {
+                                                listOf(
+                                                    MaterialTheme.colorScheme.background.copy(alpha = fadeAlpha * 0.4f),
+                                                    MaterialTheme.colorScheme.background.copy(alpha = fadeAlpha)
+                                                )
+                                            } else {
+                                                listOf(
+                                                    Color.Transparent,
+                                                    MaterialTheme.colorScheme.background.copy(alpha = fadeAlpha)
+                                                )
+                                            }
                                         ),
                                         RoundedCornerShape(16.dp)
                                     )
@@ -231,33 +245,79 @@ fun HomeScreenContent(
                     }
                 }
 
-                if (currentMonthTransactions.size > 5) {
-                    item {
-                        TextButton(
-                            onClick = onToggleShowAll,
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp)
+                if (hasMoreTransactions) {
+                    item(key = "toggle_expand_button") {
+                        Box(
+                            modifier = Modifier
+                                .animateItem()
+                                .fillMaxWidth()
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = if (uiState.showAllThisMonth) "Tampilkan Sedikit" else "Lihat Semua",
-                                    color = NeoPink,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(Modifier.width(4.dp))
-                                Icon(
-                                    imageVector = if (uiState.showAllThisMonth) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                    contentDescription = null,
-                                    tint = NeoPink,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                            TextButton(
+                                onClick = {
+                                    if (uiState.showAllThisMonth) {
+                                        coroutineScope.launch {
+                                            if (listState.firstVisibleItemIndex > 0) {
+                                                listState.animateScrollToItem(0)
+                                            }
+                                        }
+                                    }
+                                    onToggleShowAll()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp, vertical = 4.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    AnimatedContent(
+                                        targetState = uiState.showAllThisMonth,
+                                        transitionSpec = {
+                                            (fadeIn(animationSpec = tween(220, delayMillis = 50)) +
+                                                    slideInVertically(animationSpec = tween(220)) { height -> height / 2 })
+                                                .togetherWith(
+                                                    fadeOut(animationSpec = tween(150)) +
+                                                            slideOutVertically(animationSpec = tween(150)) { height -> -height / 2 }
+                                                )
+                                        },
+                                        label = "toggle_text_anim"
+                                    ) { expanded ->
+                                        Text(
+                                            text = if (expanded) "Tampilkan Sedikit" else "Lihat Semua",
+                                            color = NeoPink,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    Spacer(Modifier.width(4.dp))
+                                    val arrowRotation by animateFloatAsState(
+                                        targetValue = if (uiState.showAllThisMonth) 180f else 0f,
+                                        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+                                        label = "arrow_rotation"
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowDown,
+                                        contentDescription = if (uiState.showAllThisMonth) "Tampilkan Sedikit" else "Lihat Semua",
+                                        tint = NeoPink,
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .graphicsLayer { rotationZ = arrowRotation }
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
 
-            item { Spacer(Modifier.height(80.dp)) }
+            item(key = "bottom_spacer") {
+                Spacer(
+                    modifier = Modifier
+                        .animateItem()
+                        .height(80.dp)
+                )
+            }
         }
     }
 }
