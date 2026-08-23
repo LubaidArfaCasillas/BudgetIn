@@ -431,7 +431,7 @@ fun TransactionItem(
             Text(
                 "${if (isIncome) "+" else "-"} ${formatCurrency(transaction.amount)}",
                 style = MaterialTheme.typography.titleMedium,
-                color = if (isIncome) SolidBlack else ExpenseRed,
+                color = if (isIncome) IncomeGreen else ExpenseRed,
                 fontWeight = FontWeight.Black
             )
         }
