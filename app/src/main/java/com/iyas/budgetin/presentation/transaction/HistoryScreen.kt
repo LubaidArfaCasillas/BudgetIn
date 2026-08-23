@@ -428,6 +428,12 @@ fun FilterChipItem(
     onClick: () -> Unit,
     color: Color
 ) {
+    val textColor = if (selected) {
+        if (color == NeoYellow) SolidBlack else Color.White
+    } else {
+        SolidBlack
+    }
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
@@ -438,7 +444,7 @@ fun FilterChipItem(
     ) {
         Text(
             label,
-            color = SolidBlack,
+            color = textColor,
             fontWeight = if (selected) FontWeight.Black else FontWeight.Bold,
             fontSize = 14.sp
         )
@@ -453,9 +459,9 @@ fun MiniSummaryCard(label: String, amount: Double, color: Color, modifier: Modif
             .background(color, RoundedCornerShape(16.dp))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(label, style = MaterialTheme.typography.labelMedium, color = SolidBlack, fontWeight = FontWeight.Bold)
+            Text(label, style = MaterialTheme.typography.labelMedium, color = Color.White, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
-            Text(formatCurrency(amount), style = MaterialTheme.typography.titleMedium, color = SolidBlack, fontWeight = FontWeight.Black)
+            Text(formatCurrency(amount), style = MaterialTheme.typography.titleMedium, color = Color.White, fontWeight = FontWeight.Black)
         }
     }
 }

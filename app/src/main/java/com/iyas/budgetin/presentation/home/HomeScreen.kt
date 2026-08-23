@@ -360,11 +360,11 @@ fun BalanceStatCard(
                 Text(icon, fontSize = 16.sp, color = if (isIncome) IncomeGreen else ExpenseRed, fontWeight = FontWeight.Black)
             }
             Column {
-                Text(label, style = MaterialTheme.typography.labelSmall, color = SolidBlack, fontWeight = FontWeight.Bold)
+                Text(label, style = MaterialTheme.typography.labelSmall, color = Color.White, fontWeight = FontWeight.Bold)
                 Text(
                     formatCurrency(amount),
                     style = MaterialTheme.typography.bodySmall,
-                    color = SolidBlack,
+                    color = Color.White,
                     fontWeight = FontWeight.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
