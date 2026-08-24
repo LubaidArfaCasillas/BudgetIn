@@ -18,7 +18,7 @@ val CardLight = Color.White
 
 // Income / Expense / Action
 val IncomeGreen = Color(0xFF10B981) 
-val ExpenseRed = Color(0xFFEF4444)  
+val ExpenseRed = Color(0xFFFF3B30)  
 val SaveGreen = Color(0xFF22C55E) // Hijau terang khusus tombol simpan/aksi  
 
 // Dark mode (optional, but keep it consistent for now)

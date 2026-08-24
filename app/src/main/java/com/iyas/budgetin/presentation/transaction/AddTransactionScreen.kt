@@ -947,7 +947,7 @@ fun TypeButton(
 ) {
     val color = if (isExpense) ExpenseRed else IncomeGreen
     val bgColor = if (selected) color else Color.Transparent
-    val textColor = if (selected) Color.White else TextSecondary
+    val textColor = if (selected) SolidBlack else TextSecondary
 
     Box(
         modifier = modifier
@@ -991,7 +991,7 @@ fun CategoryChip(
             Text(
                 category,
                 style = MaterialTheme.typography.labelSmall,
-                color = if (selected) Color.White else TextSecondary,
+                color = if (selected) SolidBlack else TextSecondary,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 fontWeight = if (selected) FontWeight.Black else FontWeight.Bold
