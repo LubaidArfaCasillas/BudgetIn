@@ -125,7 +125,7 @@ fun AccountScreenContent(
                         showLogoutDialog = false
                         onLogoutConfirmed()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = DestructiveRed),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
                 ) {
@@ -450,7 +450,7 @@ fun AccountScreenContent(
                         .height(56.dp)
                         .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = DestructiveRed),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Icon(

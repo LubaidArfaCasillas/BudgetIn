@@ -38,4 +38,3 @@ fun Modifier.neoBrutalism(
         color = borderColor,
         shape = RoundedCornerShape(cornerRadius)
     )
-

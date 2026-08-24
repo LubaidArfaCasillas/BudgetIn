@@ -87,7 +87,7 @@ fun HistoryScreenContent(
                         showDeleteDialog?.let { onDeleteTransaction(it.id) }
                         showDeleteDialog = null
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = DestructiveRed),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
                 ) {

@@ -211,7 +211,7 @@ fun AddTransactionScreenContent(
                         showDeleteDialog = false
                         onDeleteTransaction?.invoke()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = DestructiveRed),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
                 ) {
@@ -294,7 +294,7 @@ fun AddTransactionScreenContent(
                         showExitDialog = false
                         onNavigateBack()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = DestructiveRed),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
                 ) {
@@ -397,7 +397,7 @@ fun AddTransactionScreenContent(
                 Button(
                     onClick = { categoryToDelete?.let { onDeleteCategory(it.id) } },
                     enabled = !isDeletingCategory,
-                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = DestructiveRed),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
                 ) {
