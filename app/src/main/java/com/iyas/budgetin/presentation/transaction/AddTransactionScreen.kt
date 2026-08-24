@@ -298,7 +298,7 @@ fun AddTransactionScreenContent(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
                 ) {
-                    Text("Keluar", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Keluar", color = SolidBlack, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {

@@ -129,7 +129,7 @@ fun AccountScreenContent(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp)
                 ) {
-                    Text("Keluar", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Keluar", color = SolidBlack, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -457,14 +457,14 @@ fun AccountScreenContent(
                         Icons.AutoMirrored.Filled.Logout,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
-                        tint = Color.White
+                        tint = SolidBlack
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
                         "Keluar",
                         fontWeight = FontWeight.Black,
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color.White
+                        color = SolidBlack
                     )
                 }
 
