@@ -1,5 +1,6 @@
 package com.iyas.budgetin.presentation.charts
 
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -282,13 +283,25 @@ fun ChartsScreenContent(
                         )
                     }
                     val expenseDisplay = if (isExpenseCardsExpanded) uiState.expenseByCategory else uiState.expenseByCategory.take(5)
-                    items(expenseDisplay) { share ->
-                        CategoryLegendItem(share, isIncome = false)
+                    items(
+                        items = expenseDisplay,
+                        key = { "expense_${it.category}" }
+                    ) { share ->
+                        Box(
+                            modifier = Modifier.animateItem(
+                                fadeInSpec = tween(300, easing = FastOutSlowInEasing),
+                                placementSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
+                                fadeOutSpec = tween(250, easing = FastOutSlowInEasing)
+                            )
+                        ) {
+                            CategoryLegendItem(share, isIncome = false)
+                        }
                     }
                     if (uiState.expenseByCategory.size > 5) {
-                        item {
+                        item(key = "toggle_expense_legend") {
                             Box(
                                 modifier = Modifier
+                                    .animateItem()
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp, vertical = 4.dp),
                                 contentAlignment = Alignment.Center
@@ -329,13 +342,25 @@ fun ChartsScreenContent(
                         )
                     }
                     val incomeDisplay = if (isIncomeCardsExpanded) uiState.incomeByCategory else uiState.incomeByCategory.take(5)
-                    items(incomeDisplay) { share ->
-                        CategoryLegendItem(share, isIncome = true)
+                    items(
+                        items = incomeDisplay,
+                        key = { "income_${it.category}" }
+                    ) { share ->
+                        Box(
+                            modifier = Modifier.animateItem(
+                                fadeInSpec = tween(300, easing = FastOutSlowInEasing),
+                                placementSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
+                                fadeOutSpec = tween(250, easing = FastOutSlowInEasing)
+                            )
+                        ) {
+                            CategoryLegendItem(share, isIncome = true)
+                        }
                     }
                     if (uiState.incomeByCategory.size > 5) {
-                        item {
+                        item(key = "toggle_income_legend") {
                             Box(
                                 modifier = Modifier
+                                    .animateItem()
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp, vertical = 4.dp),
                                 contentAlignment = Alignment.Center
@@ -442,7 +467,7 @@ fun DonutChart(
 
             Spacer(Modifier.width(16.dp))
 
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.weight(1f).animateContentSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 val displayData = if (isExpanded) data else data.take(5)
                 
                 displayData.forEachIndexed { index, share ->

@@ -119,7 +119,10 @@ fun HomeScreenContent(
         }
     ) { padding ->
         val listState = rememberLazyListState()
-        val coroutineScope = rememberCoroutineScope()
+
+        val itemFadeInSpec = remember { tween<Float>(durationMillis = 300, easing = FastOutSlowInEasing) }
+        val itemPlacementSpec = remember { tween<androidx.compose.ui.unit.IntOffset>(durationMillis = 300, easing = FastOutSlowInEasing) }
+        val itemFadeOutSpec = remember { tween<Float>(durationMillis = 300, easing = FastOutSlowInEasing) }
 
         LazyColumn(
             state = listState,
@@ -205,13 +208,17 @@ fun HomeScreenContent(
 
                     val fadeAlpha by animateFloatAsState(
                         targetValue = fadeAlphaTarget,
-                        animationSpec = tween(durationMillis = 300),
+                        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
                         label = "fade_alpha_${transaction.id}"
                     )
 
                     Box(
                         modifier = Modifier
-                            .animateItem()
+                            .animateItem(
+                                fadeInSpec = itemFadeInSpec,
+                                placementSpec = itemPlacementSpec,
+                                fadeOutSpec = itemFadeOutSpec
+                            )
                             .fillMaxWidth()
                             .padding(horizontal = 20.dp, vertical = 6.dp)
                     ) {
@@ -249,20 +256,15 @@ fun HomeScreenContent(
                     item(key = "toggle_expand_button") {
                         Box(
                             modifier = Modifier
-                                .animateItem()
+                                .animateItem(
+                                    fadeInSpec = itemFadeInSpec,
+                                    placementSpec = itemPlacementSpec,
+                                    fadeOutSpec = itemFadeOutSpec
+                                )
                                 .fillMaxWidth()
                         ) {
                             TextButton(
-                                onClick = {
-                                    if (uiState.showAllThisMonth) {
-                                        coroutineScope.launch {
-                                            if (listState.firstVisibleItemIndex > 0) {
-                                                listState.animateScrollToItem(0)
-                                            }
-                                        }
-                                    }
-                                    onToggleShowAll()
-                                },
+                                onClick = onToggleShowAll,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp, vertical = 4.dp)
@@ -274,17 +276,13 @@ fun HomeScreenContent(
                                     AnimatedContent(
                                         targetState = uiState.showAllThisMonth,
                                         transitionSpec = {
-                                            (fadeIn(animationSpec = tween(220, delayMillis = 50)) +
-                                                    slideInVertically(animationSpec = tween(220)) { height -> height / 2 })
-                                                .togetherWith(
-                                                    fadeOut(animationSpec = tween(150)) +
-                                                            slideOutVertically(animationSpec = tween(150)) { height -> -height / 2 }
-                                                )
+                                            fadeIn(animationSpec = tween(250, easing = FastOutSlowInEasing))
+                                                .togetherWith(fadeOut(animationSpec = tween(200, easing = FastOutSlowInEasing)))
                                         },
                                         label = "toggle_text_anim"
                                     ) { expanded ->
                                         Text(
-                                            text = if (expanded) "Tampilkan Sedikit" else "Lihat Semua",
+                                            text = if (expanded) "Lihat Lebih Sedikit" else "Lihat Semua",
                                             color = NeoPink,
                                             style = MaterialTheme.typography.titleSmall,
                                             fontWeight = FontWeight.Bold
@@ -298,7 +296,7 @@ fun HomeScreenContent(
                                     )
                                     Icon(
                                         imageVector = Icons.Default.KeyboardArrowDown,
-                                        contentDescription = if (uiState.showAllThisMonth) "Tampilkan Sedikit" else "Lihat Semua",
+                                        contentDescription = if (uiState.showAllThisMonth) "Lihat Lebih Sedikit" else "Lihat Semua",
                                         tint = NeoPink,
                                         modifier = Modifier
                                             .size(20.dp)
@@ -314,7 +312,11 @@ fun HomeScreenContent(
             item(key = "bottom_spacer") {
                 Spacer(
                     modifier = Modifier
-                        .animateItem()
+                        .animateItem(
+                            fadeInSpec = itemFadeInSpec,
+                            placementSpec = itemPlacementSpec,
+                            fadeOutSpec = itemFadeOutSpec
+                        )
                         .height(80.dp)
                 )
             }
