@@ -2,6 +2,7 @@ package com.iyas.budgetin.presentation.home
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,8 +22,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -546,64 +550,152 @@ fun BottomNavigationBar(
     onChartsClick: () -> Unit,
     onAccountClick: () -> Unit
 ) {
-    // Area di sekeliling kartu sengaja dibiarkan transparan agar konten yang
-    // menggulir di belakangnya terpotong mengikuti lengkung kartu. Krem hanya
-    // diisikan pada strip di bawah kartu supaya konten tidak menyembul ke
-    // area tombol navigasi HP.
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                // bottom = 5dp menyediakan ruang tepat untuk bayangan kartu
-                .padding(start = 16.dp, end = 16.dp, bottom = 5.dp)
-                .neoBrutalism(cornerRadius = 20.dp, shadowOffset = 5.dp)
-                .background(Color.White, RoundedCornerShape(20.dp))
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                NavItem(
-                    icon = Icons.Default.Home,
-                    label = "Home",
-                    isSelected = currentRoute == "home",
-                    onClick = onHomeClick,
-                    activeColor = NeoPink
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val fadeDistance = 24.dp
+    val horizontalPadding = 16.dp
+    val cornerRadius = 20.dp
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        // Canvas dengan gradien melengkung yang memeluk bentuk sudut card navbar
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val fadePx = fadeDistance.toPx()
+            val padPx = horizontalPadding.toPx()
+            val radiusPx = cornerRadius.toPx()
+            val totalTopPx = fadePx
+
+            val cardLeft = padPx
+            val cardRight = size.width - padPx
+            val cxLeft = cardLeft + radiusPx
+            val cxRight = cardRight - radiusPx
+            val cy = totalTopPx + radiusPx
+
+            // 1. Solid base dari y = cy ke bawah (menutup seluruh lebar layar di area navbar & tombol HP)
+            drawRect(
+                color = backgroundColor,
+                topLeft = Offset(0f, cy),
+                size = Size(size.width, size.height - cy)
+            )
+
+            // 2. Solid rect di tengah antara cxLeft dan cxRight dari totalTopPx ke cy
+            drawRect(
+                color = backgroundColor,
+                topLeft = Offset(cxLeft, totalTopPx),
+                size = Size(cxRight - cxLeft, radiusPx)
+            )
+
+            // 3. Solid arc untuk sudut kiri atas & kanan atas kartu
+            drawArc(
+                color = backgroundColor,
+                startAngle = 180f,
+                sweepAngle = 90f,
+                useCenter = true,
+                topLeft = Offset(cardLeft, totalTopPx),
+                size = Size(radiusPx * 2, radiusPx * 2)
+            )
+            drawArc(
+                color = backgroundColor,
+                startAngle = 270f,
+                sweepAngle = 90f,
+                useCenter = true,
+                topLeft = Offset(cardRight - radiusPx * 2, totalTopPx),
+                size = Size(radiusPx * 2, radiusPx * 2)
+            )
+
+            // 4. Gradien vertikal di atas bagian tengah kartu (antara cxLeft dan cxRight)
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color.Transparent, backgroundColor),
+                    startY = 0f,
+                    endY = totalTopPx
+                ),
+                topLeft = Offset(cxLeft, 0f),
+                size = Size(cxRight - cxLeft, totalTopPx)
+            )
+
+            // 5. Gradien radial melengkung di sudut kiri atas kartu
+            val outerRadius = radiusPx + fadePx
+            val colorStops = arrayOf(
+                0f to backgroundColor,
+                (radiusPx / outerRadius) to backgroundColor,
+                1f to Color.Transparent
+            )
+
+            clipRect(left = 0f, top = 0f, right = cxLeft, bottom = cy) {
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colorStops = colorStops,
+                        center = Offset(cxLeft, cy),
+                        radius = outerRadius
+                    ),
+                    radius = outerRadius,
+                    center = Offset(cxLeft, cy)
                 )
-                NavItem(
-                    icon = Icons.Default.History,
-                    label = "Riwayat",
-                    isSelected = currentRoute == "history",
-                    onClick = onHistoryClick,
-                    activeColor = NeoYellow
-                )
-                NavItem(
-                    icon = Icons.Default.PieChart,
-                    label = "Grafik",
-                    isSelected = currentRoute == "charts",
-                    onClick = onChartsClick,
-                    activeColor = NeoTeal
-                )
-                NavItem(
-                    icon = Icons.Default.Person,
-                    label = "Akun",
-                    isSelected = currentRoute == "account",
-                    onClick = onAccountClick,
-                    activeColor = NeoPurple
+            }
+
+            // 6. Gradien radial melengkung di sudut kanan atas kartu
+            clipRect(left = cxRight, top = 0f, right = size.width, bottom = cy) {
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colorStops = colorStops,
+                        center = Offset(cxRight, cy),
+                        radius = outerRadius
+                    ),
+                    radius = outerRadius,
+                    center = Offset(cxRight, cy)
                 )
             }
         }
 
-        // Penutup krem di bawah kartu, sekaligus pengganjal tombol navigasi HP
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            Spacer(Modifier.height(10.dp))
+        // Konten navbar di atas Canvas
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Spacer(Modifier.height(fadeDistance))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    // bottom = 6dp menyediakan ruang tepat untuk bayangan kartu
+                    .padding(start = horizontalPadding, end = horizontalPadding, bottom = 6.dp)
+                    .neoBrutalism(cornerRadius = cornerRadius, shadowOffset = 5.dp)
+                    .background(Color.White, RoundedCornerShape(cornerRadius))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    NavItem(
+                        icon = Icons.Default.Home,
+                        label = "Home",
+                        isSelected = currentRoute == "home",
+                        onClick = onHomeClick,
+                        activeColor = NeoPink
+                    )
+                    NavItem(
+                        icon = Icons.Default.History,
+                        label = "Riwayat",
+                        isSelected = currentRoute == "history",
+                        onClick = onHistoryClick,
+                        activeColor = NeoYellow
+                    )
+                    NavItem(
+                        icon = Icons.Default.PieChart,
+                        label = "Grafik",
+                        isSelected = currentRoute == "charts",
+                        onClick = onChartsClick,
+                        activeColor = NeoTeal
+                    )
+                    NavItem(
+                        icon = Icons.Default.Person,
+                        label = "Akun",
+                        isSelected = currentRoute == "account",
+                        onClick = onAccountClick,
+                        activeColor = NeoPurple
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
     }
