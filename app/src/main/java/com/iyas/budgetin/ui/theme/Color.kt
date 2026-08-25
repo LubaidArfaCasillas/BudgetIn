@@ -17,10 +17,10 @@ val SurfaceLight = Color.White
 val CardLight = Color.White
 
 // Income / Expense / Action
-val IncomeGreen = Color(0xFF10B981) 
+val IncomeGreen = Color(0xFF00D26A) // Hijau segar & vibrant neo-brutalism
 val ExpenseRed = Color(0xFFFF5247) // Merah pengeluaran (di-boost agar seimbang dengan teks hitam)
 val DestructiveRed = ExpenseRed // Merah tombol aksi/keluar/hapus
-val SaveGreen = Color(0xFF22C55E) // Hijau terang khusus tombol simpan/aksi  
+val SaveGreen = IncomeGreen // Diselaraskan dengan IncomeGreen agar tidak belang  
 
 // Dark mode (optional, but keep it consistent for now)
 val BackgroundDark = Color(0xFF1E1E1E)
