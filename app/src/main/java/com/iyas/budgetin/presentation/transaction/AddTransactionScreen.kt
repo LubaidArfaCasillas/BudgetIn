@@ -891,7 +891,7 @@ fun AddTransactionScreenContent(
                     .height(56.dp)
                     .neoBrutalism(cornerRadius = 16.dp, shadowOffset = 4.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = NeoYellow),
+                colors = ButtonDefaults.buttonColors(containerColor = SaveGreen),
                 contentPadding = PaddingValues(0.dp),
                 enabled = !isSaving
             ) {

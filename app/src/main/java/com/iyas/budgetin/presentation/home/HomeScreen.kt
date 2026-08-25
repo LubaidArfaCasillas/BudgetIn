@@ -43,6 +43,7 @@ import com.iyas.budgetin.R
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
 import com.iyas.budgetin.ui.theme.*
+import com.iyas.budgetin.ui.components.AbstractNeoBackground
 import com.iyas.budgetin.ui.components.neoBrutalism
 import com.iyas.budgetin.utils.*
 import org.koin.androidx.compose.koinViewModel
@@ -59,10 +60,10 @@ fun HomeScreen(
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
     val auth = FirebaseAuth.getInstance()
-    val userEmail = auth.currentUser?.email ?: ""
-    val displayName = auth.currentUser?.displayName
-    val userName = (displayName.takeIf { !it.isNullOrBlank() } ?: userEmail.substringBefore("@"))
-        .replaceFirstChar { it.uppercase() }
+    val userName = remember {
+        val email = auth.currentUser?.email ?: "Pengguna"
+        email.substringBefore("@").replaceFirstChar { it.uppercase() }
+    }
 
     HomeScreenContent(
         uiState = uiState,
@@ -100,63 +101,44 @@ fun HomeScreenContent(
         }
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAdd,
-                containerColor = NeoPink,
-                contentColor = Color.White,
-                shape = RoundedCornerShape(18.dp),
-                modifier = Modifier
-                    .size(64.dp)
-                    .neoBrutalism(cornerRadius = 18.dp, shadowOffset = 4.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(32.dp), tint = SolidBlack)
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Latar Belakang Abstrak Neo-Brutalism
+        AbstractNeoBackground()
+
+        Scaffold(
+            containerColor = Color.Transparent,
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = onNavigateToAdd,
+                    containerColor = NeoPink,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(18.dp),
+                    modifier = Modifier
+                        .size(64.dp)
+                        .neoBrutalism(cornerRadius = 18.dp, shadowOffset = 4.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Tambah", modifier = Modifier.size(32.dp), tint = SolidBlack)
+                }
+            },
+            bottomBar = {
+                BottomNavigationBar(
+                    currentRoute = "home",
+                    onHomeClick = {},
+                    onHistoryClick = onNavigateToHistory,
+                    onChartsClick = onNavigateToCharts,
+                    onAccountClick = onNavigateToAccount
+                )
             }
-        },
-        bottomBar = {
-            BottomNavigationBar(
-                currentRoute = "home",
-                onHomeClick = {},
-                onHistoryClick = onNavigateToHistory,
-                onChartsClick = onNavigateToCharts,
-                onAccountClick = onNavigateToAccount
-            )
-        }
-    ) { padding ->
-        val listState = rememberLazyListState()
-        val bottomNavPadding = padding.calculateBottomPadding()
-        val backgroundColor = MaterialTheme.colorScheme.background
+        ) { padding ->
+            val listState = rememberLazyListState()
+            val bottomNavPadding = padding.calculateBottomPadding()
 
-        val itemFadeInSpec = remember { tween<Float>(durationMillis = 300, easing = FastOutSlowInEasing) }
-        val itemPlacementSpec = remember { tween<androidx.compose.ui.unit.IntOffset>(durationMillis = 300, easing = FastOutSlowInEasing) }
-        val itemFadeOutSpec = remember { tween<Float>(durationMillis = 300, easing = FastOutSlowInEasing) }
+            val itemFadeInSpec = remember { tween<Float>(durationMillis = 300, easing = FastOutSlowInEasing) }
+            val itemPlacementSpec = remember { tween<androidx.compose.ui.unit.IntOffset>(durationMillis = 300, easing = FastOutSlowInEasing) }
+            val itemFadeOutSpec = remember { tween<Float>(durationMillis = 300, easing = FastOutSlowInEasing) }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = padding.calculateTopPadding())
-        ) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = bottomNavPadding + 24.dp)
-            ) {
-                item(key = "header") {
-                    // Header
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(horizontal = 20.dp, vertical = 20.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                "Halo,",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = TextSecondary,
-                                fontWeight = FontWeight.Bold
+            Box(
+                modifier = Modifier
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
