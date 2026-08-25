@@ -132,6 +132,7 @@ fun HomeScreenContent(
         ) { padding ->
             val listState = rememberLazyListState()
             val bottomNavPadding = padding.calculateBottomPadding()
+            val backgroundColor = OffWhite
 
             val itemFadeInSpec = remember { tween<Float>(durationMillis = 300, easing = FastOutSlowInEasing) }
             val itemPlacementSpec = remember { tween<androidx.compose.ui.unit.IntOffset>(durationMillis = 300, easing = FastOutSlowInEasing) }
@@ -139,19 +140,40 @@ fun HomeScreenContent(
 
             Box(
                 modifier = Modifier
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                userName,
-                                style = MaterialTheme.typography.titleLarge,
-                                color = SolidBlack,
-                                fontWeight = FontWeight.Black,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                    .fillMaxSize()
+                    .padding(top = padding.calculateTopPadding())
+            ) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = bottomNavPadding + 24.dp)
+                ) {
+                    item(key = "header") {
+                        // Header
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp, vertical = 20.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    "Halo,",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = TextSecondary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    userName,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = SolidBlack,
+                                    fontWeight = FontWeight.Black,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
-                }
 
             item(key = "balance_card") {
                 // Balance Card
@@ -406,6 +428,7 @@ fun HomeScreenContent(
             }
         }
     }
+}
 }
 }
 
