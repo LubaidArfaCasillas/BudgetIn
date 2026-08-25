@@ -896,11 +896,11 @@ fun AddTransactionScreenContent(
                 enabled = !isSaving
             ) {
                 if (isSaving) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 3.dp)
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = SolidBlack, strokeWidth = 3.dp)
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Icon(Icons.Default.Save, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                        Text(saveButtonText, fontWeight = FontWeight.Black, color = Color.White, fontSize = 16.sp)
+                        Icon(Icons.Default.Save, contentDescription = null, tint = SolidBlack, modifier = Modifier.size(20.dp))
+                        Text(saveButtonText, fontWeight = FontWeight.Black, color = SolidBlack, fontSize = 16.sp)
                     }
                 }
             }
