@@ -17,7 +17,8 @@ data class AuthUiState(
     val error: String? = null,
     val isSuccess: Boolean = false,
     val isAccountDeleted: Boolean = false,
-    val isPasswordChanged: Boolean = false
+    val isPasswordChanged: Boolean = false,
+    val isNicknameUpdated: Boolean = false
 )
 
 class AuthViewModel(
@@ -168,6 +169,52 @@ class AuthViewModel(
                 _uiState.value = AuthUiState(error = msg)
             }
         }
+    }
+
+    fun updateNickname(nickname: String) {
+        val trimmed = nickname.trim()
+        if (trimmed.isBlank()) {
+            _uiState.value = _uiState.value.copy(error = "Nama panggilan tidak boleh kosong")
+            return
+        }
+        if (trimmed.length > 30) {
+            _uiState.value = _uiState.value.copy(error = "Nama panggilan maksimal 30 karakter")
+            return
+        }
+        val user = auth.currentUser
+        if (user == null) {
+            _uiState.value = _uiState.value.copy(error = "Tidak ada pengguna yang login")
+            return
+        }
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, isNicknameUpdated = false)
+            try {
+                val profileUpdates = userProfileChangeRequest {
+                    displayName = trimmed
+                }
+                user.updateProfile(profileUpdates).await()
+                user.reload().await()
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    isNicknameUpdated = true,
+                    error = null
+                )
+            } catch (e: Exception) {
+                val errorMsg = e.message ?: ""
+                val msg = when {
+                    errorMsg.contains("network", ignoreCase = true) -> "Koneksi gagal, periksa internet Anda"
+                    else -> "Gagal mengubah nama panggilan: $errorMsg"
+                }
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = msg
+                )
+            }
+        }
+    }
+
+    fun resetNicknameUpdated() {
+        _uiState.value = _uiState.value.copy(isNicknameUpdated = false)
     }
 
     fun clearError() {

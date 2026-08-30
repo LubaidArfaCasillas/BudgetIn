@@ -7,6 +7,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -72,7 +73,11 @@ fun AccountScreen(
         onChangePassword = { oldPw, newPw, confirmPw ->
             authViewModel.changePassword(oldPw, newPw, confirmPw)
         },
-        onClearError = authViewModel::clearError
+        onChangeNickname = { newNickname ->
+            authViewModel.updateNickname(newNickname)
+        },
+        onClearError = authViewModel::clearError,
+        onResetNicknameUpdated = authViewModel::resetNicknameUpdated
     )
 }
 
@@ -86,11 +91,15 @@ fun AccountScreenContent(
     onNavigateToCharts: () -> Unit,
     onLogoutConfirmed: () -> Unit,
     onChangePassword: (String, String, String) -> Unit,
-    onClearError: () -> Unit
+    onChangeNickname: (String) -> Unit,
+    onClearError: () -> Unit,
+    onResetNicknameUpdated: () -> Unit
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showChangePasswordDialog by remember { mutableStateOf(false) }
+    var showChangeNicknameDialog by remember { mutableStateOf(false) }
 
+    var newNickname by remember(userName) { mutableStateOf(userName) }
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmNewPassword by remember { mutableStateOf("") }
@@ -108,6 +117,14 @@ fun AccountScreenContent(
             newPassword = ""
             confirmNewPassword = ""
             onClearError()
+        }
+    }
+
+    LaunchedEffect(authUiState.isNicknameUpdated) {
+        if (authUiState.isNicknameUpdated) {
+            showChangeNicknameDialog = false
+            onClearError()
+            onResetNicknameUpdated()
         }
     }
 
@@ -271,6 +288,98 @@ fun AccountScreenContent(
         )
     }
 
+    // Change Nickname Dialog
+    if (showChangeNicknameDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showChangeNicknameDialog = false
+                newNickname = userName
+                onClearError()
+            },
+            containerColor = Color.White,
+            modifier = Modifier.neoBrutalism(cornerRadius = 16.dp, shadowOffset = 6.dp),
+            title = { Text("Ganti Nama Panggilan", color = SolidBlack, fontWeight = FontWeight.Black) },
+            text = {
+                Column {
+                    Text(
+                        "Masukkan nama panggilan atau username baru Anda.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = newNickname,
+                        onValueChange = {
+                            newNickname = it
+                            onClearError()
+                        },
+                        label = { Text("Nama Panggilan", fontWeight = FontWeight.Bold) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                tint = TextSecondary
+                            )
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = NeoPurple,
+                            unfocusedBorderColor = SolidBlack
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (authUiState.error != null) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            authUiState.error,
+                            color = ExpenseRed,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onChangeNickname(newNickname)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = NeoPurple),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.neoBrutalism(cornerRadius = 8.dp, shadowOffset = 2.dp),
+                    enabled = !authUiState.isLoading && newNickname.isNotBlank()
+                ) {
+                    if (authUiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Simpan", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        showChangeNicknameDialog = false
+                        newNickname = userName
+                        onClearError()
+                    },
+                    border = BorderStroke(2.dp, SolidBlack),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = SolidBlack),
+                    enabled = !authUiState.isLoading
+                ) {
+                    Text("Batal", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -338,14 +447,36 @@ fun AccountScreenContent(
                             )
                         }
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                userName,
-                                style = MaterialTheme.typography.titleLarge,
-                                color = Color.White,
-                                fontWeight = FontWeight.Black,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    userName,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Black,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f, fill = false)
+                                )
+                                IconButton(
+                                    onClick = {
+                                        newNickname = userName
+                                        showChangeNicknameDialog = true
+                                    },
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .background(Color.White.copy(alpha = 0.25f), CircleShape)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Edit,
+                                        contentDescription = "Ganti Nama Panggilan",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
                             Spacer(Modifier.height(4.dp))
                             Text(
                                 userEmail,
@@ -372,9 +503,14 @@ fun AccountScreenContent(
                     Column(modifier = Modifier.padding(8.dp)) {
                         AccountMenuItem(
                             icon = Icons.Default.Person,
-                            label = "Profil",
+                            label = "Nama Panggilan",
                             subtitle = userName,
-                            iconBgColor = NeoTeal
+                            iconBgColor = NeoTeal,
+                            onClick = {
+                                newNickname = userName
+                                showChangeNicknameDialog = true
+                            },
+                            trailingIcon = Icons.Default.Edit
                         )
                         HorizontalDivider(
                             modifier = Modifier.padding(horizontal = 16.dp),
@@ -479,12 +615,23 @@ fun AccountMenuItem(
     icon: ImageVector,
     label: String,
     subtitle: String,
-    iconBgColor: Color
+    iconBgColor: Color,
+    onClick: (() -> Unit)? = null,
+    trailingIcon: ImageVector? = null
 ) {
-    Row(
-        modifier = Modifier
+    val rowModifier = if (onClick != null) {
+        Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 14.dp),
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 14.dp)
+    } else {
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 14.dp)
+    }
+
+    Row(
+        modifier = rowModifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
@@ -513,6 +660,14 @@ fun AccountMenuItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
+        if (trailingIcon != null) {
+            Icon(
+                trailingIcon,
+                contentDescription = null,
+                tint = SolidBlack.copy(alpha = 0.6f),
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 
@@ -529,7 +684,9 @@ fun AccountScreenPreview() {
             onNavigateToCharts = {},
             onLogoutConfirmed = {},
             onChangePassword = { _, _, _ -> },
-            onClearError = {}
+            onChangeNickname = {},
+            onClearError = {},
+            onResetNicknameUpdated = {}
         )
     }
 }
