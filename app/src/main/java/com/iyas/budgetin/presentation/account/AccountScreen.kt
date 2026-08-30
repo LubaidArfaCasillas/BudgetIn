@@ -447,36 +447,14 @@ fun AccountScreenContent(
                             )
                         }
                         Column(modifier = Modifier.weight(1f)) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    userName,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Black,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f, fill = false)
-                                )
-                                IconButton(
-                                    onClick = {
-                                        newNickname = userName
-                                        showChangeNicknameDialog = true
-                                    },
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .background(Color.White.copy(alpha = 0.25f), CircleShape)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Edit,
-                                        contentDescription = "Ganti Nama Panggilan",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            }
+                            Text(
+                                userName,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = Color.White,
+                                fontWeight = FontWeight.Black,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                             Spacer(Modifier.height(4.dp))
                             Text(
                                 userEmail,
