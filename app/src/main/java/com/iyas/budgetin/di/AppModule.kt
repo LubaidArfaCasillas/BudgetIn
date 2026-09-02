@@ -13,10 +13,15 @@ import com.iyas.budgetin.presentation.auth.AuthViewModel
 import com.iyas.budgetin.presentation.charts.ChartsViewModel
 import com.iyas.budgetin.presentation.home.HomeViewModel
 import com.iyas.budgetin.presentation.transaction.TransactionViewModel
+import org.koin.android.ext.koin.androidContext
+import com.iyas.budgetin.data.preferences.AppPreferenceManager
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
+    // Preferences
+    single { AppPreferenceManager(androidContext()) }
+
     // Firebase instances
     single<FirebaseAuth> { Firebase.auth }
     single<FirebaseFirestore> { Firebase.firestore }
@@ -28,6 +33,6 @@ val appModule = module {
     // ViewModels
     viewModel { AuthViewModel(get()) }
     viewModel { HomeViewModel(get(), get()) }
-    viewModel { TransactionViewModel(get(), get(), get()) }
-    viewModel { ChartsViewModel(get(), get()) }
+    viewModel { TransactionViewModel(get(), get(), get(), get()) }
+    viewModel { ChartsViewModel(get(), get(), get()) }
 }

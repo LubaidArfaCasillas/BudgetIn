@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.iyas.budgetin.data.model.Category
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
+import com.iyas.budgetin.data.preferences.AppPreferenceManager
 import com.iyas.budgetin.domain.repository.CategoryRepository
 import com.iyas.budgetin.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.*
@@ -28,11 +29,12 @@ data class HistoryUiState(
 class TransactionViewModel(
     private val repository: TransactionRepository,
     private val categoryRepository: CategoryRepository,
+    private val preferenceManager: AppPreferenceManager,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val initialMonth = savedStateHandle.get<Int>("selectedMonth") ?: java.util.Calendar.getInstance().get(java.util.Calendar.MONTH)
-    private val initialYear = savedStateHandle.get<Int>("selectedYear") ?: java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+    private val initialMonth = savedStateHandle.get<Int>("selectedMonth") ?: preferenceManager.getHistorySelectedMonth()
+    private val initialYear = savedStateHandle.get<Int>("selectedYear") ?: preferenceManager.getHistorySelectedYear()
     private val initialFilter = savedStateHandle.get<String>("filterType")?.let {
         runCatching { FilterType.valueOf(it) }.getOrNull()
     } ?: FilterType.ALL
@@ -81,8 +83,22 @@ class TransactionViewModel(
     val categoryDeleteSuccess: StateFlow<Boolean> = _categoryDeleteSuccess.asStateFlow()
 
     init {
+        checkMonthRollover()
         loadTransactions()
         loadCategories()
+    }
+
+    fun checkMonthRollover() {
+        if (preferenceManager.checkAndSyncMonthRollover()) {
+            val newMonth = preferenceManager.getHistorySelectedMonth()
+            val newYear = preferenceManager.getHistorySelectedYear()
+            savedStateHandle["selectedMonth"] = newMonth
+            savedStateHandle["selectedYear"] = newYear
+            _uiState.update { state ->
+                val filtered = applyFilters(state.allTransactions, state.searchQuery, state.filterType, state.selectedCategory, newMonth, newYear)
+                state.copy(selectedMonth = newMonth, selectedYear = newYear, filteredTransactions = filtered)
+            }
+        }
     }
 
     private fun loadCategories() {
@@ -173,6 +189,8 @@ class TransactionViewModel(
 
         savedStateHandle["selectedMonth"] = validMonth
         savedStateHandle["selectedYear"] = year
+        preferenceManager.setHistorySelectedMonth(validMonth)
+        preferenceManager.setHistorySelectedYear(year)
 
         _uiState.update { state ->
             val filtered = applyFilters(state.allTransactions, state.searchQuery, state.filterType, state.selectedCategory, validMonth, year)

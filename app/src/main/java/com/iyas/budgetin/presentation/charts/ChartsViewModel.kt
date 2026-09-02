@@ -3,6 +3,7 @@ package com.iyas.budgetin.presentation.charts
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iyas.budgetin.data.preferences.AppPreferenceManager
 import com.iyas.budgetin.data.model.Transaction
 import com.iyas.budgetin.data.model.TransactionType
 import com.iyas.budgetin.domain.repository.TransactionRepository
@@ -25,14 +26,15 @@ data class ChartsUiState(
 
 class ChartsViewModel(
     private val repository: TransactionRepository,
+    private val preferenceManager: AppPreferenceManager,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val initialYear = savedStateHandle.get<Int>("selectedYear") ?: Calendar.getInstance().get(Calendar.YEAR)
+    private val initialYear = savedStateHandle.get<Int>("selectedYear") ?: preferenceManager.getChartsSelectedYear()
     private val initialMonth = if (savedStateHandle.contains("selectedMonth")) {
         savedStateHandle.get<Int?>("selectedMonth")
     } else {
-        Calendar.getInstance().get(Calendar.MONTH)
+        preferenceManager.getChartsSelectedMonth()
     }
 
     private val _uiState = MutableStateFlow(
@@ -44,7 +46,20 @@ class ChartsViewModel(
     val uiState: StateFlow<ChartsUiState> = _uiState.asStateFlow()
 
     init {
+        checkMonthRollover()
         loadData()
+    }
+
+    fun checkMonthRollover() {
+        if (preferenceManager.checkAndSyncMonthRollover()) {
+            val newMonth = preferenceManager.getChartsSelectedMonth()
+            val newYear = preferenceManager.getChartsSelectedYear()
+            savedStateHandle["selectedMonth"] = newMonth
+            savedStateHandle["selectedYear"] = newYear
+            _uiState.update { state ->
+                computeCharts(state.transactions, newYear, newMonth)
+            }
+        }
     }
 
     private fun loadData() {
@@ -72,6 +87,8 @@ class ChartsViewModel(
 
         savedStateHandle["selectedYear"] = year
         savedStateHandle["selectedMonth"] = validMonth
+        preferenceManager.setChartsSelectedYear(year)
+        preferenceManager.setChartsSelectedMonth(validMonth)
         _uiState.update { state ->
             computeCharts(state.transactions, year, validMonth)
         }
@@ -89,6 +106,7 @@ class ChartsViewModel(
         }
 
         savedStateHandle["selectedMonth"] = validMonth
+        preferenceManager.setChartsSelectedMonth(validMonth)
         _uiState.update { state ->
             computeCharts(state.transactions, state.selectedYear, validMonth)
         }

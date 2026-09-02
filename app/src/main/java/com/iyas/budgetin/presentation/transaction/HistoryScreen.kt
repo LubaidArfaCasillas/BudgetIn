@@ -46,6 +46,10 @@ fun HistoryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.checkMonthRollover()
+    }
+
     HistoryScreenContent(
         uiState = uiState,
         onNavigateToHome = onNavigateToHome,
