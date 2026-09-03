@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -837,6 +838,9 @@ fun AddTransactionScreenContent(
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Catatan (opsional)", color = TextSecondary, fontWeight = FontWeight.Bold) },
                         leadingIcon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null, tint = SolidBlack, modifier = Modifier.size(20.dp)) },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
                         maxLines = 3,
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
