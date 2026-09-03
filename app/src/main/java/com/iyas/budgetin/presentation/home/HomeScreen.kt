@@ -656,12 +656,21 @@ fun TransactionItem(
                     )
                 }
             }
-            Text(
-                "${if (isIncome) "+" else "-"} ${formatCurrency(transaction.amount)}",
-                style = MaterialTheme.typography.titleMedium,
-                color = if (isIncome) IncomeGreen else ExpenseRed,
-                fontWeight = FontWeight.Black
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    "${if (isIncome) "+" else "-"} ${formatCurrency(transaction.amount)}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (isIncome) IncomeGreen else ExpenseRed,
+                    fontWeight = FontWeight.Black
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    formatDate(transaction.date),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
